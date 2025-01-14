@@ -1,0 +1,9 @@
+deployAs:
+  - name: ingrid-service
+    applicationType: service
+    endpoint: /service
+    configuration:
+      standardConfiguration: []
+      securedConfiguration:
+        - key: AUTH_KEY
+          description: the key used to connect to the Ingrid instance
