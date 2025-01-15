@@ -1,9 +1,24 @@
 deployAs:
-  - name: ingrid-service
+  - name: enabler
     applicationType: service
-    endpoint: /service
+    endpoint: /
     configuration:
-      standardConfiguration: []
+      standardConfiguration:
+        - key: REACT_APP_BACKEND_URL
+          description: processor api url
+          required: true
+  - name: processor
+    applicationType: service
+    endpoint: /
+    configuration:
+      standardConfiguration:
+        - key: INGRID_API_URL
+          description: ingrid api url
+          required: true
+        - key: ENABLER_HOST
+          description: enabler host with http
+          required: true
       securedConfiguration:
-        - key: AUTH_KEY
-          description: the key used to connect to the Ingrid instance
+        - key: INGRID_API_KEY
+          description: ingrid api key
+          required: true
