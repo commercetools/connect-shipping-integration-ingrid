@@ -28,6 +28,8 @@ deployAs:
           required: true
           default: https://session.europe-west1.gcp.commercetools.com
       securedConfiguration:
+        - key: AUTH_KEY
+          description: the key used to connect to the Ingrid instance
         - key: CTP_CLIENT_SECRET
           description: commercetools client secret
           required: true
