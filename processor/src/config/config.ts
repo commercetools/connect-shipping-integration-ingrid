@@ -1,4 +1,4 @@
-export const config = {
+const config = {
   // Required by Payment SDK
   projectKey: process.env.CTP_PROJECT_KEY || 'projectKey',
   clientId: process.env.CTP_CLIENT_ID || 'xxx',
