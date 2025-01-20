@@ -1,9 +1,10 @@
 import { CommercetoolsApiClient } from '../clients/api.client';
+import { IngridApiClient } from '../clients/ingrid.client';
 import { AbstractShippingService } from './abstract-shipping.service';
 
 export class IngridShippingService extends AbstractShippingService {
-  constructor(commercetoolsClient: CommercetoolsApiClient) {
-    super(commercetoolsClient);
+  constructor(commercetoolsClient: CommercetoolsApiClient, ingridClient: IngridApiClient) {
+    super(commercetoolsClient, ingridClient);
   }
 
   /**

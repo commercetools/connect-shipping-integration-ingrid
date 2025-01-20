@@ -1,10 +1,13 @@
 import { CommercetoolsApiClient } from '../clients/api.client';
+import { IngridApiClient } from '../clients/ingrid.client';
 
 export abstract class AbstractShippingService {
   protected commercetoolsApiClient: CommercetoolsApiClient;
+  protected ingridClient: IngridApiClient;
 
-  protected constructor(commercetoolsApiClient: CommercetoolsApiClient) {
+  protected constructor(commercetoolsApiClient: CommercetoolsApiClient, ingridClient: IngridApiClient) {
     this.commercetoolsApiClient = commercetoolsApiClient;
+    this.ingridClient = ingridClient;
   }
 
   /**
