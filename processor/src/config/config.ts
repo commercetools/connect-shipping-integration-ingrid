@@ -13,9 +13,6 @@ const config = {
   // Required by Ingrid
   ingridApiKey: process.env.INGRID_API_KEY || 'xxx',
   ingridApiUrl: process.env.INGRID_API_URL || 'https://api-stage.ingrid.com/v1/delivery_checkout',
-
-  // Ingrid config
-  /**  TODO : Add Ingrid-related env-var to config **/
 };
 export const getConfig = () => {
   return config;
