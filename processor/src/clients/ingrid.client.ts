@@ -33,7 +33,7 @@ export class IngridApiClient extends AbstractIngridClient {
 
   public async pullCheckoutSession(checkout_session_id: string) {
     try {
-      const response = await this.client.get(`/session.pull/${checkout_session_id}`);
+      const response = await this.client.get(`/session.pull?checkout_session_id=${checkout_session_id}`);
       return response.data as IngridSession;
     } catch (error) {
       if (error instanceof axios.AxiosError) {
