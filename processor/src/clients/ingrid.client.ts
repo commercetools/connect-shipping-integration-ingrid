@@ -30,19 +30,6 @@ export class IngridApiClient implements AbstractIngridClient {
     }
   }
 
-  public async getCheckoutSession(checkout_session_id: string) {
-    try {
-      const response = await this.client.get(`/session.get?checkout_session_id=${checkout_session_id}`);
-      return response.data as IngridSession;
-    } catch (error) {
-      if (error instanceof axios.AxiosError) {
-        throw new Error(error.response?.data || 'Error getting Ingrid session');
-      } else {
-        throw new Error('An unexpected error occurred');
-      }
-    }
-  }
-
   public async pullCheckoutSession(checkout_session_id: string) {
     try {
       const response = await this.client.get(`/session.pull?checkout_session_id=${checkout_session_id}`);
@@ -56,6 +43,18 @@ export class IngridApiClient implements AbstractIngridClient {
     }
   }
 
+  public async getCheckoutSession(checkout_session_id: string) {
+    try {
+      const response = await this.client.get(`/session.get?checkout_session_id=${checkout_session_id}`);
+      return response.data as IngridSession;
+    } catch (error) {
+      if (error instanceof axios.AxiosError) {
+        throw new Error(error.response?.data || 'Error getting Ingrid session');
+      } else {
+        throw new Error('An unexpected error occurred');
+      }
+    }
+  }
   public async updateCheckoutSession(payload: IngridUpdateSessionRequestPayload) {
     try {
       const response = await this.client.post('/session.update', payload);
