@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  processor:
+    image: node:20
+    volumes:
+      - ./processor:/home/node/app
+    working_dir: /home/node/app
+    env_file:
+      - ./processor/.env
+    command: /bin/sh -c 'npm install && npm run watch'
+    ports:
+      - 8080:8080
