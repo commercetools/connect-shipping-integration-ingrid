@@ -26,9 +26,10 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
         },
       },
     },
+
     async (request, reply) => {
-      await opts.shippingService.init();
-      return reply.status(200).send({ result: 'OK' });
+      const session = await opts.shippingService.init();
+      return reply.status(200).send(session);
     },
   );
 };

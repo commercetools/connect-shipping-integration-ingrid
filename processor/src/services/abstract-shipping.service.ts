@@ -1,5 +1,6 @@
 import { CommercetoolsApiClient } from '../clients/api.client';
 import { IngridApiClient } from '../clients/ingrid.client';
+import { IngridCreateSessionResponse } from '../clients/types/ingrid.client.type';
 
 export abstract class AbstractShippingService {
   protected commercetoolsApiClient: CommercetoolsApiClient;
@@ -18,7 +19,7 @@ export abstract class AbstractShippingService {
    *
    * @returns void
    */
-  abstract init(): Promise<void>;
+  abstract init(): Promise<IngridCreateSessionResponse>;
 
   /**
    * Update from Ingrid platform

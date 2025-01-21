@@ -1,6 +1,7 @@
 import { CommercetoolsApiClient } from '../clients/api.client';
 import { IngridApiClient } from '../clients/ingrid.client';
 import { CommercetoolsClient } from '../clients/types/api.client.type';
+import { IngridCreateSessionResponse } from '../clients/types/ingrid.client.type';
 import { AbstractShippingService } from './abstract-shipping.service';
 
 export class IngridShippingService extends AbstractShippingService {
@@ -16,7 +17,7 @@ export class IngridShippingService extends AbstractShippingService {
    *
    * @returns void
    */
-  public async init(): Promise<void> {
+  public async init(): Promise<IngridCreateSessionResponse> {
     const externalId = '123';
     const ingridCheckoutSession = await this.ingridClient.createCheckoutSession({
       external_id: externalId,
@@ -24,18 +25,26 @@ export class IngridShippingService extends AbstractShippingService {
         items: [
           {
             id: '123',
+            name: 'Product 1',
+            sku: '123',
             quantity: 1,
           },
+          {
+            id: '412',
+            name: 'Product 2',
+            sku: '412',
+            quantity: 3,
+          },
         ],
-        total_value: 0,
+        total_value: 120,
         total_discount: 0,
         cart_id: '123',
       },
-      locales: ['en'],
+      locales: ['en-US'],
       purchase_country: 'US',
       purchase_currency: 'USD',
     });
-    console.log(ingridCheckoutSession);
+    return ingridCheckoutSession;
   }
 
   /**
