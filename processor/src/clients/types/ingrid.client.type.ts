@@ -249,12 +249,7 @@ export type IngridAddress = {
   subregion?: string;
 };
 
-export type IngridPickupLocationType =
-  | 'UNKNOWN_PICKUP_LOCATION_TYPE'
-  | 'LOCKER'
-  | 'STORE'
-  | 'POSTOFFICE'
-  | 'MANNED';
+export type IngridPickupLocationType = 'UNKNOWN_PICKUP_LOCATION_TYPE' | 'LOCKER' | 'STORE' | 'POSTOFFICE' | 'MANNED';
 
 export type IngridPickupLocation = {
   address: IngridAddress;
@@ -304,3 +299,64 @@ export type IngridSectionItem = {
 };
 
 export type IngridPriceComponentType = 'SHIPPING' | 'ADDON';
+
+export type IngridUpdateSessionRequestPayload = {
+  cart: IngridCart;
+  checkout_session_id: string;
+  external_id?: string;
+  locales?: string[];
+  meta?: Record<string, any>;
+  prefill_delivery_address?: IngridDeliveryAddress;
+  purchase_country: string;
+  purchase_currency: string;
+  search_address?: IngridSearchAddress;
+};
+
+export type IngridUpdateSessionResponse = {
+  html_snippet: string;
+  session: IngridSession;
+};
+
+export type IngridCompleteSessionRequestPayload = {
+  checkout_session_id: string;
+  customer: IngridCustomerAddress;
+  external_id?: string;
+};
+
+export type IngridCompleteSessionResponse = {
+  session: IngridSession;
+};
+
+export type IngridDeliveryAddress = {
+  address_lines: string[];
+  apartment_number: string;
+  attn?: string;
+  care_of?: string;
+  city: string;
+  company_name?: string;
+  coordinates?: IngridCoordinates;
+  country: string;
+  door_code?: string;
+  email: string;
+  external_id: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  phone_country?: string;
+  postal_code: string;
+  region?: string;
+  street: string;
+  street_number: string;
+};
+
+export type IngridSearchAddress = {
+  address_lines: string[];
+  apartment_number: string;
+  city: string;
+  coordinates?: IngridCoordinates;
+  country: string;
+  postal_code: string;
+  region?: string;
+  street: string;
+  street_number: string;
+};
