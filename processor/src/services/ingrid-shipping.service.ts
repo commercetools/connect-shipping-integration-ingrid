@@ -1,4 +1,4 @@
-import { CommercetoolsApiClient } from '../clients/api.client';
+import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
 import { AbstractShippingService } from './abstract-shipping.service';
 
 export class IngridShippingService extends AbstractShippingService {

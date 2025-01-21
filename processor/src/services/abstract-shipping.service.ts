@@ -1,4 +1,4 @@
-import { CommercetoolsApiClient } from '../clients/api.client';
+import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
 
 export abstract class AbstractShippingService {
   protected commercetoolsApiClient: CommercetoolsApiClient;
