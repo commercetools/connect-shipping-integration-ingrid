@@ -10,11 +10,10 @@ import type {
 } from './types/ingrid.client.type';
 import { AbstractIngridClient } from './abstract-ingrid.client';
 
-export class IngridApiClient extends AbstractIngridClient {
+export class IngridApiClient implements AbstractIngridClient {
   public client: AxiosInstance;
 
   constructor(opts: { apiSecret: string; apiUrl: string }) {
-    super();
     this.client = createClient(opts);
   }
 
@@ -25,6 +24,19 @@ export class IngridApiClient extends AbstractIngridClient {
     } catch (error) {
       if (error instanceof axios.AxiosError) {
         throw new Error(error.response?.data || 'Error creating Ingrid session');
+      } else {
+        throw new Error('An unexpected error occurred');
+      }
+    }
+  }
+
+  public async getCheckoutSession(checkout_session_id: string) {
+    try {
+      const response = await this.client.get(`/session.get?checkout_session_id=${checkout_session_id}`);
+      return response.data as IngridSession;
+    } catch (error) {
+      if (error instanceof axios.AxiosError) {
+        throw new Error(error.response?.data || 'Error getting Ingrid session');
       } else {
         throw new Error('An unexpected error occurred');
       }
