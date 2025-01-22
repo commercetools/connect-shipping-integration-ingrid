@@ -7,7 +7,6 @@ import {
   type IngridCompleteSessionResponse,
   type IngridCreateSessionRequestPayload,
   type IngridCreateSessionResponse,
-  type IngridSession,
   type IngridUpdateSessionRequestPayload,
   type IngridUpdateSessionResponse,
 } from './types/ingrid.client.type';
@@ -16,17 +15,13 @@ import { AbstractIngridClient } from './abstract-ingrid.client';
 export class IngridApiClient implements AbstractIngridClient {
   public client: AxiosInstance;
 
-  constructor(opts: {
-    apiSecret: string;
-    environment: keyof typeof IngridBasePath;
-    ressource?: keyof typeof IngridUrls;
-  }) {
-    this.client = createClient({ ...opts, ressource: 'DELIVERY_CHECKOUT' });
+  constructor(opts: { apiSecret: string; environment: keyof typeof IngridBasePath }) {
+    this.client = createClient(opts);
   }
 
   public async createCheckoutSession(payload: IngridCreateSessionRequestPayload) {
     try {
-      const response = await this.client.post('/session.create', payload);
+      const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.create', payload);
       return response.data as IngridCreateSessionResponse;
     } catch (error) {
       if (error instanceof axios.AxiosError) {
@@ -39,7 +34,9 @@ export class IngridApiClient implements AbstractIngridClient {
 
   public async pullCheckoutSession(checkout_session_id: string) {
     try {
-      const response = await this.client.get(`/session.pull?checkout_session_id=${checkout_session_id}`);
+      const response = await this.client.get(
+        IngridUrls.DELIVERY_CHECKOUT + `/session.pull?checkout_session_id=${checkout_session_id}`,
+      );
       return response.data as IngridGetSessionResponse;
     } catch (error) {
       if (error instanceof axios.AxiosError) {
@@ -52,7 +49,9 @@ export class IngridApiClient implements AbstractIngridClient {
 
   public async getCheckoutSession(checkout_session_id: string) {
     try {
-      const response = await this.client.get(`/session.get?checkout_session_id=${checkout_session_id}`);
+      const response = await this.client.get(
+        IngridUrls.DELIVERY_CHECKOUT + `/session.get?checkout_session_id=${checkout_session_id}`,
+      );
       return response.data as IngridGetSessionResponse;
     } catch (error) {
       if (error instanceof axios.AxiosError) {
@@ -62,9 +61,10 @@ export class IngridApiClient implements AbstractIngridClient {
       }
     }
   }
+
   public async updateCheckoutSession(payload: IngridUpdateSessionRequestPayload) {
     try {
-      const response = await this.client.post('/session.update', payload);
+      const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.update', payload);
       return response.data as IngridUpdateSessionResponse;
     } catch (error) {
       if (error instanceof axios.AxiosError) {
@@ -77,7 +77,7 @@ export class IngridApiClient implements AbstractIngridClient {
 
   public async completeCheckoutSession(payload: IngridCompleteSessionRequestPayload) {
     try {
-      const response = await this.client.post('/session.complete', payload);
+      const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.complete', payload);
       return response.data as IngridCompleteSessionResponse;
     } catch (error) {
       if (error instanceof axios.AxiosError) {
@@ -89,13 +89,9 @@ export class IngridApiClient implements AbstractIngridClient {
   }
 }
 
-const createClient = (opts: {
-  apiSecret: string;
-  environment: keyof typeof IngridBasePath;
-  ressource: keyof typeof IngridUrls;
-}): AxiosInstance => {
+const createClient = (opts: { apiSecret: string; environment: keyof typeof IngridBasePath }): AxiosInstance => {
   const instance = axios.create({
-    baseURL: `${IngridBasePath[opts.environment] + IngridUrls[opts.ressource]}`,
+    baseURL: IngridBasePath[opts.environment],
     timeout: 10000,
     headers: {
       'Content-Type': 'application/json',
