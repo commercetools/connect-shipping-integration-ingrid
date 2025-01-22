@@ -3,6 +3,8 @@ import { IngridApiClient } from '../clients/ingrid/ingrid.client';
 import {
   IngridCompleteSessionResponse,
   IngridCreateSessionResponse,
+  IngridGetSessionResponse,
+  IngridSession,
   IngridUpdateSessionResponse,
 } from '../clients/ingrid/types/ingrid.client.type';
 
@@ -23,7 +25,7 @@ export abstract class AbstractShippingService {
    *
    * @returns void
    */
-  abstract init(sessionId?: string | null): Promise<IngridCreateSessionResponse>;
+  abstract init(sessionId?: string): Promise<IngridCreateSessionResponse | IngridGetSessionResponse>;
 
   /**
    * Update from Ingrid platform

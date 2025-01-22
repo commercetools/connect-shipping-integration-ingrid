@@ -13,8 +13,8 @@ type ShippingRoutesOptions = {
 
 export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPluginOptions & ShippingRoutesOptions) => {
   fastify.post<{
-    Body: InitSessionRequestSchemaDTO;
-    Reply: InitSessionResponseSchemaDTO;
+    Body: InitSessionRequestSchemaDTO | null;
+    Reply: InitSessionResponseSchemaDTO | any;
   }>(
     '/sessions/init',
     {
@@ -28,7 +28,7 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
     },
 
     async (request, reply) => {
-      const session = await opts.shippingService.init(request.body.sessionId || null);
+      const session = await opts.shippingService.init(request.body?.sessionId);
       return reply.status(200).send(session);
     },
   );
@@ -46,7 +46,7 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
     },
 
     async (request, reply) => {
-      const session = await opts.shippingService.update(request.body.sessionId);
+      const session = await opts.shippingService.update(request.body?.sessionId || '');
       // @ts-ignore
       return reply.status(200).send(session);
     },
@@ -65,7 +65,7 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
     },
 
     async (request, reply) => {
-      const session = await opts.shippingService.complete(request.body.sessionId);
+      const session = await opts.shippingService.complete(request.body?.sessionId || '');
       // @ts-ignore
       return reply.status(200).send(session);
     },

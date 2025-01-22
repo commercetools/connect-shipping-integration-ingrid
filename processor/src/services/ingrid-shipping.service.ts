@@ -4,6 +4,7 @@ import { CommercetoolsClient } from '../clients/commercetools/types/api.client.t
 import {
   IngridCompleteSessionResponse,
   IngridCreateSessionResponse,
+  IngridGetSessionResponse,
   IngridSession,
   IngridUpdateSessionResponse,
 } from '../clients/ingrid/types/ingrid.client.type';
@@ -41,17 +42,22 @@ export class IngridShippingService extends AbstractShippingService {
    *
    * @returns void
    */
-  public async init(sessionId?: string | null): Promise<IngridCreateSessionResponse> {
-    // TODO: check wether to create new ingrid session or update existing ingrid session
-    const ingridCheckoutSession = await this.ingridClient.createCheckoutSession({
-      external_id: '123', // TODO: get orderId from commercetools,
-      cart: cart,
-      locales: ['en-US'],
-      purchase_country: 'US',
-      purchase_currency: 'USD',
-    });
-    // TODO: update commercetools session with ingrid session
-    return ingridCheckoutSession;
+  public async init(sessionId?: string): Promise<IngridCreateSessionResponse | IngridGetSessionResponse> {
+    if (sessionId) {
+      const ingridCheckoutSession = await this.ingridClient.getCheckoutSession(sessionId);
+      return ingridCheckoutSession;
+    } else {
+      // TODO: check wether to create new ingrid session or update existing ingrid session
+      const ingridCheckoutSession = await this.ingridClient.createCheckoutSession({
+        external_id: '123', // TODO: get orderId from commercetools,
+        cart: cart,
+        locales: ['en-US'],
+        purchase_country: 'US',
+        purchase_currency: 'USD',
+      });
+      // TODO: update commercetools session with ingrid session
+      return ingridCheckoutSession;
+    }
   }
 
   /**
