@@ -1,11 +1,16 @@
 export enum IngridBasePath {
-  TEST = 'https://api-stage.ingrid.com',
-  LIVE = 'https://api.ingrid.com',
+  STAGING = 'https://api-stage.ingrid.com',
+  PRODUCTION = 'https://api.ingrid.com',
 }
 
 export enum IngridUrls {
   DELIVERY_CHECKOUT = '/v1/delivery_checkout',
 }
+
+export type IngridGetSessionResponse = {
+  session: IngridSession;
+  html_snippet: string;
+};
 
 export type IngridCreateSessionRequestPayload = {
   additional_information?: any;

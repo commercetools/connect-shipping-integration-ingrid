@@ -17,7 +17,7 @@ export default async function (server: FastifyInstance) {
 
   const ingridOpts = {
     apiSecret: getConfig().ingridApiKey,
-    apiUrl: getConfig().ingridApiUrl,
+    environment: getConfig().ingridEnvironment as 'STAGING' | 'PRODUCTION',
   };
 
   const commercetoolsApiClient: CommercetoolsApiClient = new CommercetoolsApiClient(opts);

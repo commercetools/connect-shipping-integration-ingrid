@@ -27,10 +27,10 @@ deployAs:
           description: Session API URL
           required: true
           default: https://session.europe-west1.gcp.commercetools.com
-        - key: INGRID_API_URL
-          description: Ingrid API URL
+        - key: INGRID_ENVIRONMENT
+          description: Ingrid environment (STAGING or PRODUCTION)
           required: true
-          default: https://api-stage.ingrid.com/v1/delivery_checkout
+          default: STAGING
       securedConfiguration:
         - key: INGRID_API_KEY
           description: the key used to connect to the Ingrid instance

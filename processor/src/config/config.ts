@@ -12,7 +12,7 @@ const config = {
 
   // Required by Ingrid
   ingridApiKey: process.env.INGRID_API_KEY || 'xxx',
-  ingridApiUrl: process.env.INGRID_API_URL || 'https://api-stage.ingrid.com/v1/delivery_checkout',
+  ingridEnvironment: process.env.INGRID_ENVIRONMENT || 'STAGING',
 };
 export const getConfig = () => {
   return config;

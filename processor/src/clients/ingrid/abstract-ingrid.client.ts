@@ -2,7 +2,7 @@ import {
   IngridCompleteSessionRequestPayload,
   IngridCompleteSessionResponse,
   IngridCreateSessionResponse,
-  IngridSession,
+  IngridGetSessionResponse,
   IngridUpdateSessionRequestPayload,
   IngridUpdateSessionResponse,
 } from './types/ingrid.client.type';
@@ -14,7 +14,9 @@ export abstract class AbstractIngridClient {
     payload: IngridCreateSessionRequestPayload,
   ): Promise<IngridCreateSessionResponse>;
 
-  public abstract pullCheckoutSession(checkout_session_id: string): Promise<IngridSession>;
+  public abstract pullCheckoutSession(checkout_session_id: string): Promise<IngridGetSessionResponse>;
+
+  public abstract getCheckoutSession(checkout_session_id: string): Promise<IngridGetSessionResponse>;
 
   public abstract updateCheckoutSession(
     payload: IngridUpdateSessionRequestPayload,

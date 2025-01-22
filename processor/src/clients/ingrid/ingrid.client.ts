@@ -1,20 +1,27 @@
 import axios, { AxiosInstance } from 'axios';
-import type {
-  IngridCompleteSessionRequestPayload,
-  IngridCompleteSessionResponse,
-  IngridCreateSessionRequestPayload,
-  IngridCreateSessionResponse,
-  IngridSession,
-  IngridUpdateSessionRequestPayload,
-  IngridUpdateSessionResponse,
+import {
+  IngridBasePath,
+  IngridGetSessionResponse,
+  IngridUrls,
+  type IngridCompleteSessionRequestPayload,
+  type IngridCompleteSessionResponse,
+  type IngridCreateSessionRequestPayload,
+  type IngridCreateSessionResponse,
+  type IngridSession,
+  type IngridUpdateSessionRequestPayload,
+  type IngridUpdateSessionResponse,
 } from './types/ingrid.client.type';
 import { AbstractIngridClient } from './abstract-ingrid.client';
 
 export class IngridApiClient implements AbstractIngridClient {
   public client: AxiosInstance;
 
-  constructor(opts: { apiSecret: string; apiUrl: string }) {
-    this.client = createClient(opts);
+  constructor(opts: {
+    apiSecret: string;
+    environment: keyof typeof IngridBasePath;
+    ressource?: keyof typeof IngridUrls;
+  }) {
+    this.client = createClient({ ...opts, ressource: 'DELIVERY_CHECKOUT' });
   }
 
   public async createCheckoutSession(payload: IngridCreateSessionRequestPayload) {
@@ -33,7 +40,7 @@ export class IngridApiClient implements AbstractIngridClient {
   public async pullCheckoutSession(checkout_session_id: string) {
     try {
       const response = await this.client.get(`/session.pull?checkout_session_id=${checkout_session_id}`);
-      return response.data as IngridSession;
+      return response.data as IngridGetSessionResponse;
     } catch (error) {
       if (error instanceof axios.AxiosError) {
         throw new Error(error.response?.data || 'Error pulling Ingrid session');
@@ -46,7 +53,7 @@ export class IngridApiClient implements AbstractIngridClient {
   public async getCheckoutSession(checkout_session_id: string) {
     try {
       const response = await this.client.get(`/session.get?checkout_session_id=${checkout_session_id}`);
-      return response.data as IngridSession;
+      return response.data as IngridGetSessionResponse;
     } catch (error) {
       if (error instanceof axios.AxiosError) {
         throw new Error(error.response?.data || 'Error getting Ingrid session');
@@ -82,9 +89,13 @@ export class IngridApiClient implements AbstractIngridClient {
   }
 }
 
-const createClient = (opts: { apiSecret: string; apiUrl: string }): AxiosInstance => {
+const createClient = (opts: {
+  apiSecret: string;
+  environment: keyof typeof IngridBasePath;
+  ressource: keyof typeof IngridUrls;
+}): AxiosInstance => {
   const instance = axios.create({
-    baseURL: opts.apiUrl,
+    baseURL: `${IngridBasePath[opts.environment] + IngridUrls[opts.ressource]}`,
     timeout: 10000,
     headers: {
       'Content-Type': 'application/json',
