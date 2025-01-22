@@ -1,12 +1,12 @@
-import { CommercetoolsApiClient } from '../clients/api.client';
-import { IngridApiClient } from '../clients/ingrid.client';
-import { CommercetoolsClient } from '../clients/types/api.client.type';
+import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
+import { IngridApiClient } from '../clients/ingrid/ingrid.client';
+import { CommercetoolsClient } from '../clients/commercetools/types/api.client.type';
 import {
   IngridCompleteSessionResponse,
   IngridCreateSessionResponse,
   IngridSession,
   IngridUpdateSessionResponse,
-} from '../clients/types/ingrid.client.type';
+} from '../clients/ingrid/types/ingrid.client.type';
 import { AbstractShippingService } from './abstract-shipping.service';
 
 const cart = {
