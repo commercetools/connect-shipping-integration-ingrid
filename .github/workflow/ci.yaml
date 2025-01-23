@@ -1,0 +1,50 @@
+name: CI
+
+on: [push]
+
+jobs:
+  validate:
+    name: Validate the applications
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+
+
+      - name: Validate
+        run: |
+          npm install -g @commercetools/cli
+          commercetools connect validate --skip analysis
+          
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-results
+          path: |
+            .connect
+
+  build-processor:
+    name: Build the application for processor
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: processor
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+
+      - name: Install modules
+        run: npm ci
+      
+      - name: Execute build
+        run: npm run build
