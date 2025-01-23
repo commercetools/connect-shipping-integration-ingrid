@@ -1,11 +1,18 @@
 import { Static, Type } from '@sinclair/typebox';
+import { Parse } from '@sinclair/typebox/syntax';
+import { IngridCreateSessionResponse } from '../clients/ingrid/types/ingrid.client.type';
 
-export const InitSessionRequestSchema = Type.Object({
-  sessionId: Type.String(),
-});
+export const InitSessionRequestSchema = Type.Union([
+  Type.Object({
+    sessionId: Type.Optional(Type.String()),
+  }),
+  Type.Null(),
+]);
 
 export const InitSessionResponseSchema = Type.Object({
-  result: Type.String(),
+  html_snippet: Type.String(),
+  session: Type.Any(),
+  token: Type.Optional(Type.String()),
 });
 
 export type InitSessionRequestSchemaDTO = Static<typeof InitSessionRequestSchema>;
