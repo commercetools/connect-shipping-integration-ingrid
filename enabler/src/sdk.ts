@@ -1,4 +1,3 @@
-
 /**
  * Represents a SDK.
  */
@@ -11,7 +10,7 @@ export class Sdk {
    */
   constructor({ environment }) {
     this.environment = environment;
-    console.log('SDK constructor', this.environment);
+    console.log("SDK constructor", this.environment);
   }
 
   /**
@@ -19,6 +18,6 @@ export class Sdk {
    * @param opts - The options for initializing the SDK.
    */
   init(opts: any) {
-    console.log('SDK init', opts);
+    return "HELLO WORLD!!!!!!!!!!!!!!";
   }
 }
