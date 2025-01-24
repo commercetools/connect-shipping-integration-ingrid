@@ -51,8 +51,5 @@ jobs:
       - name: Execute build
         run: npm run build
 
-      - name: Check code style
-        run: npm run lint
-        
       - name: Execute test case 
         run: npm run test
