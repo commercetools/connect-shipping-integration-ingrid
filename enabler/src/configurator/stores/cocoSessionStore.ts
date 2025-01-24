@@ -59,10 +59,10 @@ async function removeSession(sessionId: string) {
 }
 
 const cocoSessionStore = (function cocoSessionStore() {
-  let cartId = undefined;
   const sessionJSON = localStorage.getItem("cocoSession");
-
   let state: object = sessionJSON ? JSON.parse(sessionJSON) : undefined;
+  //@ts-ignore
+  let cartId = state?.activeCart?.cartRef?.id;
   const listeners = new Map();
   cardStore.subscribe(() => {
     const cart = cartStore.getSnapshot();
