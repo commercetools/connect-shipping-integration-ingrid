@@ -4,8 +4,8 @@ import {
   ShippingComponentBuilder
 } from '../shipping-enabler/shipping-enabler';
 import { BaseComponent } from "./base";
-import styles from '../../../style/style.module.scss';
-import buttonStyles from "../../../style/button.module.scss";
+// import styles from '../../../style/style.module.scss';
+// import buttonStyles from "../../../style/button.module.scss";
 import { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
 
 export class DefaultComponentBuilder implements ShippingComponentBuilder {
