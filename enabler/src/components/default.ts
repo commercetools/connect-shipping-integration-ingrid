@@ -18,37 +18,69 @@ export class DefaultComponentBuilder implements ShippingComponentBuilder {
 }
 
 export class DefaultComponent extends BaseComponent {
-
+  private ingridComponentId: string = 'ingrid-component'
   constructor(baseOptions: BaseOptions, componentOptions: ComponentOptions) {
     super(baseOptions, componentOptions);
   }
 
   mount(selector: string) {
-    const html: string = this._getTemplate()
     document
       .querySelector(selector)
-      .insertAdjacentHTML("afterbegin", html);
+      .insertAdjacentHTML("afterbegin", this._getTemplate());
 
-    // TODO : add HTML listener and invoke update() function.
+    
+  }
+
+  private insertIngridWidget(ingridHtml: string) {
+    document
+      .querySelector(this.ingridComponentId).innerHTML = ingridHtml;
   }
 
   async update() {
     // TODO: implement update() to send request to processor /sessions/update API
   }
 
-  async init() {
+  async init(sessionId: string) {
     // here we would call the SDK to submit the payment
     this.sdk.init({ environment: this.environment });
     try {
-      const requestData = {} // TODO: implement request body
-      const response = await fetch(this.processorUrl + "/sessions/init", {
+      const requestData = {
+        "purchase_country": "SE",
+        "purchase_currency": "SEK",
+        "cart": {
+          "total_value": 10000,
+          "items": [
+            {
+                "sku": "SKU12345",
+                "name": "Saucony Shadow 6000",
+                "quantity": 1
+            }
+          ],
+          "cart_id": "UNIQUE_ID"
+        },
+        "locales": [
+          "sv-SE"
+        ]
+      } 
+      const response = await fetch("https://api-stage.ingrid.com/v1/delivery_checkout/session.create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Session-Id": this.sessionId,
+          "X-Session-Id": sessionId,
+          "Authorization": "Bearer YmIzNzZlNjBiZWJlNDUwMzk3MTdhMjcxNDI1MmQ4NTA="
         },
         body: JSON.stringify(requestData),
       });
+      // TODO: implement actuall API call to processor
+      // const requestData = {} 
+      // const response = await fetch(this.processorUrl + "/sessions/init", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     "X-Session-Id": sessionId,
+      //   },
+      //   body: JSON.stringify(requestData),
+      // });
       const data = await response.json();
       if (data) { // TODO: fix the condition checking 
           this.onInitCompleted({
@@ -56,7 +88,8 @@ export class DefaultComponent extends BaseComponent {
             ingridSessionId: data.ingridSessionId,
             ingridHtml: data.html
           });
-          // TODO: insert data.html content into a specifi HTML tag to render Ingrid web component
+          console.log(data)
+          // this.insertIngridWidget(data.html)
       } else {
         this.onError("Some error occurred. Please try again.");
       }
@@ -90,6 +123,6 @@ export class DefaultComponent extends BaseComponent {
   }
 
   private _getTemplate() {
-   return ''
+   return `<div id=${this.ingridComponentId}></div>`
   }
 }
