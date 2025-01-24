@@ -13,6 +13,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
+    "types": ["vite/client"],
+    "jsx": "react-jsx",
 
     /* Linting */
     // "strict": true,
@@ -20,6 +22,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": [
-    "src", "decs.d.ts"]
+  "include": ["src", "decs.d.ts"]
 }

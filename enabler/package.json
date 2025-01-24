@@ -15,8 +15,17 @@
     "serve": "14.2.4"
   },
   "devDependencies": {
+    "@commercetools/platform-sdk": "^8.1.0",
+    "@commercetools/sdk-client": "^3.0.0",
+    "@commercetools/sdk-middleware-auth": "^7.0.1",
+    "@commercetools/sdk-middleware-http": "^7.0.4",
+    "@commercetools/ts-client": "^3.0.1",
     "@types/node": "22.10.3",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
     "jest": "29.7.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "sass": "1.83.0",
     "ts-jest": "^29.2.5",
     "typescript": "5.7.2",
