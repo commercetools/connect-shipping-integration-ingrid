@@ -31,6 +31,8 @@ function CartEditor() {
 
   return project ? (
     <div>
+      {/* @ts-ignore */}
+      {session ? <p>SessionId: {session.id}</p> : ""}
       {cart && (
         <button
           onClick={() =>

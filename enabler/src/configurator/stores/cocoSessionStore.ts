@@ -27,6 +27,7 @@ async function createSession(cartId: string) {
     {
       method: "POST",
       headers: {
+        "Content-Type": "application/json",
         authorization: `Bearer ${token.access_token}`,
       },
       body: JSON.stringify({
@@ -35,40 +36,51 @@ async function createSession(cartId: string) {
             id: cartId,
           },
         },
-        metadata: {
-          applicationKey: "applicationKey",
-        },
       }),
     }
   ).then((r) => r.json());
 }
 
-// import { exhaustiveMatchingGuard } from "../lib";
-export type Event = {
-  type: "SET_SESSION";
-  session: Object;
-};
+async function removeSession(sessionId: string) {
+  const token = await createToken();
+  return fetch(
+    `${import.meta.env.VITE_CTP_SESSION_URL}/${
+      import.meta.env.VITE_CTP_PROJECT_KEY
+    }/sessions/${sessionId}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token.access_token}`,
+      },
+      body: JSON.stringify({ actions: [{ action: "revoke" }] }),
+    }
+  ).then((r) => r.json());
+}
+
 const cocoSessionStore = (function cocoSessionStore() {
   let cartId = undefined;
-  const sessionJSON = localStorage.getItem("session");
+  const sessionJSON = localStorage.getItem("cocoSession");
 
   let state: object = sessionJSON ? JSON.parse(sessionJSON) : undefined;
   const listeners = new Map();
   cardStore.subscribe(() => {
     const cart = cartStore.getSnapshot();
     if (cartId !== cardStore.getSnapshot()?.id) {
-      if (!cart) {
-        //todo: remove session if exist
+      cartId = cardStore.getSnapshot()?.id;
+      if (!cart && state) {
+        //@ts-ignore
+        removeSession(state.id).then(() => {
+          state = undefined;
+          localStorage.removeItem("cocoSession");
+          listeners.forEach((l) => l());
+        });
       } else {
-        if (!state) {
-          createSession(cart.id).then((session) => {
-            //always get me a 400 Request body does not contain valid JSON
-            console.log("session:", session);
-            state = session;
-            listeners.forEach((l) => l());
-          });
-        }
-        //todo: update or create session
+        createSession(cart.id).then((session) => {
+          state = session;
+          localStorage.setItem("cocoSession", JSON.stringify(state));
+          listeners.forEach((l) => l());
+        });
       }
     }
   });
@@ -80,15 +92,8 @@ const cocoSessionStore = (function cocoSessionStore() {
     getSnapshot() {
       return state;
     },
-    emit(event: Event) {
-      if (event.type === "SET_SESSION") {
-        state = event.session;
-        localStorage.setItem("session", JSON.stringify(state));
-        listeners.forEach((l) => l());
-      }
-      //   } else {
-      //     exhaustiveMatchingGuard(event);
-      //   }
+    emit() {
+      throw new Error("Do not need implementation at this time.");
     },
   };
 })();
