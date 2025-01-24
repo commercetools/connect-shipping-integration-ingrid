@@ -15,6 +15,7 @@ import {
 import cartStore from "./stores/CartStore";
 import countryCurrencyLanguageStore from "./stores/CountryCurrencyLanguageStore";
 import cocoProjectSettingsStore from "./stores/cocoProjectSettingsStore";
+import cocoSessionStore from "./stores/cocoSessionStore";
 
 function CartEditor() {
   const cart = useSyncExternalStore(cartStore.subscribe, cartStore.getSnapshot);
@@ -22,6 +23,11 @@ function CartEditor() {
     cocoProjectSettingsStore.subscribe,
     cocoProjectSettingsStore.getSnapshot
   );
+  const session = useSyncExternalStore(
+    cocoSessionStore.subscribe,
+    cocoSessionStore.getSnapshot
+  );
+  console.log("session:", session);
 
   return project ? (
     <div>
