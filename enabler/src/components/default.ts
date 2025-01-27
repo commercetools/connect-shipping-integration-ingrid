@@ -1,9 +1,10 @@
 import {
   ComponentOptions,
   ShippingComponent,
-  ShippingComponentBuilder
+  ShippingComponentBuilder,
+  ShippingInitResult
 } from '../shipping-enabler/shipping-enabler';
-import { BaseComponent } from "./base";
+import { Sdk } from '../sdk';
 // import styles from '../../../style/style.module.scss';
 // import buttonStyles from "../../../style/button.module.scss";
 import { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
@@ -17,10 +18,30 @@ export class DefaultComponentBuilder implements ShippingComponentBuilder {
   }
 }
 
-export class DefaultComponent extends BaseComponent {
+export class DefaultComponent {
+
+  protected sdk: Sdk;
+  protected processorUrl: BaseOptions['processorUrl'];
+  protected sessionId: BaseOptions['sessionId'];
+  protected environment: BaseOptions['environment'];
+  protected onInitCompleted: (result: ShippingInitResult) => void;
+  protected onUpdateCompleted: () => void;
+  protected onSubmissionCompleted: () => void;
+  protected onError: (error?: any) => void;
+  
+    
   private ingridComponentId: string = 'ingrid-component'
-  constructor(baseOptions: BaseOptions, componentOptions: ComponentOptions) {
-    super(baseOptions, componentOptions);
+ 
+  constructor(baseOptions: BaseOptions, _componentOptions: ComponentOptions) {
+    this.sdk = baseOptions.sdk;
+    this.processorUrl = baseOptions.processorUrl;
+    this.sessionId = baseOptions.sessionId;
+    this.environment = baseOptions.environment;
+    this.onInitCompleted = baseOptions.onInitCompleted;
+    this.onUpdateCompleted = baseOptions.onUpdateCompleted;
+    this.onSubmissionCompleted = baseOptions.onSubmissionCompleted;
+    
+    this.onError = baseOptions.onError;
   }
 
   mount(selector: string) {
@@ -31,10 +52,7 @@ export class DefaultComponent extends BaseComponent {
     
   }
 
-  private insertIngridWidget(ingridHtml: string) {
-    document
-      .querySelector(this.ingridComponentId).innerHTML = ingridHtml;
-  }
+  
 
   async update() {
     // TODO: implement update() to send request to processor /sessions/update API
@@ -62,25 +80,17 @@ export class DefaultComponent extends BaseComponent {
           "sv-SE"
         ]
       } 
-      const response = await fetch("https://api-stage.ingrid.com/v1/delivery_checkout/session.create", {
+     
+      // TODO: implement actuall API call to processor
+      
+      const response = await fetch(this.processorUrl + "/sessions/init", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-Session-Id": sessionId,
-          "Authorization": "Bearer YmIzNzZlNjBiZWJlNDUwMzk3MTdhMjcxNDI1MmQ4NTA="
         },
         body: JSON.stringify(requestData),
       });
-      // TODO: implement actuall API call to processor
-      // const requestData = {} 
-      // const response = await fetch(this.processorUrl + "/sessions/init", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     "X-Session-Id": sessionId,
-      //   },
-      //   body: JSON.stringify(requestData),
-      // });
       const data = await response.json();
       if (data) { // TODO: fix the condition checking 
           this.onInitCompleted({
@@ -89,7 +99,7 @@ export class DefaultComponent extends BaseComponent {
             ingridHtml: data.html
           });
           console.log(data)
-          // this.insertIngridWidget(data.html)
+          this.postInit(data.ingridSessionId, data.html)
       } else {
         this.onError("Some error occurred. Please try again.");
       }
@@ -124,5 +134,11 @@ export class DefaultComponent extends BaseComponent {
 
   private _getTemplate() {
    return `<div id=${this.ingridComponentId}></div>`
+  }
+
+  private postInit(ingridSessionId: string, ingridHtml: string) {
+    document.querySelector(this.ingridComponentId).innerHTML = ingridHtml;
+    console.log(ingridSessionId)
+    // TODO : store session ID into local storage
   }
 }
