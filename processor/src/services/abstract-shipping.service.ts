@@ -1,10 +1,20 @@
-import { CommercetoolsApiClient } from '../clients/api.client';
+import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
+import { IngridApiClient } from '../clients/ingrid/ingrid.client';
+import {
+  IngridCompleteSessionResponse,
+  IngridCreateSessionResponse,
+  IngridGetSessionResponse,
+  IngridSession,
+  IngridUpdateSessionResponse,
+} from '../clients/ingrid/types/ingrid.client.type';
 
 export abstract class AbstractShippingService {
   protected commercetoolsApiClient: CommercetoolsApiClient;
+  protected ingridClient: IngridApiClient;
 
-  protected constructor(commercetoolsApiClient: CommercetoolsApiClient) {
+  protected constructor(commercetoolsApiClient: CommercetoolsApiClient, ingridClient: IngridApiClient) {
     this.commercetoolsApiClient = commercetoolsApiClient;
+    this.ingridClient = ingridClient;
   }
 
   /**
@@ -15,7 +25,7 @@ export abstract class AbstractShippingService {
    *
    * @returns void
    */
-  abstract init(): Promise<void>;
+  abstract init(sessionId?: string): Promise<IngridCreateSessionResponse | IngridGetSessionResponse>;
 
   /**
    * Update from Ingrid platform
@@ -25,7 +35,7 @@ export abstract class AbstractShippingService {
    *
    * @returns void
    */
-  abstract update(): Promise<void>;
+  abstract update(sessionId: string): Promise<IngridUpdateSessionResponse>;
 
   /**
    * Complete Ingrid session
@@ -35,5 +45,5 @@ export abstract class AbstractShippingService {
    *
    * @returns void
    */
-  abstract complete(): Promise<void>;
+  abstract complete(sessionId: string): Promise<IngridCompleteSessionResponse>;
 }

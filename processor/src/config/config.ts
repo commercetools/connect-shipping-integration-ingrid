@@ -1,4 +1,4 @@
-export const config = {
+const config = {
   // Required by Payment SDK
   projectKey: process.env.CTP_PROJECT_KEY || 'projectKey',
   clientId: process.env.CTP_CLIENT_ID || 'xxx',
@@ -10,8 +10,9 @@ export const config = {
   // Required by logger
   loggerLevel: process.env.LOGGER_LEVEL || 'info',
 
-  // Ingrid config
-  /**  TODO : Add Ingrid-related env-var to config **/
+  // Required by Ingrid
+  ingridApiKey: process.env.INGRID_API_KEY || 'xxx',
+  ingridEnvironment: process.env.INGRID_ENVIRONMENT || 'STAGING',
 };
 export const getConfig = () => {
   return config;
