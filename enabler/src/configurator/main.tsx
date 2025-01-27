@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import * as ReactDOM from "react-dom/client";
 import CartEditor from "./CartEditor";
+import MountEnabler from "./MountEnabler";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -16,6 +17,7 @@ function MyComponent() {
       <button onClick={() => setShow((s) => !s)}>
         {show ? "Hide" : "Show"} config editor
       </button>
+      <MountEnabler />
       <div style={{ display: show ? "inline" : "none" }}>
         <CartEditor />
       </div>
