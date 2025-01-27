@@ -1,6 +1,7 @@
-// import client from "../coco/index";
-import cartStore from "./CartStore";
-import cardStore from "./CartStore";
+import cartStore from "./cartStore";
+import cardStore from "./cartStore";
+import loadingStore from "./loadingStore";
+import Store from "./Store";
 
 function createToken() {
   return fetch(`${import.meta.env.VITE_CTP_AUTH_URL}/oauth/token`, {
@@ -58,43 +59,55 @@ async function removeSession(sessionId: string) {
   ).then((r) => r.json());
 }
 
-const cocoSessionStore = (function cocoSessionStore() {
-  const sessionJSON = localStorage.getItem("cocoSession");
-  let state: object = sessionJSON ? JSON.parse(sessionJSON) : undefined;
-  //@ts-ignore
-  let cartId = state?.activeCart?.cartRef?.id;
-  const listeners = new Map();
-  cardStore.subscribe(() => {
-    const cart = cartStore.getSnapshot();
-    if (cartId !== cardStore.getSnapshot()?.id) {
-      cartId = cardStore.getSnapshot()?.id;
-      if (!cart && state) {
-        //@ts-ignore
-        removeSession(state.id).then(() => {
-          state = undefined;
-          localStorage.removeItem("cocoSession");
-          listeners.forEach((l) => l());
-        });
-      } else {
-        createSession(cart.id).then((session) => {
-          state = session;
-          localStorage.setItem("cocoSession", JSON.stringify(state));
-          listeners.forEach((l) => l());
-        });
-      }
-    }
-  });
-  return {
-    subscribe(fn) {
-      listeners.set(fn, fn);
-      return () => listeners.delete(fn);
-    },
-    getSnapshot() {
-      return state;
-    },
-    emit() {
-      throw new Error("Do not need implementation at this time.");
-    },
+type Session = {
+  id: string;
+  activeCart: {
+    cartRef: {
+      id: string;
+    };
   };
-})();
+};
+type Action = { type: "SET_SESSION"; session: Session };
+const initialState = localStorage.getItem("cocoSession")
+  ? JSON.parse(localStorage.getItem("cocoSession"))
+  : undefined;
+const cocoSessionStore = new Store<Session, Action>(
+  (action, _state, setState) => {
+    if (action.type === "SET_SESSION") {
+      setState(action.session);
+    }
+  },
+  initialState
+);
+
+cardStore.subscribe(() => {
+  const cart = cartStore.getSnapshot();
+  if (
+    cocoSessionStore.getSnapshot()?.activeCart?.cartRef?.id !==
+    cardStore.getSnapshot()?.id
+  ) {
+    if (!cart && cocoSessionStore.getSnapshot()) {
+      loadingStore.dispatch("START_LOADING");
+      removeSession(cocoSessionStore.getSnapshot().id)
+        .catch((e) => console.error(e))
+        .finally(() => {
+          loadingStore.dispatch("DONE");
+          localStorage.removeItem("cocoSession");
+          cocoSessionStore.dispatch({
+            type: "SET_SESSION",
+            session: undefined,
+          });
+        });
+    } else {
+      loadingStore.dispatch("START_LOADING");
+      createSession(cart.id)
+        .then((session) => {
+          localStorage.setItem("cocoSession", JSON.stringify(session));
+          cocoSessionStore.dispatch({ type: "SET_SESSION", session: session });
+        })
+        .finally(() => loadingStore.dispatch("DONE"));
+    }
+  }
+});
+
 export default cocoSessionStore;
