@@ -9,7 +9,7 @@
     "test": "jest --detectOpenHandles",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "check": "tsc --noEmit && eslint . --ext .ts",
+    "check": "tsc --noEmit && eslint ./src",
     "serve": "npm run build && serve public -l 3000 --cors"
   },
   "dependencies": {
