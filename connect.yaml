@@ -1,9 +1,40 @@
 deployAs:
-  - name: ingrid-service
+  - name: enabler
+    applicationType: assets
+  - name: processor
     applicationType: service
-    endpoint: /service
+    endpoint: /
+    scripts:
+      postDeploy: npm install && npm run connector:post-deploy
+      preUndeploy: npm install && npm run connector:pre-undeploy
     configuration:
-      standardConfiguration: []
+      standardConfiguration:
+        - key: CTP_PROJECT_KEY
+          description: commercetools project key
+          required: true
+        - key: CTP_CLIENT_ID
+          description: commercetools client ID
+          required: true
+        - key: CTP_AUTH_URL
+          description: commercetools Auth URL
+          required: true
+          default: https://auth.europe-west1.gcp.commercetools.com
+        - key: CTP_API_URL
+          description: commercetools API URL
+          required: true
+          default: https://api.europe-west1.gcp.commercetools.com
+        - key: CTP_SESSION_URL
+          description: Session API URL
+          required: true
+          default: https://session.europe-west1.gcp.commercetools.com
+        - key: INGRID_ENVIRONMENT
+          description: Ingrid environment (STAGING or PRODUCTION)
+          required: true
+          default: STAGING
       securedConfiguration:
-        - key: AUTH_KEY
+        - key: INGRID_API_KEY
           description: the key used to connect to the Ingrid instance
+          required: true
+        - key: CTP_CLIENT_SECRET
+          description: commercetools client secret
+          required: true
