@@ -6,9 +6,11 @@ import {
   InitSessionResponseSchemaDTO,
 } from '../dtos/ingrid-shipping.dto';
 import { IngridShippingService } from '../services/ingrid-shipping.service';
+import { SessionHeaderAuthenticationHook } from '@commercetools/connect-payments-sdk';
 
 type ShippingRoutesOptions = {
   shippingService: IngridShippingService;
+  sessionHeaderAuthenticationHook: SessionHeaderAuthenticationHook;
 };
 
 export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPluginOptions & ShippingRoutesOptions) => {
@@ -18,7 +20,7 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
   }>(
     '/sessions/init',
     {
-      preHandler: [],
+      preHandler: [opts.sessionHeaderAuthenticationHook.authenticate()],
       schema: {
         body: InitSessionRequestSchema,
         response: {
@@ -28,6 +30,7 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
     },
 
     async (request, reply) => {
+      console.log('request', request);
       const session = await opts.shippingService.init(request.body?.sessionId);
       return reply.status(200).send(session);
     },
@@ -39,7 +42,7 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
   }>(
     '/sessions/update',
     {
-      preHandler: [],
+      preHandler: [opts.sessionHeaderAuthenticationHook.authenticate()],
       schema: {
         body: InitSessionRequestSchema,
       },
@@ -47,25 +50,6 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
 
     async (request, reply) => {
       const session = await opts.shippingService.update(request.body?.sessionId || '');
-      // @ts-ignore
-      return reply.status(200).send(session);
-    },
-  );
-
-  fastify.post<{
-    Body: InitSessionRequestSchemaDTO;
-    Reply: InitSessionResponseSchemaDTO;
-  }>(
-    '/sessions/complete',
-    {
-      preHandler: [],
-      schema: {
-        body: InitSessionRequestSchema,
-      },
-    },
-
-    async (request, reply) => {
-      const session = await opts.shippingService.complete(request.body?.sessionId || '');
       // @ts-ignore
       return reply.status(200).send(session);
     },

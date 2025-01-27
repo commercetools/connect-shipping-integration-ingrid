@@ -5,6 +5,7 @@ import { IngridShippingService } from '../../services/ingrid-shipping.service';
 import { CommercetoolsApiClient } from '../../clients/commercetools/api.client';
 import { getConfig } from '../../config/config';
 import { IngridApiClient } from '../../clients/ingrid/ingrid.client';
+import { paymentSDK } from '../../payment-sdk';
 
 export default async function (server: FastifyInstance) {
   const opts = {
@@ -27,5 +28,6 @@ export default async function (server: FastifyInstance) {
 
   await server.register(shippingRoutes, {
     shippingService,
+    sessionHeaderAuthenticationHook: paymentSDK.sessionHeaderAuthHookFn,
   });
 }

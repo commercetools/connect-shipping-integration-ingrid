@@ -1,3 +1,4 @@
+import { Authentication } from '@commercetools/connect-payments-sdk';
 import { fastifyRequestContext, requestContext } from '@fastify/request-context';
 import { randomUUID } from 'crypto';
 import { FastifyInstance, FastifyRequest } from 'fastify';
@@ -14,9 +15,11 @@ export type ContextData = {
   query?: any;
   correlationId: string;
   requestId: string;
+  authentication?: Authentication;
 };
 
 export const getRequestContext = (): Partial<ContextData> => {
+  console.log('requestContext', requestContext);
   return requestContext.get('request') ?? {};
 };
 
