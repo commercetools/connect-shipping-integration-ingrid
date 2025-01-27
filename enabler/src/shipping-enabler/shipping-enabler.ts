@@ -53,11 +53,6 @@ export interface ShippingComponent {
   update(): void;
 
   /**
-   * Submits the shipping.
-   */
-  submit(): void;
-
-  /**
    * Shows the validation for the shipping component.
    */
   showValidation?(): void;
@@ -92,10 +87,9 @@ export interface ShippingComponentBuilder {
 
   /**
    * Builds a shipping component with the specified configuration.
-   * @param config - The configuration options for the payment component.
    * @returns The built shipping component.
    */
-  build(config: ComponentOptions): ShippingComponent;
+  build(): ShippingComponent;
 }
 
 /**
@@ -121,17 +115,12 @@ export type EnablerOptions = {
   * A callback function that is called when the shipping init is completed.
    * @param result - The result of the shipping init.
    */
-  onInitCompleted?: (result: ShippingInitResult) => Promise<void>;
+  onInitCompleted?: (result: ShippingInitResult) => void;
 
   /**
    * A callback function that is called when the shipping update is completed.
    */
   onUpdateCompleted?: () => void;
-
-  /**
-   * A callback function that is called when the shipping submission is completed.
-   */
-  onSubmissionCompleted?: () => void;
 
   /**
    * A callback function that is called when an error occurs during the shipping process.
@@ -179,10 +168,6 @@ export type ComponentOptions = {
    */
   onInitButtonClick?: () => Promise<void>;
 
-  /* A callback function that is called when the submit shipping button is clicked.
-  * @returns A Promise indicating the result of shipping submission.
-  */
-  onSubmitButtonClick?: () => Promise<void>;
 };
 
 

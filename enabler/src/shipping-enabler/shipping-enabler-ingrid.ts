@@ -1,28 +1,21 @@
 import { DefaultComponentBuilder } from "../components/default";
-import { Sdk } from "../sdk";
 import {
-  
   EnablerOptions,
   ShippingComponentBuilder,
   ShippingEnabler,
   ShippingInitResult,
 } from "./shipping-enabler";
 
-declare global {
-  interface ImportMeta {
-    env: any;
-  }
-}
+
 
 export type BaseOptions = {
-  sdk: Sdk;
   processorUrl: string;
   sessionId: string;
   environment: string;
   locale?: string;
   onInitCompleted: (result: ShippingInitResult) => void;
   onUpdateCompleted: () => void;
-  onSubmissionCompleted: () => void;
+
   onError: (error?: any) => void;
 };
 
@@ -52,13 +45,11 @@ export class IngridShippingEnabler implements ShippingEnabler {
 
     return Promise.resolve({
       baseOptions: {
-        sdk: new Sdk(sdkOptions),
         processorUrl: options.processorUrl,
         sessionId: options.sessionId,
         environment: sdkOptions.environment,
         onInitCompleted: options.onInitCompleted || (() => {}),
         onUpdateCompleted: options.onUpdateCompleted || (() => {}),
-        onSubmissionCompleted: options.onSubmissionCompleted || (() => {}),
         onError: options.onError || (() => {}),
       },
     });

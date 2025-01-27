@@ -34,7 +34,7 @@ export default defineConfig({
     outDir: resolve(__dirname, "public"),
     lib: {
       // Could also be a dictionary or array of multiple entry points
-      entry: resolve(__dirname, "src/sdk.ts"),
+      entry: resolve(__dirname, "src/main.ts"),
       name: "Connector",
       formats: ["es", "umd"],
       // the proper extensions will be added
