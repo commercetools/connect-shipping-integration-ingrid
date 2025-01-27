@@ -23,7 +23,6 @@ function CartEditor() {
 
   return ccl ? (
     <div>
-      {/* @ts-ignore */}
       {session ? <p>SessionId: {session.id}</p> : ""}
       {cart && (
         <button

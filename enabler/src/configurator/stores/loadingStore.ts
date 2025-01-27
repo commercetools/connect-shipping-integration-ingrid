@@ -3,7 +3,7 @@ import Store from "./Store";
 export type Action = "START_LOADING" | "DONE";
 
 let loadingCounter = 0;
-const loadingStore = new Store<boolean, Action>((action, state, setState) => {
+const loadingStore = new Store<boolean, Action>((action, _state, setState) => {
   if (action === "START_LOADING") {
     loadingCounter++;
     setState(loadingCounter > 0);

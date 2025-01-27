@@ -37,7 +37,3 @@ export default class Store<STATE, ACTION> {
     this.#reducer(action, this.#state, this.setState.bind(this));
   }
 }
-
-const test = new Store<number, number>((_action, _state, _setState) => {
-  throw new Error("not implemented");
-});

@@ -12,6 +12,7 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "allowJs": false,
     "noEmit": true,
     "types": ["vite/client"],
     "jsx": "react-jsx",

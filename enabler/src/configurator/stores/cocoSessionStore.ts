@@ -1,5 +1,4 @@
 import cartStore from "./cartStore";
-import cardStore from "./cartStore";
 import loadingStore from "./loadingStore";
 import Store from "./Store";
 
@@ -80,11 +79,11 @@ const cocoSessionStore = new Store<Session, Action>(
   initialState
 );
 
-cardStore.subscribe(() => {
+cartStore.subscribe(() => {
   const cart = cartStore.getSnapshot();
   if (
     cocoSessionStore.getSnapshot()?.activeCart?.cartRef?.id !==
-    cardStore.getSnapshot()?.id
+    cartStore.getSnapshot()?.id
   ) {
     if (!cart && cocoSessionStore.getSnapshot()) {
       loadingStore.dispatch("START_LOADING");
