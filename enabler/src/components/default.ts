@@ -4,8 +4,6 @@ import {
   ShippingInitResult
 } from '../shipping-enabler/shipping-enabler';
 
-// import styles from '../../../style/style.module.scss';
-// import buttonStyles from "../../../style/button.module.scss";
 import { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
 
 export class DefaultComponentBuilder implements ShippingComponentBuilder {
@@ -23,12 +21,11 @@ export class DefaultComponent {
   protected environment: BaseOptions['environment'];
   protected onInitCompleted: (result: ShippingInitResult) => void;
   protected onUpdateCompleted: () => void;
-  protected onError: (error?: any) => void;
+  protected onError: (error?: unknown) => void;
     
   private ingridComponentId: string = 'ingrid-component'
  
   constructor(baseOptions: BaseOptions) {
-
     this.processorUrl = baseOptions.processorUrl;
     this.sessionId = baseOptions.sessionId;
     this.environment = baseOptions.environment;

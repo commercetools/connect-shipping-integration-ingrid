@@ -126,10 +126,8 @@ export type EnablerOptions = {
    * A callback function that is called when an error occurs during the shipping process.
    * @param error - The error that occurred.
    */
-  onError?: (error: any) => void;
+  onError?: (error: unknown) => void;
 };
-
-
 
 /**
  * Represents the result of a shipping.
@@ -158,17 +156,6 @@ export type ShippingInitResult =
       isSuccess: false;
     };
 
-/**
- * Represents the options for a shipping component.
- */
-export type ComponentOptions = {
-  /**
-   * A callback function that is called when the init shipping button is clicked.
-   * @returns A Promise indicating the result of shipping initialization.
-   */
-  onInitButtonClick?: () => Promise<void>;
-
-};
 
 
 

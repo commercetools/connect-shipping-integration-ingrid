@@ -15,8 +15,7 @@ export type BaseOptions = {
   locale?: string;
   onInitCompleted: (result: ShippingInitResult) => void;
   onUpdateCompleted: () => void;
-
-  onError: (error?: any) => void;
+  onError: (error?: unknown) => void;
 };
 
 export class IngridShippingEnabler implements ShippingEnabler {
