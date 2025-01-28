@@ -28,11 +28,10 @@ export class DefaultComponent implements ShippingComponent{
     this.onUpdateCompleted = baseOptions.onUpdateCompleted;
     this.onError = baseOptions.onError;
   }
-
-  mount(selector: string) {
-    document
-      .querySelector(`#${selector}`)
-      .insertAdjacentHTML("afterbegin", '<div id="ingrid-component"/>');
+  private clientDOMElementId: string = ''
+  
+  mount(elementId: string) {
+    this.clientDOMElementId = elementId
   }
 
   async update() {
@@ -66,9 +65,7 @@ export class DefaultComponent implements ShippingComponent{
             ingridSessionId: data.ingridSessionId,
             ingridHtml: data.html
           });
-          document.querySelector('#ingrid-component').insertAdjacentHTML("afterbegin", data.html);
-          return data.ingridSessionId
-   
+          document.querySelector(`#${this.clientDOMElementId}`).insertAdjacentHTML("afterbegin", data.html);
       } else {
         this.onError("Some error occurred. Please try again.");
       }
