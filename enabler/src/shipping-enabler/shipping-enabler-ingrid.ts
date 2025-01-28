@@ -9,7 +9,6 @@ import {
 export type BaseOptions = {
   processorUrl: string;
   sessionId: string;
-  environment: string;
   locale?: string;
   onInitCompleted: (result: ShippingInitResult) => void;
   onUpdateCompleted: () => void;
@@ -35,16 +34,15 @@ export class IngridShippingEnabler implements ShippingEnabler {
 
     // const configJson = await configResponse.json();
 
-    const sdkOptions = {
-      // environment: configJson.environment,
-      environment: "test",
-    };
+    // const sdkOptions = {
+    //   // environment: configJson.environment,
+    //   environment: "test",
+    // };
 
     return Promise.resolve({
       baseOptions: {
         processorUrl: options.processorUrl,
         sessionId: options.sessionId,
-        environment: sdkOptions.environment,
         onInitCompleted: options.onInitCompleted || (() => {}),
         onUpdateCompleted: options.onUpdateCompleted || (() => {}),
         onError: options.onError || (() => {}),

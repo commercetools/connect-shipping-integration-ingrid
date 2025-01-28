@@ -17,7 +17,6 @@ export class DefaultComponentBuilder implements ShippingComponentBuilder {
 export class DefaultComponent implements ShippingComponent{
   protected processorUrl: BaseOptions['processorUrl'];
   protected sessionId: BaseOptions['sessionId'];
-  protected environment: BaseOptions['environment'];
   protected onInitCompleted: (result: ShippingInitResult) => void;
   protected onUpdateCompleted: () => void;
   protected onError: (error?: unknown) => void;
@@ -25,7 +24,6 @@ export class DefaultComponent implements ShippingComponent{
   constructor(baseOptions: BaseOptions) {
     this.processorUrl = baseOptions.processorUrl;
     this.sessionId = baseOptions.sessionId;
-    this.environment = baseOptions.environment;
     this.onInitCompleted = baseOptions.onInitCompleted;
     this.onUpdateCompleted = baseOptions.onUpdateCompleted;
     this.onError = baseOptions.onError;
@@ -41,7 +39,7 @@ export class DefaultComponent implements ShippingComponent{
     // TODO: implement update() to send request to processor /sessions/update API
   }
 
-  async init(cocoSessionId: string){
+  async init(cocoSessionId: string): Promise<string>{
     // here we would call the SDK to submit the payment
     // this.sdk.init({ environment: this.environment });
     try {
@@ -69,7 +67,7 @@ export class DefaultComponent implements ShippingComponent{
             ingridHtml: data.html
           });
           document.querySelector('#ingrid-component').insertAdjacentHTML("afterbegin", data.html);
-          localStorage.setItem('ingrid-session-id', data.ingridSessionId)
+          return data.ingridSessionId
    
       } else {
         this.onError("Some error occurred. Please try again.");

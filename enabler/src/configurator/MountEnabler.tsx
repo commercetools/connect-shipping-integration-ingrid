@@ -32,7 +32,8 @@ const MountEnabler = memo(function MountEnabler() {
         const builder = await enabler.createComponentBuilder();
         const component = builder.build();
         component.mount(ingridElementId)
-        component.init(session.id)
+        const ingridSessionId = await component.init(session.id)
+        localStorage.setItem('ingrid-session-id', ingridSessionId)
       }
       initEnabler();
     } 
