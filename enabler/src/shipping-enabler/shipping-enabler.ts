@@ -45,7 +45,7 @@ export interface ShippingComponent {
   /**
    * init the shipping.
    */
-  init(sessionId: string): Promise<string>;
+  init(sessionId: string): void;
 
   /**
    * update the shipping.

@@ -39,7 +39,7 @@ export class DefaultComponent implements ShippingComponent{
     // TODO: implement update() to send request to processor /sessions/update API
   }
 
-  async init(cocoSessionId: string): Promise<string>{
+  async init(cocoSessionId: string) {
     // here we would call the SDK to submit the payment
     // this.sdk.init({ environment: this.environment });
     try {
