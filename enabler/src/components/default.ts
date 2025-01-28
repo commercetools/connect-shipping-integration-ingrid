@@ -7,7 +7,6 @@ import {
 import { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
 
 export class DefaultComponentBuilder implements ShippingComponentBuilder {
-  public componentHasSubmit = true;
   constructor(private baseOptions: BaseOptions) {}
 
   build(): ShippingComponent {
@@ -15,7 +14,7 @@ export class DefaultComponentBuilder implements ShippingComponentBuilder {
   }
 }
 
-export class DefaultComponent {
+export class DefaultComponent implements ShippingComponent{
   protected processorUrl: BaseOptions['processorUrl'];
   protected sessionId: BaseOptions['sessionId'];
   protected environment: BaseOptions['environment'];
@@ -23,8 +22,6 @@ export class DefaultComponent {
   protected onUpdateCompleted: () => void;
   protected onError: (error?: unknown) => void;
     
-  private ingridComponentId: string = 'ingrid-component'
- 
   constructor(baseOptions: BaseOptions) {
     this.processorUrl = baseOptions.processorUrl;
     this.sessionId = baseOptions.sessionId;
@@ -37,37 +34,43 @@ export class DefaultComponent {
   mount(selector: string) {
     document
       .querySelector(`#${selector}`)
-      .insertAdjacentHTML("afterbegin", this._getTemplate());
+      .insertAdjacentHTML("afterbegin", '<div id="ingrid-component"/>');
   }
 
   async update() {
     // TODO: implement update() to send request to processor /sessions/update API
   }
 
-  async init(sessionId: string) {
+  async init(cocoSessionId: string){
     // here we would call the SDK to submit the payment
     // this.sdk.init({ environment: this.environment });
     try {
      
       // TODO: implement actuall API call to processor
       
-      const response = await fetch(this.processorUrl + "/sessions/init", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Session-Id": sessionId,
-        },
+      // const response = await fetch(this.processorUrl + "/sessions/init", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     "X-Session-Id": sessionId,
+      //   },
 
-      });
-      const data = await response.json();
+      // });
+      // const data = await response.json();
+      console.log(cocoSessionId)
+      const data = {
+        ingridSessionId: '1234-2345-3456-4567',
+        html: '<div>HelloWorld</div>'
+      }
       if (data) { // TODO: fix the condition checking 
           this.onInitCompleted({
             isSuccess: true,
             ingridSessionId: data.ingridSessionId,
             ingridHtml: data.html
           });
-          console.log(data)
-          this.postInit(data.ingridSessionId, data.html)
+          document.querySelector('#ingrid-component').insertAdjacentHTML("afterbegin", data.html);
+          localStorage.setItem('ingrid-session-id', data.ingridSessionId)
+   
       } else {
         this.onError("Some error occurred. Please try again.");
       }
@@ -101,13 +104,4 @@ export class DefaultComponent {
   //   }
   // }
 
-  private _getTemplate() {
-   return `<div id=${this.ingridComponentId}>HelloWorld</div>`
-  }
-
-  private postInit(ingridSessionId: string, ingridHtml: string) {
-    document.querySelector(`#${this.ingridComponentId}`).insertAdjacentHTML("afterbegin", ingridHtml);
-    console.log(ingridSessionId)
-    // TODO : store session ID into local storage
-  }
 }

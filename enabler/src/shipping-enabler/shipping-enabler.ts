@@ -52,39 +52,12 @@ export interface ShippingComponent {
    */
   update(): void;
 
-  /**
-   * Shows the validation for the shipping component.
-   */
-  showValidation?(): void;
-
-  /**
-   * Checks if the shipping component is valid.
-   * @returns A boolean indicating whether the shipping component is valid.
-   */
-  isValid?(): boolean;
-
-  /**
-   * Gets the state of the shipping component.
-   * @returns An object representing the state of the shipping component.
-   */
-  getState?(): string
-
-  /**
-   * Checks if the shipping component is available for use.
-   * @returns A promise that resolves to a boolean indicating whether the shipping component is available.
-   */
-  isAvailable?(): Promise<boolean>;
 }
 
 /**
  * Represents the interface for a payment component builder.
  */
 export interface ShippingComponentBuilder {
-  /**
-   * Indicates whether the component has a submit action.
-   */
-  componentHasSubmit?: boolean;
-
   /**
    * Builds a shipping component with the specified configuration.
    * @returns The built shipping component.

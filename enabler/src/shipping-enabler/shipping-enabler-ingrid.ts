@@ -6,8 +6,6 @@ import {
   ShippingInitResult,
 } from "./shipping-enabler";
 
-
-
 export type BaseOptions = {
   processorUrl: string;
   sessionId: string;
