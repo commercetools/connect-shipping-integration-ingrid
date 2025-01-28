@@ -1,0 +1,75 @@
+{
+  "id": "0486de65-0eae-4fcf-bc53-51a101284db1",
+  "version": 1,
+  "lineItems": [
+    {
+      "id": "0486de65-0eae-4fcf-bc53-51a101284db2",
+      "productId": "0486de65-0eae-4fcf-bc53-51a101284db3",
+      "name": {
+        "en": "dog food"
+      },
+      "productType": {
+        "id": "0486de65-0eae-4fcf-bc53-51a101284db4",
+        "typeId": "product-type"
+      },
+      "variant": {
+        "id": "0486de65-0eae-4fcf-bc53-51a101284db5",
+        "prices": [
+          {
+            "id": "0486de65-0eae-4fcf-bc53-51a101284db6",
+            "value": {
+              "type": "centPrecision",
+              "currencyCode": "EUR",
+              "centAmount": 4200,
+              "fractionDigits": 2
+            }
+          }
+        ]
+      },
+      "price": {
+        "id": "0486de65-0eae-4fcf-bc53-51a101284db7",
+        "value": {
+          "type": "centPrecision",
+          "currencyCode": "EUR",
+          "centAmount": 4200,
+          "fractionDigits": 2
+        }
+      },
+      "quantity": 1,
+      "totalPrice": {
+        "type": "centPrecision",
+        "currencyCode": "EUR",
+        "centAmount": 4200,
+        "fractionDigits": 2
+      },
+      "discountedPricePerQuantity": {
+        "type": "centPrecision",
+        "currencyCode": "EUR",
+        "centAmount": 4200,
+        "fractionDigits": 2
+      },
+      "many other stuff, there is no end to the combinations of details of values this can have": {}
+    }
+  ],
+  "customLineItems": [],
+  "totalPrice": {
+    "type": "centPrecision",
+    "currencyCode": "EUR",
+    "centAmount": 4200,
+    "fractionDigits": 2
+  },
+  "taxMode": "Platform",
+  "taxRoundingMode": "HalfEven",
+  "taxCalculationMode": "LineItemLevel",
+  "inventoryMode": "None",
+  "cartState": "Active",
+  "shippingMode": "Single",
+  "shipping": [],
+  "itemShippingAddresses": [],
+  "discountCodes": [],
+  "directDiscounts": [],
+  "refusedGifts": [],
+  "origin": "Customer",
+  "createdAt": "2018-10-12T14:00:00.000Z",
+  "lastModifiedAt": "2018-10-12T14:00:00.000Z"
+}
