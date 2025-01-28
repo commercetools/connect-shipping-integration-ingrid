@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import * as ReactDOM from "react-dom/client";
-import CartEditor from "./CartEditor";
+import CartEditor from "./cartEditors";
 import MountEnabler from "./MountEnabler";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
