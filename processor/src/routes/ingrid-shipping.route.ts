@@ -15,8 +15,8 @@ type ShippingRoutesOptions = {
 
 export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPluginOptions & ShippingRoutesOptions) => {
   fastify.post<{
-    Body: InitSessionRequestSchemaDTO | null;
-    Reply: InitSessionResponseSchemaDTO | any;
+    Body: any;
+    Reply: any;
   }>(
     '/sessions/init',
     {
@@ -30,9 +30,13 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
     },
 
     async (request, reply) => {
-      console.log('request', request);
-      const session = await opts.shippingService.init(request.body?.sessionId);
-      return reply.status(200).send(session);
+      try {
+        const { data } = await opts.shippingService.init();
+        return reply.status(200).send(data);
+      } catch (error) {
+        console.error('Error initializing Ingrid session', error);
+        return reply.status(500).send({ success: false, message: 'Error initializing Ingrid session' });
+      }
     },
   );
 
@@ -49,7 +53,7 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
     },
 
     async (request, reply) => {
-      const session = await opts.shippingService.update(request.body?.sessionId || '');
+      const session = await opts.shippingService.update();
       // @ts-ignore
       return reply.status(200).send(session);
     },

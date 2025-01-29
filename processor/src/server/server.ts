@@ -34,6 +34,7 @@ export const setupFastify = async () => {
       'X-Correlation-ID',
       'X-Request-ID',
       'X-Session-ID',
+      // TODO: still needed?
       'X-Ingrid-Session-ID',
     ],
     origin: '*',

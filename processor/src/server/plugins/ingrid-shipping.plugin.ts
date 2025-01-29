@@ -1,11 +1,9 @@
 import { FastifyInstance } from 'fastify';
 import { shippingRoutes } from '../../routes/ingrid-shipping.route';
-
 import { IngridShippingService } from '../../services/ingrid-shipping.service';
-import { CommercetoolsApiClient } from '../../clients/commercetools/api.client';
-import { getConfig } from '../../config/config';
 import { IngridApiClient } from '../../clients/ingrid/ingrid.client';
-import { paymentSDK } from '../../payment-sdk';
+import { getConfig } from '../../config/config';
+import { CommercetoolsApiClient } from '../../clients/commercetools/api.client';
 
 export default async function (server: FastifyInstance) {
   const opts = {
@@ -14,6 +12,9 @@ export default async function (server: FastifyInstance) {
     authUrl: getConfig().authUrl,
     apiUrl: getConfig().apiUrl,
     projectKey: getConfig().projectKey,
+    sessionUrl: getConfig().sessionUrl,
+    jwksUrl: getConfig().jwksUrl,
+    jwtIssuer: getConfig().jwtIssuer,
   };
 
   const ingridOpts = {
@@ -28,6 +29,6 @@ export default async function (server: FastifyInstance) {
 
   await server.register(shippingRoutes, {
     shippingService,
-    sessionHeaderAuthenticationHook: paymentSDK.sessionHeaderAuthHookFn,
+    sessionHeaderAuthenticationHook: commercetoolsApiClient.client.sessionHeaderAuthHookFn,
   });
 }
