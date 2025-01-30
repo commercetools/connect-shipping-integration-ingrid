@@ -57,11 +57,15 @@ export class CommercetoolsApiClient implements CommercetoolsClient {
     return type;
   }
 
+  // TODO: will the merchant or the enabler set the ingridSessionId
+  // on the cart or does the processor handle the type logic?
+  // referring to prateek's comment here:
+  // https://github.com/commercetools/connect-shipping-integration-ingrid/pull/16#discussion_r1935235022
   public async updateCartWithIngridSessionId(
     cartId: string,
     cartVersion: number,
     ingridSessionId: string,
-    customTypeId: string,
+    fieldName: string,
   ) {
     try {
       const response = await this.client.ctAPI.client
@@ -72,14 +76,9 @@ export class CommercetoolsApiClient implements CommercetoolsClient {
             version: cartVersion,
             actions: [
               {
-                action: 'setCustomType',
-                type: {
-                  id: customTypeId,
-                  typeId: 'type',
-                },
-                fields: {
-                  ingridSessionId: ingridSessionId,
-                },
+                action: 'setCustomField',
+                name: fieldName,
+                value: ingridSessionId,
               },
             ],
           },
