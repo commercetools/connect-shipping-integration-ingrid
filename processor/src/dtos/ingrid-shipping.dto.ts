@@ -13,7 +13,7 @@ export const InitSessionResponseSchema = Type.Union([
   Type.Object({
     html: Type.String(),
     success: Type.Boolean(),
-    ingrid_session_id: Type.String(),
+    ingridSessionId: Type.String(),
   }),
   Type.Object({ success: Type.Boolean(), message: Type.String() }),
 ]);

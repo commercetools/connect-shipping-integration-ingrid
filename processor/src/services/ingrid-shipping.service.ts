@@ -1,6 +1,6 @@
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
 import { IngridApiClient } from '../clients/ingrid/ingrid.client';
-import { Cart } from '@commercetools/connect-payments-sdk';
+import { Cart, LineItem } from '@commercetools/connect-payments-sdk';
 import { getCartIdFromContext } from '../libs/fastify/context/context';
 import { AbstractShippingService } from './abstract-shipping.service';
 import {
@@ -24,9 +24,6 @@ export class IngridShippingService extends AbstractShippingService {
    * @returns void
    */
   public async init(): Promise<InitSessionResponse> {
-    // get cart from commercetools
-    // check if ingrid session id is present
-    // - does custom type exist?
     const ingridSessionCustomTypeId = await this.checkIfIngridCustomTypeExists();
 
     if (!ingridSessionCustomTypeId) {
@@ -55,7 +52,7 @@ export class IngridShippingService extends AbstractShippingService {
       data: {
         success: true,
         html: ingridCheckoutSession.html_snippet,
-        ingrid_session_id: ingridCheckoutSession.session.checkout_session_id,
+        ingridSessionId: ingridCheckoutSession.session.checkout_session_id,
       },
     };
   }
@@ -73,7 +70,7 @@ export class IngridShippingService extends AbstractShippingService {
       data: {
         success: true,
         html: 'ingridCheckoutSession',
-        ingrid_session_id: 'ingridCheckoutSession',
+        ingridSessionId: 'ingridCheckoutSession',
       },
     };
   }
@@ -89,7 +86,7 @@ export class IngridShippingService extends AbstractShippingService {
       const customType = response.body;
       return customType.id;
     } catch (error) {
-      console.log('Ingrid custom type does not exist, creating it');
+      console.info('Ingrid custom type does not exist, creating it');
       try {
         let res = await client
           .types()
@@ -128,9 +125,11 @@ export class IngridShippingService extends AbstractShippingService {
       ctCart.lineItems.length !== 0
         ? ctCart.lineItems.reduce((acc, item) => {
             const itemDiscount =
-              item.quantity *
-              (item.price.value.centAmount -
-                (item.discountedPricePerQuantity[0]?.discountedPrice.value.centAmount ?? item.price.value.centAmount));
+              item.quantity * (item.price.value.centAmount - (item.price.discounted?.value.centAmount ?? 0));
+
+            // TODO: How to proceed with discounts?
+            // discountedPricePerQuantity is most likely empty []
+            // (item.discountedPricePerQuantity[0]?.discountedPrice.value.centAmount ?? item.price.value.centAmount));
             return acc + itemDiscount;
           }, 0)
         : 0;
@@ -140,11 +139,10 @@ export class IngridShippingService extends AbstractShippingService {
     const items =
       ctCart.lineItems.length !== 0
         ? ctCart.lineItems.map((item) => ({
-            attributes: item.custom?.fields,
-            discount:
-              item.totalPrice.centAmount * item.quantity -
-              item.discountedPricePerQuantity[0].discountedPrice.value.centAmount * item.quantity,
-            image_url: item.variant.images![0].url || item.variant.assets![0].sources[0].uri,
+            // item.custom.fields may be undefined
+            attributes: [JSON.stringify(item.custom?.fields) || ''],
+            discount: this.calculateLineItemDiscount(item),
+            image_url: item.variant.images![0].url || item.variant.assets![0].sources[0].uri || '',
             name: item.name[ctCart.locale!],
             price: item.price.value.centAmount,
             quantity: item.quantity,
@@ -161,6 +159,7 @@ export class IngridShippingService extends AbstractShippingService {
 
     const payload: IngridCreateSessionRequestPayload = {
       cart: transformedCart,
+      // TODO: external_id needed when we set the cartId as well (@line 158)
       external_id: ctCart.id,
       locales: [ctCart.locale!],
       purchase_country: ctCart.country!,
@@ -168,5 +167,20 @@ export class IngridShippingService extends AbstractShippingService {
     };
 
     return payload;
+  }
+
+  private calculateLineItemDiscount(item: LineItem) {
+    if (item.discountedPricePerQuantity.length === 0) {
+      return 0;
+    }
+    try {
+      return (
+        item.totalPrice.centAmount * item.quantity -
+        item.discountedPricePerQuantity[0].discountedPrice.value.centAmount * item.quantity
+      );
+    } catch (error) {
+      console.error('Error calculating discount', error);
+      return 0;
+    }
   }
 }

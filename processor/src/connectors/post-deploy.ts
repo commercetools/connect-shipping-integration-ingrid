@@ -21,6 +21,7 @@ async function run() {
   }
 }
 
+// TODO: this needs to be refactored, currently as of development, logic is inside service
 export async function checkIfIngridCustomTypeExists() {
   const sdk = new CommercetoolsApiClient({
     clientId: process.env.CT_CLIENT_ID!,
@@ -37,7 +38,7 @@ export async function checkIfIngridCustomTypeExists() {
     const response = await client.types().withKey({ key: 'ingrid-session-id' }).get().execute();
 
     if (response.statusCode !== 200) {
-      console.log('Ingrid custom type does not exist, creating it');
+      console.info('Ingrid custom type does not exist, creating it');
       try {
         let res = await client
           .types()
