@@ -13,12 +13,19 @@ export type Action = {
   ccl: CCL;
 };
 
+const initialState = {
+  country: "",
+  currency: "",
+  language: "",
+}; // TODO should this really be our initial state, or should it be undefined with STATE: CCL | undefined?
+
 const countryCurrencyLanguageStore = new Store<CCL, Action>(
   (action, _state, setState) => {
     if (action.type === "SET_CCL") {
       setState(action.ccl);
     }
-  }
+  },
+  initialState
 );
 const unsubscribe = cocoProjectSettingsStore.subscribe(() => {
   const cart = cartStore.getSnapshot();
@@ -26,9 +33,9 @@ const unsubscribe = cocoProjectSettingsStore.subscribe(() => {
     countryCurrencyLanguageStore.dispatch({
       type: "SET_CCL",
       ccl: {
-        country: cart.country,
+        country: cart.country || "", //TODO should we still be dispatching if country is undefined and/or throw error/warning?
         currency: cart.totalPrice.currencyCode,
-        language: cart.locale,
+        language: cart.locale || "", //TODO should we still be dispatching if locale is undefined and/or throw error/warning?
       },
     });
   } else {
@@ -36,9 +43,9 @@ const unsubscribe = cocoProjectSettingsStore.subscribe(() => {
     countryCurrencyLanguageStore.dispatch({
       type: "SET_CCL",
       ccl: {
-        country: project.countries[0],
-        currency: project.currencies[0],
-        language: project.languages[0],
+        country: project?.countries[0] || "", //TODO should we still be dispatching if project is undefined and/or throw error/warning?
+        currency: project?.currencies[0] || "", //TODO should we still be dispatching if project is undefined and/or throw error/warning?
+        language: project?.languages[0] || "", //TODO should we still be dispatching if project is undefined and/or throw error/warning?
       },
     });
     unsubscribe();

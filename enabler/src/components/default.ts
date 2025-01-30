@@ -1,8 +1,8 @@
 import {
   ShippingComponent,
   ShippingComponentBuilder,
-  ShippingInitResult
-} from '../shipping-enabler/shipping-enabler';
+  ShippingInitResult,
+} from "../shipping-enabler/shipping-enabler";
 
 import { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
 
@@ -14,13 +14,13 @@ export class DefaultComponentBuilder implements ShippingComponentBuilder {
   }
 }
 
-export class DefaultComponent implements ShippingComponent{
-  protected processorUrl: BaseOptions['processorUrl'];
-  protected sessionId: BaseOptions['sessionId'];
+export class DefaultComponent implements ShippingComponent {
+  protected processorUrl: BaseOptions["processorUrl"];
+  protected sessionId: BaseOptions["sessionId"];
   protected onInitCompleted: (result: ShippingInitResult) => void;
   protected onUpdateCompleted: () => void;
   protected onError: (error?: unknown) => void;
-    
+
   constructor(baseOptions: BaseOptions) {
     this.processorUrl = baseOptions.processorUrl;
     this.sessionId = baseOptions.sessionId;
@@ -28,10 +28,10 @@ export class DefaultComponent implements ShippingComponent{
     this.onUpdateCompleted = baseOptions.onUpdateCompleted;
     this.onError = baseOptions.onError;
   }
-  private clientDOMElementId: string = ''
-  
+  private clientDOMElementId: string = "";
+
   mount(elementId: string) {
-    this.clientDOMElementId = elementId
+    this.clientDOMElementId = elementId;
   }
 
   async update() {
@@ -42,9 +42,8 @@ export class DefaultComponent implements ShippingComponent{
     // here we would call the SDK to submit the payment
     // this.sdk.init({ environment: this.environment });
     try {
-     
       // TODO: implement actuall API call to processor
-      
+
       // const response = await fetch(this.processorUrl + "/sessions/init", {
       //   method: "POST",
       //   headers: {
@@ -54,23 +53,33 @@ export class DefaultComponent implements ShippingComponent{
 
       // });
       // const data = await response.json();
-      console.log(cocoSessionId)
+      console.log(cocoSessionId);
       const data = {
-        ingridSessionId: '1234-2345-3456-4567',
-        html: '<div>HelloWorld</div>'
-      }
-      if (data) { // TODO: fix the condition checking 
-          this.onInitCompleted({
-            isSuccess: true,
-            ingridSessionId: data.ingridSessionId,
-            ingridHtml: data.html
-          });
-          document.querySelector(`#${this.clientDOMElementId}`).insertAdjacentHTML("afterbegin", data.html);
+        ingridSessionId: "1234-2345-3456-4567",
+        html: "<div>HelloWorld</div>",
+      };
+      const clientDOMElement = document.querySelector(
+        `#${this.clientDOMElementId}`
+      );
+      if (data && clientDOMElement) {
+        // TODO: fix the condition checking
+        this.onInitCompleted({
+          isSuccess: true,
+          ingridSessionId: data.ingridSessionId,
+          ingridHtml: data.html,
+        });
+        clientDOMElement.insertAdjacentHTML("afterbegin", data.html);
       } else {
-        this.onError("Some error occurred. Please try again.");
+        if (this.clientDOMElementId) {
+          this.onError(
+            `Error initialising Ingrid integration, element with ID ${this.clientDOMElementId} doesn't exist`
+          );
+        } else {
+          this.onError("Some error occurred. Please try again.");
+        }
       }
     } catch (e) {
-      console.log(e)
+      console.log(e);
       this.onError("Some error occurred. Please try again.");
     }
   }
@@ -89,7 +98,7 @@ export class DefaultComponent implements ShippingComponent{
   //     });
   //     const data = await response.json();
   //     if (data) {
-   
+
   //         this.onSubmissionCompleted();
   //     } else {
   //       this.onError("Some error occurred. Please try again.");
@@ -98,5 +107,4 @@ export class DefaultComponent implements ShippingComponent{
   //     this.onError("Some error occurred. Please try again.");
   //   }
   // }
-
 }
