@@ -121,20 +121,27 @@ export class IngridShippingService extends AbstractShippingService {
   }
 
   public mapCartToIngridCheckoutPayload(ctCart: Cart): IngridCreateSessionRequestPayload {
-    const lineItemDiscounts =
+    const totalLineItemDiscount =
       ctCart.lineItems.length !== 0
         ? ctCart.lineItems.reduce((acc, item) => {
+            // um wie viel reduziert aber bei nicht reduzierten, da normalpreis
             const itemDiscount =
               item.quantity * (item.price.value.centAmount - (item.price.discounted?.value.centAmount ?? 0));
 
+            // on current items, discountedPricePerQuantity is empty
+            const discountedPricePerQuantity =
+              item.discountedPricePerQuantity.length > 0 &&
+              item.discountedPricePerQuantity.reduce((acc, price) => acc + price.discountedPrice.value.centAmount, 0);
+
             // TODO: How to proceed with discounts?
-            // discountedPricePerQuantity is most likely empty []
-            // (item.discountedPricePerQuantity[0]?.discountedPrice.value.centAmount ?? item.price.value.centAmount));
+            // currently we are giving back the difference between normal price
+            // and discount but if not discount is given we return the normal price
             return acc + itemDiscount;
           }, 0)
         : 0;
 
-    const totalDiscount = (ctCart.discountOnTotalPrice?.discountedAmount.centAmount ?? 0) + lineItemDiscounts;
+    // on current items, discountOnTotalPrice is undefined
+    const totalDiscount = (ctCart.discountOnTotalPrice?.discountedAmount.centAmount ?? 0) + totalLineItemDiscount;
 
     const items =
       ctCart.lineItems.length !== 0
@@ -150,6 +157,7 @@ export class IngridShippingService extends AbstractShippingService {
           }))
         : [];
 
+    // TODO: How to include / map tax?
     const transformedCart: IngridCart = {
       total_value: ctCart.totalPrice.centAmount,
       total_discount: totalDiscount,
