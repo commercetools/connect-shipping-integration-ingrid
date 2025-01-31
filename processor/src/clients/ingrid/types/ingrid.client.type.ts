@@ -13,11 +13,11 @@ export type IngridGetSessionResponse = {
 };
 
 export type IngridCreateSessionRequestPayload = {
-  additional_information?: any;
+  additional_information?: unknown;
   cart: IngridCart;
   external_id?: string;
   locales: string[];
-  meta?: Record<string, any>;
+  meta?: Record<string, unknown>;
   prefill_delivery_address?: IngridAddress;
   purchase_country: string;
   purchase_currency: string;
@@ -103,7 +103,7 @@ export type IngridDeliveryGroupShipping = {
   carrier_product_id: string;
   delivery_addons: IngridDeliveryGroupDeliveryAddon[];
   delivery_type: string;
-  meta: Record<string, any>;
+  meta: Record<string, unknown>;
   product: string;
   route: IngridRoute;
   supports: IngridSupports;
@@ -180,9 +180,9 @@ export type IngridDeliveryGroupWarehouse = {
 export type IngridCart = {
   total_value: number;
   total_discount: number;
-  items: any[];
+  items: unknown[];
   cart_id: string;
-  groups?: any[];
+  groups?: unknown[];
 };
 
 export type IngridDeliveryGroupSelection = {
@@ -310,7 +310,7 @@ export type IngridUpdateSessionRequestPayload = {
   checkout_session_id: string;
   external_id?: string;
   locales?: string[];
-  meta?: Record<string, any>;
+  meta?: Record<string, unknown>;
   prefill_delivery_address?: IngridDeliveryAddress;
   purchase_country: string;
   purchase_currency: string;

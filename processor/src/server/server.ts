@@ -28,14 +28,7 @@ export const setupFastify = async () => {
 
   // Enable CORS
   await server.register(cors, {
-    allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'X-Correlation-ID',
-      'X-Request-ID',
-      'X-Session-ID',
-      'X-Ingrid-Session-ID',
-    ],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-ID', 'X-Request-ID', 'X-Session-ID'],
     origin: '*',
   });
 
