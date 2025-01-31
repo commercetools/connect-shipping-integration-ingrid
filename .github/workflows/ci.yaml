@@ -48,7 +48,7 @@ jobs:
       - name: Install modules
         run: npm ci
       
-      - name: Check the lint
+      - name: Perform lint check
         run: npm run check
 
       - name: Execute build
@@ -74,6 +74,9 @@ jobs:
 
       - name: Install modules
         run: npm ci
+
+      - name: Perform lint check
+        run: npm run lint
       
       - name: Execute build
         run: npm run build
