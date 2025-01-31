@@ -1,5 +1,4 @@
 import * as dotenv from 'dotenv';
-import { doSomeAction } from './actions';
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
 dotenv.config();
 
@@ -40,7 +39,7 @@ export async function checkIfIngridCustomTypeExists() {
     if (response.statusCode !== 200) {
       console.info('Ingrid custom type does not exist, creating it');
       try {
-        let res = await client
+        const res = await client
           .types()
           .post({
             body: {
@@ -70,7 +69,7 @@ export async function checkIfIngridCustomTypeExists() {
         console.error('Error creating Ingrid custom type', error);
       }
     }
-    let customType = response.body;
+    const customType = response.body;
     console.log('Ingrid custom type created', customType);
   } catch (error) {
     console.error('Error checking if Ingrid custom type exists', error);
