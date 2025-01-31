@@ -25,7 +25,7 @@ export class IngridApiClient implements AbstractIngridClient {
       return response.data as IngridCreateSessionResponse;
     } catch (error) {
       if (error instanceof axios.AxiosError) {
-        throw new Error(error.response?.data || 'Error creating Ingrid session');
+        throw new Error(error?.response?.data || 'Error creating Ingrid session');
       } else {
         throw new Error('An unexpected error occurred');
       }

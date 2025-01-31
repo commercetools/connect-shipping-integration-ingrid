@@ -6,19 +6,21 @@ import {
   InitSessionResponseSchemaDTO,
 } from '../dtos/ingrid-shipping.dto';
 import { IngridShippingService } from '../services/ingrid-shipping.service';
+import { SessionHeaderAuthenticationHook } from '@commercetools/connect-payments-sdk';
 
 type ShippingRoutesOptions = {
   shippingService: IngridShippingService;
+  sessionHeaderAuthenticationHook: SessionHeaderAuthenticationHook;
 };
 
 export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPluginOptions & ShippingRoutesOptions) => {
   fastify.post<{
-    Body: InitSessionRequestSchemaDTO | null;
-    Reply: InitSessionResponseSchemaDTO | any;
+    Body: any;
+    Reply: any;
   }>(
     '/sessions/init',
     {
-      preHandler: [],
+      preHandler: [opts.sessionHeaderAuthenticationHook.authenticate()],
       schema: {
         body: InitSessionRequestSchema,
         response: {
@@ -28,8 +30,13 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
     },
 
     async (request, reply) => {
-      const session = await opts.shippingService.init(request.body?.sessionId);
-      return reply.status(200).send(session);
+      try {
+        const { data } = await opts.shippingService.init();
+        return reply.status(200).send(data);
+      } catch (error) {
+        console.error('Error initializing Ingrid session', error);
+        return reply.status(500).send({ success: false, message: 'Error initializing Ingrid session' });
+      }
     },
   );
 
@@ -39,33 +46,14 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
   }>(
     '/sessions/update',
     {
-      preHandler: [],
+      preHandler: [opts.sessionHeaderAuthenticationHook.authenticate()],
       schema: {
         body: InitSessionRequestSchema,
       },
     },
 
     async (request, reply) => {
-      const session = await opts.shippingService.update(request.body?.sessionId || '');
-      // @ts-ignore
-      return reply.status(200).send(session);
-    },
-  );
-
-  fastify.post<{
-    Body: InitSessionRequestSchemaDTO;
-    Reply: InitSessionResponseSchemaDTO;
-  }>(
-    '/sessions/complete',
-    {
-      preHandler: [],
-      schema: {
-        body: InitSessionRequestSchema,
-      },
-    },
-
-    async (request, reply) => {
-      const session = await opts.shippingService.complete(request.body?.sessionId || '');
+      const session = await opts.shippingService.update();
       // @ts-ignore
       return reply.status(200).send(session);
     },
