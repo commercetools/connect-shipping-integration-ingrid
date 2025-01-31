@@ -1,6 +1,5 @@
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
 import { IngridApiClient } from '../clients/ingrid/ingrid.client';
-import { IngridUpdateSessionResponse } from '../clients/ingrid/types/ingrid.client.type';
 import { InitSessionResponse } from './types/ingrid-shipping.type';
 
 export abstract class AbstractShippingService {

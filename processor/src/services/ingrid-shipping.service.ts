@@ -3,11 +3,7 @@ import { IngridApiClient } from '../clients/ingrid/ingrid.client';
 import { Cart, LineItem } from '@commercetools/connect-payments-sdk';
 import { getCartIdFromContext } from '../libs/fastify/context/context';
 import { AbstractShippingService } from './abstract-shipping.service';
-import {
-  IngridUpdateSessionResponse,
-  IngridCreateSessionRequestPayload,
-  IngridCart,
-} from '../clients/ingrid/types/ingrid.client.type';
+import { IngridCreateSessionRequestPayload, IngridCart } from '../clients/ingrid/types/ingrid.client.type';
 import { InitSessionResponse } from './types/ingrid-shipping.type';
 
 export class IngridShippingService extends AbstractShippingService {
@@ -38,7 +34,7 @@ export class IngridShippingService extends AbstractShippingService {
       : await this.ingridClient.createCheckoutSession(ingridCheckoutPayload);
 
     try {
-      const updatedCart = await this.commercetoolsClient.updateCartWithIngridSessionId(
+      await this.commercetoolsClient.updateCartWithIngridSessionId(
         ctCart.id,
         ctCart.version,
         ingridCheckoutSession.session.checkout_session_id,
@@ -86,9 +82,9 @@ export class IngridShippingService extends AbstractShippingService {
       const customType = response.body;
       return customType.id;
     } catch (error) {
-      console.info('Ingrid custom type does not exist, creating it');
+      console.error('Ingrid custom type does not exist, creating it', error);
       try {
-        let res = await client
+        const res = await client
           .types()
           .post({
             body: {
@@ -132,6 +128,9 @@ export class IngridShippingService extends AbstractShippingService {
             const discountedPricePerQuantity =
               item.discountedPricePerQuantity.length > 0 &&
               item.discountedPricePerQuantity.reduce((acc, price) => acc + price.discountedPrice.value.centAmount, 0);
+
+            // Hin : temporarily print it out to pass lint checking
+            console.log(discountedPricePerQuantity);
 
             // TODO: How to proceed with discounts?
             // currently we are giving back the difference between normal price

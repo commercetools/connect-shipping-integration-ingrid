@@ -1,6 +1,4 @@
 import { Static, Type } from '@sinclair/typebox';
-import { Parse } from '@sinclair/typebox/syntax';
-import { IngridCreateSessionResponse } from '../clients/ingrid/types/ingrid.client.type';
 
 export const InitSessionRequestSchema = Type.Union([
   Type.Object({
