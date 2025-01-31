@@ -65,7 +65,7 @@ export class CommercetoolsApiClient implements CommercetoolsClient {
     cartId: string,
     cartVersion: number,
     ingridSessionId: string,
-    fieldName: string,
+    customTypeId: string,
   ) {
     try {
       const response = await this.client.ctAPI.client
@@ -77,8 +77,48 @@ export class CommercetoolsApiClient implements CommercetoolsClient {
             actions: [
               {
                 action: 'setCustomField',
-                name: fieldName,
+                name: 'ingridSessionId',
                 value: ingridSessionId,
+              },
+            ],
+          },
+        })
+        .execute();
+      const cart = response.body;
+      return cart;
+    } catch (error) {
+      try {
+        const cart = await this.setCustomTypeOnCart(cartId, cartVersion, ingridSessionId, customTypeId);
+        return cart;
+      } catch (e) {
+        throw e;
+      }
+    }
+  }
+
+  private async setCustomTypeOnCart(
+    cartId: string,
+    cartVersion: number,
+    ingridSessionId: string,
+    customTypeId: string,
+  ) {
+    try {
+      const response = await this.client.ctAPI.client
+        .carts()
+        .withId({ ID: cartId })
+        .post({
+          body: {
+            version: cartVersion,
+            actions: [
+              {
+                action: 'setCustomType',
+                type: {
+                  id: customTypeId,
+                  typeId: 'type',
+                },
+                fields: {
+                  ingridSessionId: ingridSessionId,
+                },
               },
             ],
           },

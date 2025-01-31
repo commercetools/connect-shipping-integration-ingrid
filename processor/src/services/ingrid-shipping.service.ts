@@ -38,7 +38,7 @@ export class IngridShippingService extends AbstractShippingService {
       : await this.ingridClient.createCheckoutSession(ingridCheckoutPayload);
 
     try {
-      await this.commercetoolsClient.updateCartWithIngridSessionId(
+      const updatedCart = await this.commercetoolsClient.updateCartWithIngridSessionId(
         ctCart.id,
         ctCart.version,
         ingridCheckoutSession.session.checkout_session_id,
