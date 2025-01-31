@@ -4,7 +4,6 @@ import {
   IngridCompleteSessionResponse,
   IngridCreateSessionResponse,
   IngridGetSessionResponse,
-  IngridSession,
   IngridUpdateSessionResponse,
 } from '../clients/ingrid/types/ingrid.client.type';
 

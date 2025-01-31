@@ -1,11 +1,9 @@
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
 import { IngridApiClient } from '../clients/ingrid/ingrid.client';
-import { CommercetoolsClient } from '../clients/commercetools/types/api.client.type';
 import {
   IngridCompleteSessionResponse,
   IngridCreateSessionResponse,
   IngridGetSessionResponse,
-  IngridSession,
   IngridUpdateSessionResponse,
 } from '../clients/ingrid/types/ingrid.client.type';
 import { AbstractShippingService } from './abstract-shipping.service';
