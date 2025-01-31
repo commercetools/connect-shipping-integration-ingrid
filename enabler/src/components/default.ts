@@ -46,7 +46,6 @@ export class DefaultComponent implements ShippingComponent {
       const response = await fetch(this.processorUrl + "/sessions/init", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           "X-Session-Id": this.sessionId,
         },
       });
