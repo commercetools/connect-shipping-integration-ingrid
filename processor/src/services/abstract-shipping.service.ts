@@ -1,18 +1,13 @@
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
 import { IngridApiClient } from '../clients/ingrid/ingrid.client';
-import {
-  IngridCompleteSessionResponse,
-  IngridCreateSessionResponse,
-  IngridGetSessionResponse,
-  IngridUpdateSessionResponse,
-} from '../clients/ingrid/types/ingrid.client.type';
+import { InitSessionResponse } from './types/ingrid-shipping.type';
 
 export abstract class AbstractShippingService {
-  protected commercetoolsApiClient: CommercetoolsApiClient;
+  protected commercetoolsClient: CommercetoolsApiClient;
   protected ingridClient: IngridApiClient;
 
-  protected constructor(commercetoolsApiClient: CommercetoolsApiClient, ingridClient: IngridApiClient) {
-    this.commercetoolsApiClient = commercetoolsApiClient;
+  protected constructor(commercetoolsClient: CommercetoolsApiClient, ingridClient: IngridApiClient) {
+    this.commercetoolsClient = commercetoolsClient;
     this.ingridClient = ingridClient;
   }
 
@@ -24,7 +19,7 @@ export abstract class AbstractShippingService {
    *
    * @returns void
    */
-  abstract init(sessionId?: string): Promise<IngridCreateSessionResponse | IngridGetSessionResponse>;
+  abstract init(): Promise<InitSessionResponse>;
 
   /**
    * Update from Ingrid platform
@@ -34,15 +29,5 @@ export abstract class AbstractShippingService {
    *
    * @returns void
    */
-  abstract update(sessionId: string): Promise<IngridUpdateSessionResponse>;
-
-  /**
-   * Complete Ingrid session
-   *
-   * @remarks
-   * Abstract method to complete Ingrid session. The actual invocation should be implemented in subclasses
-   *
-   * @returns void
-   */
-  abstract complete(sessionId: string): Promise<IngridCompleteSessionResponse>;
+  abstract update(): Promise<InitSessionResponse>;
 }
