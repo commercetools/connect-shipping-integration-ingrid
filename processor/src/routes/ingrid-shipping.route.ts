@@ -15,8 +15,8 @@ type ShippingRoutesOptions = {
 
 export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPluginOptions & ShippingRoutesOptions) => {
   fastify.post<{
-    Body: any;
-    Reply: any;
+    Body: unknown;
+    Reply: unknown;
   }>(
     '/sessions/init',
     {
@@ -53,9 +53,8 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
     },
 
     async (request, reply) => {
-      const session = await opts.shippingService.update();
-      // @ts-ignore
-      return reply.status(200).send(session);
+      await opts.shippingService.update();
+      return reply.status(200).send();
     },
   );
 };
