@@ -3,6 +3,8 @@ export enum IngridBasePath {
   PRODUCTION = 'https://api.ingrid.com',
 }
 
+export type IngridEnvironment = 'STAGING' | 'PRODUCTION';
+
 export enum IngridUrls {
   DELIVERY_CHECKOUT = '/v1/delivery_checkout',
 }
