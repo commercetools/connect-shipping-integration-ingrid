@@ -87,7 +87,7 @@ export class IngridShippingService extends AbstractShippingService {
     } catch (error) {
       console.error('Ingrid custom type does not exist, creating it', error);
       try {
-        let res = await client
+        const response = await this.commercetoolsClient.client
           .types()
           .post({
             body: {
@@ -111,8 +111,8 @@ export class IngridShippingService extends AbstractShippingService {
             },
           })
           .execute();
-        const curstomType = res.body;
-        return curstomType.id;
+        const customType = response.body;
+        return customType.id;
       } catch (error) {
         console.error('Error creating Ingrid custom type', error);
       }
