@@ -1,9 +1,9 @@
-import type { Authentication } from '@commercetools/connect-payments-sdk';
 import { fastifyRequestContext, requestContext } from '@fastify/request-context';
 import { randomUUID } from 'crypto';
 import { FastifyInstance, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
-import * as paymentSdk from '@commercetools/connect-payments-sdk';
+import { Authentication } from '../../auth/types/authn.type';
+import * as contextHelper from './helper';
 
 export type ContextData = {
   anonymousId?: string;
@@ -37,12 +37,12 @@ export const updateRequestContext = (ctx: Partial<ContextData>) => {
 
 export const getCtSessionIdFromContext = (): string => {
   const contextData = getRequestContext() as ContextData;
-  return paymentSdk.getCtSessionIdFromContext(contextData) as string;
+  return contextHelper.getCtSessionIdFromContext(contextData) as string;
 };
 
 export const getCartIdFromContext = (): string => {
   const contextData = getRequestContext() as ContextData;
-  return paymentSdk.getCartIdFromContext(contextData) as string;
+  return contextHelper.getCartIdFromContext(contextData) as string;
 };
 
 export const requestContextPlugin = fp(async (fastify: FastifyInstance) => {

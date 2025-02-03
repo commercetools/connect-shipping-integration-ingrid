@@ -6,7 +6,7 @@ import {
   InitSessionResponseSchemaDTO,
 } from '../dtos/ingrid-shipping.dto';
 import { IngridShippingService } from '../services/ingrid-shipping.service';
-import { SessionHeaderAuthenticationHook } from '@commercetools/connect-payments-sdk';
+import { SessionHeaderAuthenticationHook } from '../libs/auth/hooks/sessionHeaderAuth.hook';
 
 type ShippingRoutesOptions = {
   shippingService: IngridShippingService;

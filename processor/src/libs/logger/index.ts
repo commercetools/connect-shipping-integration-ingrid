@@ -27,7 +27,7 @@ const defaultFieldsFormatter = (defaults: DefaultFields) => {
   })(defaults);
 };
 
-export const log = createApplicationLogger({
+export const appLogger = createApplicationLogger({
   formatters: [
     defaultFieldsFormatter({
       projectKey: getConfig().projectKey,

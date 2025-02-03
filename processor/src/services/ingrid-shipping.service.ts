@@ -1,13 +1,9 @@
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
 import { IngridApiClient } from '../clients/ingrid/ingrid.client';
-import { Cart, LineItem } from '@commercetools/connect-payments-sdk';
+import { Cart, LineItem } from '@commercetools/platform-sdk';
 import { getCartIdFromContext } from '../libs/fastify/context/context';
 import { AbstractShippingService } from './abstract-shipping.service';
-import {
-  IngridUpdateSessionResponse,
-  IngridCreateSessionRequestPayload,
-  IngridCart,
-} from '../clients/ingrid/types/ingrid.client.type';
+import { IngridCreateSessionRequestPayload, IngridCart } from '../clients/ingrid/types/ingrid.client.type';
 import { InitSessionResponse } from './types/ingrid-shipping.type';
 
 export class IngridShippingService extends AbstractShippingService {
@@ -80,15 +76,18 @@ export class IngridShippingService extends AbstractShippingService {
    * returns the type id
    */
   public async checkIfIngridCustomTypeExists() {
-    const client = this.commercetoolsClient.client.ctAPI.client;
     try {
-      const response = await client.types().withKey({ key: 'ingrid-session-id' }).get().execute();
+      const response = await this.commercetoolsClient.client
+        .types()
+        .withKey({ key: 'ingrid-session-id' })
+        .get()
+        .execute();
       const customType = response.body;
       return customType.id;
     } catch (error) {
       console.info('Ingrid custom type does not exist, creating it');
       try {
-        let res = await client
+        let res = await this.commercetoolsClient.client
           .types()
           .post({
             body: {

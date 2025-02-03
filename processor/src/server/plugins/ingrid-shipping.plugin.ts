@@ -4,6 +4,9 @@ import { IngridShippingService } from '../../services/ingrid-shipping.service';
 import { IngridApiClient } from '../../clients/ingrid/ingrid.client';
 import { getConfig } from '../../config/config';
 import { CommercetoolsApiClient } from '../../clients/commercetools/api.client';
+import { appLogger } from '../../libs/logger';
+import { RequestContextData } from '../../libs/fastify/context/types';
+import { updateRequestContext, getRequestContext } from '../../libs/fastify/context/context';
 
 export default async function (server: FastifyInstance) {
   const opts = {
@@ -13,8 +16,24 @@ export default async function (server: FastifyInstance) {
     apiUrl: getConfig().apiUrl,
     projectKey: getConfig().projectKey,
     sessionUrl: getConfig().sessionUrl,
-    jwksUrl: getConfig().jwksUrl,
-    jwtIssuer: getConfig().jwtIssuer,
+    logger: appLogger,
+    getContextFn: (): RequestContextData => {
+      const { correlationId, requestId, authentication } = getRequestContext();
+      return {
+        correlationId: correlationId || '',
+        requestId: requestId || '',
+        authentication,
+      };
+    },
+    updateContextFn: (context: Partial<RequestContextData>) => {
+      const requestContext = Object.assign(
+        {},
+        context.correlationId ? { correlationId: context.correlationId } : {},
+        context.requestId ? { requestId: context.requestId } : {},
+        context.authentication ? { authentication: context.authentication } : {},
+      );
+      updateRequestContext(requestContext);
+    },
   };
 
   const ingridOpts = {
@@ -29,6 +48,6 @@ export default async function (server: FastifyInstance) {
 
   await server.register(shippingRoutes, {
     shippingService,
-    sessionHeaderAuthenticationHook: commercetoolsApiClient.client.sessionHeaderAuthHookFn,
+    sessionHeaderAuthenticationHook: commercetoolsApiClient.sessionHeaderAuthHookFn,
   });
 }
