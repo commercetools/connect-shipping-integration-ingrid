@@ -33,9 +33,9 @@ const unsubscribe = cocoProjectSettingsStore.subscribe(() => {
     countryCurrencyLanguageStore.dispatch({
       type: "SET_CCL",
       ccl: {
-        country: cart.country || "", //TODO should we still be dispatching if country is undefined and/or throw error/warning?
+        country: cart.country!,
         currency: cart.totalPrice.currencyCode,
-        language: cart.locale || "", //TODO should we still be dispatching if locale is undefined and/or throw error/warning?
+        language: cart.locale!,
       },
     });
   } else {
