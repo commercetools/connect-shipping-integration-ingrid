@@ -28,9 +28,6 @@ export const ProductList = memo(function ProductList({
           <button
             disabled={!product.masterVariant.price || loading}
             onClick={() => {
-              {
-                /*TODO how should we handle if product.masterVariant.sku in undefined? */
-              }
               cartStore.dispatch({
                 type: "ADD_ITEM",
                 sku: product.masterVariant.sku || "",
