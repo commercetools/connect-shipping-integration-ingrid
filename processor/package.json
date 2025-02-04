@@ -20,9 +20,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@commercetools/connect-payments-sdk": "^0.18.1",
     "@commercetools-backend/loggers": "22.39.1",
-    "@commercetools/platform-sdk": "8.1.0",
+    "@commercetools/connect-payments-sdk": "^0.18.1",
     "@commercetools/sdk-client-v2": "3.0.0",
     "@fastify/autoload": "6.0.3",
     "@fastify/cors": "10.0.2",
@@ -38,6 +37,7 @@
     "fastify-plugin": "5.0.1"
   },
   "devDependencies": {
+    "@commercetools/platform-sdk": "^8.1.0",
     "@eslint/compat": "^1.2.4",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.19.0",

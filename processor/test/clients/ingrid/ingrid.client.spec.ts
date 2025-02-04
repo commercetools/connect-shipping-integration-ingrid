@@ -62,7 +62,7 @@ describe('Ingrid Client', () => {
       mockServer.use(
         mockRequest(
           IngridBasePath.STAGING,
-          IngridUrls.DELIVERY_CHECKOUT + '/session.pull?checkout_session_id=dummy-checkout-session-id',
+          IngridUrls.DELIVERY_CHECKOUT + '/session.pull',
           200,
           mockPullCheckoutSessionResponse,
         ),
