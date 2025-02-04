@@ -3,12 +3,14 @@ import { FastifyError, type FastifyReply, type FastifyRequest } from 'fastify';
 import { FastifySchemaValidationError } from 'fastify/types/schema';
 import { log } from '../logger';
 
-import { TErrorObject, TErrorResponse } from './errors/dtos/error.dto';
+import { TAuthErrorResponse, TErrorObject, TErrorResponse } from './errors/dtos/error.dto';
 import { GeneralError } from './errors/general.error';
 import { CustomError } from './errors/custom.error';
 import { ErrorInvalidField } from './errors/invalid-field.error';
 import { ErrorInvalidJsonInput } from './errors/invalid-json-input.error';
 import { ErrorRequiredField } from './errors/required-field.error';
+import { ErrorAuthErrorResponse } from '@commercetools/connect-payments-sdk';
+import { Errorx } from '@commercetools/connect-payments-sdk';
 
 function isFastifyValidationError(error: Error): error is FastifyError {
   return (error as unknown as FastifyError).validation != undefined;
@@ -17,8 +19,11 @@ function isFastifyValidationError(error: Error): error is FastifyError {
 export const errorHandler = (error: Error, req: FastifyRequest, reply: FastifyReply) => {
   if (isFastifyValidationError(error) && error.validation) {
     return handleErrors(transformValidationErrors(error.validation, req), reply);
+  } else if (error instanceof ErrorAuthErrorResponse) {
+    return handleAuthError(error, reply);
+  } else if (error instanceof Errorx) {
+    return handleErrors([error], reply);
   }
-
   // If it isn't any of the cases above (for example a normal Error is thrown) then fallback to a general 500 internal server error
   return handleErrors(
     [
@@ -94,6 +99,41 @@ const transformCustomErrorToHTTPModel = (errors: CustomError[]): TErrorObject[] 
   return errorObjectList;
 };
 
+const handleAuthError = (error: ErrorAuthErrorResponse, reply: FastifyReply) => {
+  const transformedErrors: TErrorObject[] = transformErrorxToHTTPModel([error]);
+
+  const response: TAuthErrorResponse = {
+    message: error.message,
+    statusCode: error.httpErrorStatus,
+    errors: transformedErrors,
+    error: transformedErrors[0].code,
+    error_description: transformedErrors[0].message,
+  };
+
+  return reply.code(error.httpErrorStatus).send(response);
+};
+
+const transformErrorxToHTTPModel = (errors: Errorx[]): TErrorObject[] => {
+  const errorObjectList: TErrorObject[] = [];
+
+  for (const err of errors) {
+    if (err.skipLog) {
+      log.debug(err.message, err);
+    } else {
+      log.error(err.message, err);
+    }
+
+    const tErrObj: TErrorObject = {
+      code: err.code,
+      message: err.message,
+      ...(err.fields ? err.fields : {}), // Add any additional field to the response object (which will differ per type of error)
+    };
+
+    errorObjectList.push(tErrObj);
+  }
+
+  return errorObjectList;
+};
 const getKeys = (path: string) => path.replace(/^\//, '').split('/');
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

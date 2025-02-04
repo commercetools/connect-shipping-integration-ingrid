@@ -5,7 +5,7 @@ import {
 } from "../shipping-enabler/shipping-enabler";
 
 import { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
-
+import { replaceScriptNode } from "../utils/html-node.util";
 export class DefaultComponentBuilder implements ShippingComponentBuilder {
   constructor(private baseOptions: BaseOptions) {}
 
@@ -42,35 +42,32 @@ export class DefaultComponent implements ShippingComponent {
     // here we would call the SDK to submit the payment
     // this.sdk.init({ environment: this.environment });
     try {
-      // TODO: implement actuall API call to processor
+      const response = await fetch(this.processorUrl + "/sessions/init", {
+        method: "POST",
+        headers: {
+          "X-Session-Id": this.sessionId,
+        },
+      });
 
-      // const response = await fetch(this.processorUrl + "/sessions/init", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     "X-Session-Id": sessionId,
-      //   },
-
-      // });
-      // const data = await response.json();
+      const data = await response.json();
       console.log(cocoSessionId);
-      const data = {
-        ingridSessionId: "1234-2345-3456-4567",
-        html: "<div>HelloWorld</div>",
-      };
-      const clientDOMElement = document.querySelector(
+
+      const clientElement = document.querySelector(
         `#${this.clientDOMElementId}`
       );
-      if (data && clientDOMElement) {
+      if (data && clientElement) {
         // TODO: fix the condition checking
         this.onInitCompleted({
           isSuccess: true,
           ingridSessionId: data.ingridSessionId,
           ingridHtml: data.html,
         });
-        clientDOMElement.insertAdjacentHTML("afterbegin", data.html);
+        if (clientElement) {
+          clientElement.insertAdjacentHTML("afterbegin", data.html);
+          replaceScriptNode(clientElement);
+        }
       } else {
-        if (this.clientDOMElementId) {
+        if (!clientElement) {
           this.onError(
             `Error initialising Ingrid integration, element with ID ${this.clientDOMElementId} doesn't exist`
           );
