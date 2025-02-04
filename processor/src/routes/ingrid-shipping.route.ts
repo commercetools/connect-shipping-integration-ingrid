@@ -22,7 +22,6 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
     {
       preHandler: [opts.sessionHeaderAuthenticationHook.authenticate()],
       schema: {
-        body: InitSessionRequestSchema,
         response: {
           200: InitSessionResponseSchema,
         },
