@@ -1,4 +1,4 @@
-import { memo, useSyncExternalStore } from "react";
+import { memo, useSyncExternalStore, ChangeEvent } from "react";
 import CountryCurrencyLanguageStore from "../stores/countryCurrencyLanguageStore";
 import { Cart, Project } from "@commercetools/platform-sdk";
 import cocoProjectSettingsStore from "../stores/cocoProjectSettingsStore";
@@ -15,11 +15,13 @@ export const LocaleCountryCurrency = memo(function LocaleCountryCurrency({
     CountryCurrencyLanguageStore.subscribe,
     CountryCurrencyLanguageStore.getSnapshot
   );
+
   const project = useSyncExternalStore(
     cocoProjectSettingsStore.subscribe,
     cocoProjectSettingsStore.getSnapshot
   );
-  const createOnChange = (key: string) => (e) => {
+
+  const createOnChange = (e: ChangeEvent<HTMLSelectElement>, key: string) => {
     CountryCurrencyLanguageStore.dispatch({
       type: "SET_CCL",
       ccl: {
@@ -30,9 +32,11 @@ export const LocaleCountryCurrency = memo(function LocaleCountryCurrency({
       },
     });
   };
+
   if (!project) {
     return;
   }
+
   return (
     <div>
       <label>
@@ -40,7 +44,7 @@ export const LocaleCountryCurrency = memo(function LocaleCountryCurrency({
         <select
           disabled={disabled}
           value={country}
-          onChange={createOnChange("country")}
+          onChange={(e) => createOnChange(e, "country")}
         >
           {project.countries.map((country) => (
             <option key={country} value={country}>
@@ -54,7 +58,7 @@ export const LocaleCountryCurrency = memo(function LocaleCountryCurrency({
         <select
           disabled={disabled}
           value={currency}
-          onChange={createOnChange("currency")}
+          onChange={(e) => createOnChange(e, "currency")}
         >
           {project.currencies.map((currency) => (
             <option key={currency} value={currency}>
@@ -68,7 +72,7 @@ export const LocaleCountryCurrency = memo(function LocaleCountryCurrency({
         <select
           disabled={disabled}
           value={language}
-          onChange={createOnChange("language")}
+          onChange={(e) => createOnChange(e, "language")}
         >
           {project.languages.map((language) => (
             <option key={language} value={language}>

@@ -5,8 +5,7 @@ import {
 } from "../shipping-enabler/shipping-enabler";
 
 import { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
-
-import { replaceScriptNode } from '../utils/html-node.util';
+import { replaceScriptNode } from "../utils/html-node.util";
 export class DefaultComponentBuilder implements ShippingComponentBuilder {
   constructor(private baseOptions: BaseOptions) {}
 
@@ -21,7 +20,7 @@ export class DefaultComponent implements ShippingComponent {
   protected onInitCompleted: (result: ShippingInitResult) => void;
   protected onUpdateCompleted: () => void;
   protected onError: (error?: unknown) => void;
-  
+
   constructor(baseOptions: BaseOptions) {
     this.processorUrl = baseOptions.processorUrl;
     this.sessionId = baseOptions.sessionId;
@@ -51,20 +50,30 @@ export class DefaultComponent implements ShippingComponent {
       });
 
       const data = await response.json();
-      console.log(cocoSessionId)
-      
-      if (data) { // TODO: fix the condition checking 
-          this.onInitCompleted({
-            isSuccess: true,
-            ingridSessionId: data.ingridSessionId,
-            ingridHtml: data.html
-          });
-          const clientElement = document.querySelector(`#${this.clientDOMElementId}`) 
-          // clientElement.insertAdjacentHTML("afterbegin", data.html);
+      console.log(cocoSessionId);
+
+      const clientElement = document.querySelector(
+        `#${this.clientDOMElementId}`
+      );
+      if (data && clientElement) {
+        // TODO: fix the condition checking
+        this.onInitCompleted({
+          isSuccess: true,
+          ingridSessionId: data.ingridSessionId,
+          ingridHtml: data.html,
+        });
+        if (clientElement) {
           clientElement.insertAdjacentHTML("afterbegin", data.html);
           replaceScriptNode(clientElement);
+        }
       } else {
-        this.onError("Some error occurred. Please try again.");
+        if (!clientElement) {
+          this.onError(
+            `Error initialising Ingrid integration, element with ID ${this.clientDOMElementId} doesn't exist`
+          );
+        } else {
+          this.onError("Some error occurred. Please try again.");
+        }
       }
     } catch (e) {
       console.log(e);

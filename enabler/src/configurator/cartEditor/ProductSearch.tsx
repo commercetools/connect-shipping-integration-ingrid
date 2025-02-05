@@ -27,7 +27,12 @@ export const ProductSearch = memo(function ProductSearch() {
 });
 const useProductsSearch = (function createSearch() {
   const check = { current: {} };
-  return function useProductsSearch(search, country, currency, language) {
+  return function useProductsSearch(
+    search: string,
+    country: string,
+    currency: string,
+    language: string
+  ) {
     const [products, setProducts] = useState<ProductProjection[]>([]);
     useEffect(() => {
       setProducts([]);

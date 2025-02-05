@@ -58,18 +58,22 @@ async function removeSession(sessionId: string) {
   ).then((r) => r.json());
 }
 
-type Session = {
-  id: string;
-  activeCart: {
-    cartRef: {
+type Session =
+  | {
       id: string;
-    };
-  };
-};
-type Action = { type: "SET_SESSION"; session: Session };
-const initialState = localStorage.getItem("cocoSession")
-  ? JSON.parse(localStorage.getItem("cocoSession"))
-  : undefined;
+      activeCart: {
+        cartRef: {
+          id: string;
+        };
+      };
+    }
+  | undefined;
+
+type Action = { type: "SET_SESSION"; session?: Session };
+
+const cocoSession: string = localStorage.getItem("cocoSession") || "";
+const initialState = cocoSession ? JSON.parse(cocoSession) : undefined;
+
 const cocoSessionStore = new Store<Session, Action>(
   (action, _state, setState) => {
     if (action.type === "SET_SESSION") {
@@ -87,7 +91,7 @@ cartStore.subscribe(() => {
   ) {
     if (!cart && cocoSessionStore.getSnapshot()) {
       loadingStore.dispatch("START_LOADING");
-      removeSession(cocoSessionStore.getSnapshot().id)
+      removeSession(cocoSessionStore.getSnapshot()!.id)
         .catch((e) => console.error(e))
         .finally(() => {
           loadingStore.dispatch("DONE");
@@ -99,7 +103,7 @@ cartStore.subscribe(() => {
         });
     } else {
       loadingStore.dispatch("START_LOADING");
-      createSession(cart.id)
+      createSession(cart!.id)
         .then((session) => {
           localStorage.setItem("cocoSession", JSON.stringify(session));
           cocoSessionStore.dispatch({ type: "SET_SESSION", session: session });

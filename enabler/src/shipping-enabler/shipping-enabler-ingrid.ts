@@ -42,7 +42,7 @@ export class IngridShippingEnabler implements ShippingEnabler {
     return Promise.resolve({
       baseOptions: {
         processorUrl: options.processorUrl,
-        sessionId: options.sessionId,
+        sessionId: options.sessionId || "", // TODO should sessionId be required on BaseOptions but opt on EnablerOptions?
         onInitCompleted: options.onInitCompleted || (() => {}),
         onUpdateCompleted: options.onUpdateCompleted || (() => {}),
         onError: options.onError || (() => {}),
@@ -55,5 +55,4 @@ export class IngridShippingEnabler implements ShippingEnabler {
 
     return new DefaultComponentBuilder(baseOptions);
   }
-
 }
