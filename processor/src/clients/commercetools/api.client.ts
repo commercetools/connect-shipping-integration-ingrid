@@ -1,4 +1,4 @@
-import { createApiBuilderFromCtpClient, ByProjectKeyRequestBuilder } from '@commercetools/platform-sdk';
+import { createApiBuilderFromCtpClient, ByProjectKeyRequestBuilder, Address } from '@commercetools/platform-sdk';
 import {
   AuthMiddlewareOptions,
   ClientBuilder,
@@ -8,6 +8,7 @@ import {
 import { RequestContextData } from '../../libs/fastify/context';
 import { randomUUID } from 'crypto';
 import { appLogger } from '../../libs/logger';
+import { IngridDeliveryAddress } from '../ingrid/types/ingrid.client.type';
 
 export class CommercetoolsApiClient {
   private client: ByProjectKeyRequestBuilder;
@@ -66,8 +67,19 @@ export class CommercetoolsApiClient {
         console.info('Error setting Custom Field on Cart, setting Custom Type first. Error: ', error.message);
       }
       const cart = await this.setIngridCustomTypeOnCart(cartId, cartVersion, ingridSessionId, customTypeId);
+      console.info('Successfully set Custom Type on Cart with ID!');
       return cart;
     }
+  }
+
+  public async updateShippingAddress(cartId: string, cartVersion: number, address: Address) {
+    const response = await this.client
+      .carts()
+      .withId({ ID: cartId })
+      .post({ body: { version: cartVersion, actions: [{ action: 'setShippingAddress', address }] } })
+      .execute();
+    const cart = response.body;
+    return cart;
   }
 
   private async setIngridCustomFieldOnCart(cartId: string, cartVersion: number, ingridSessionId: string) {

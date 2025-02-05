@@ -61,6 +61,17 @@ export class IngridShippingService extends AbstractShippingService {
    * @returns {Promise<InitSessionResponse>}
    */
   public async update(): Promise<InitSessionResponse> {
+    const ctCart = await this.commercetoolsClient.getCartById(getCartIdFromContext());
+    const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
+    const ingridCheckoutPayload = mapCartToIngridCheckoutPayload(ctCart);
+    const getIngridCheckoutSession = await this.ingridClient.getCheckoutSession(ingridSessionId);
+
+    try {
+      // TODO: Implement update cart with delivery information
+    } catch (err) {
+      console.error('Error updating cart with Ingrid session ID', err);
+    }
+
     return {
       data: {
         success: true,
