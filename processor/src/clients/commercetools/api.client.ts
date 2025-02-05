@@ -1,4 +1,4 @@
-import { CommercetoolsClient } from './types/api.client.type';
+import { AbstractCommercetoolsApiClient, CommercetoolsClient } from './types/api.client.type';
 import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
 import {
   AuthMiddlewareOptions,
@@ -10,7 +10,7 @@ import { RequestContextData } from '../../libs/fastify/context/types';
 import { randomUUID } from 'crypto';
 import { appLogger } from '../../libs/logger';
 
-export class CommercetoolsApiClient implements CommercetoolsApiClient {
+export class CommercetoolsApiClient implements AbstractCommercetoolsApiClient {
   private client: CommercetoolsClient;
 
   constructor(opts: {
