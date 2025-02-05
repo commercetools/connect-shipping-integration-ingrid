@@ -1,1 +1,1 @@
-export * from './sessionHeaderAuth.hook';
+export * from './session-header-auth.hook';

@@ -1,2 +1,2 @@
-export * from './ctAuthorization.service';
-export * from './ctSession.service';
+export * from './ct-authorization.service';
+export * from './ct-session.service';

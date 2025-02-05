@@ -1,5 +1,5 @@
 import { AuthenticationManager } from '../types';
-import { HeaderBasedAuthentication, SessionAuthentication } from '../authentications';
+import { HeaderBasedAuthentication, SessionAuthentication } from '.';
 import { DefaultSessionService } from '../services';
 import { ErrorAuthErrorResponse } from '../../fastify/errors';
 import { appLogger } from '../../logger';
