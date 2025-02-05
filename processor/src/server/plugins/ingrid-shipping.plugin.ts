@@ -6,7 +6,7 @@ import { getConfig } from '../../config';
 import { CommercetoolsApiClient } from '../../clients/commercetools/api.client';
 import { appLogger } from '../../libs/logger';
 import { RequestContextData, updateRequestContext, getRequestContext } from '../../libs/fastify/context';
-import { SessionHeaderAuthInitializer } from '../../libs/auth/SessionHeaderAuthInitializerx';
+import { SessionHeaderAuthInitializer } from '../../libs/auth/';
 
 export default async function (server: FastifyInstance) {
   const opts = {
