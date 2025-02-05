@@ -31,11 +31,8 @@ export class CommercetoolsApiClient {
     return cart;
   }
 
-  /*
-   * checks if the type with key 'ingrid-session-id' exists and if not, creates it
-   *
-   * @returns {Promise<string>}
-   */
+  // checks if the type with key 'ingrid-session-id' exists and if not, creates it
+  // @returns {Promise<string>}
   public async getIngridCustomTypeId() {
     try {
       const type = await this.getCustomType('ingrid-session-id');
@@ -131,12 +128,9 @@ export class CommercetoolsApiClient {
     return type;
   }
 
-  /**
-   * Should only be called once and only if the custom type does not exist
-   *
-   * creates a custom type field definition for ingridSessionId
-   * returns the custom type
-   */
+  // Should only be called once and only if the custom type does not exist
+  // creates a custom type field definition for ingridSessionId
+  // returns the custom type
   private async createCustomTypeFieldDefinitionForIngridSessionId() {
     //TODO: hardcoded for now - is there a need for this to be dynamic?
     const response = await this.client
