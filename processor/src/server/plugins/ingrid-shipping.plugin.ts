@@ -7,6 +7,7 @@ import { CommercetoolsApiClient } from '../../clients/commercetools/api.client';
 import { appLogger } from '../../libs/logger';
 import { RequestContextData } from '../../libs/fastify/context/types';
 import { updateRequestContext, getRequestContext } from '../../libs/fastify/context/context';
+import { SessionHeaderAuthInitializer } from '../../libs/auth/sessionHeaderAuthInitializer';
 
 export default async function (server: FastifyInstance) {
   const opts = {
@@ -44,10 +45,12 @@ export default async function (server: FastifyInstance) {
   const commercetoolsApiClient: CommercetoolsApiClient = new CommercetoolsApiClient(opts);
   const ingridApiClient: IngridApiClient = new IngridApiClient(ingridOpts);
 
+  const sessionHeaderAuthInitializer = new SessionHeaderAuthInitializer(opts);
+
   const shippingService = new IngridShippingService(commercetoolsApiClient, ingridApiClient);
 
   await server.register(shippingRoutes, {
     shippingService,
-    sessionHeaderAuthenticationHook: commercetoolsApiClient.sessionHeaderAuthHookFn,
+    sessionHeaderAuthenticationHook: sessionHeaderAuthInitializer.getSessionHeaderAuthHookFn(),
   });
 }

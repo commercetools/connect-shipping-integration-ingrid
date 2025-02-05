@@ -6,19 +6,12 @@ import {
   CorrelationIdMiddlewareOptions,
   HttpMiddlewareOptions,
 } from '@commercetools/sdk-client-v2';
-import { SessionHeaderAuthenticationHook } from '../../libs/auth/hooks/sessionHeaderAuth.hook';
 import { RequestContextData } from '../../libs/fastify/context/types';
-import { ContextProvider } from '../../libs/fastify/context/types';
 import { randomUUID } from 'crypto';
-import { DefaultSessionService } from '../../libs/auth/services/ctSession.service';
-import { DefaultAuthorizationService } from '../../libs/auth/services/ctAuthorization.service';
-import { SessionHeaderAuthenticationManager } from '../../libs/auth/sessionHeaderAuthManager';
 import { appLogger } from '../../libs/logger';
-import { RequestContextProvider } from '../../libs/fastify/context/provider';
 
 export class CommercetoolsApiClient implements CommercetoolsApiClient {
-  public client: CommercetoolsClient;
-  public sessionHeaderAuthHookFn: SessionHeaderAuthenticationHook;
+  private client: CommercetoolsClient;
 
   constructor(opts: {
     clientId: string;
@@ -26,13 +19,11 @@ export class CommercetoolsApiClient implements CommercetoolsApiClient {
     authUrl: string;
     apiUrl: string;
     projectKey: string;
-    sessionUrl: string;
     getContextFn: () => RequestContextData;
     updateContextFn: (ctx: Partial<RequestContextData>) => void;
     logger: typeof appLogger;
   }) {
     this.client = createClient(opts);
-    this.sessionHeaderAuthHookFn = createSessionHeaderAuthHook(opts);
   }
 
   public async getCartById(cartId: string) {
@@ -41,10 +32,23 @@ export class CommercetoolsApiClient implements CommercetoolsApiClient {
     return cart;
   }
 
-  public async getType(typeKey: string) {
-    const response = await this.client.types().withKey({ key: typeKey }).get().execute();
-    const type = response.body;
-    return type;
+  /*
+   * checks if the type with key 'ingrid-session-id' exists and if not, creates it
+   * returns the type id
+   */
+  public async getIngridCustomTypeId() {
+    try {
+      const type = await this.getCustomType('ingrid-session-id');
+      return type.id;
+    } catch (error) {
+      console.error('Ingrid custom type does not exist, creating it', error);
+      try {
+        const type = await this.createCustomTypeFieldDefinitionForIngridSessionId();
+        return type.id;
+      } catch (error) {
+        console.error('Error creating Ingrid custom type', error);
+      }
+    }
   }
 
   // TODO: will the merchant or the enabler set the ingridSessionId
@@ -58,32 +62,39 @@ export class CommercetoolsApiClient implements CommercetoolsApiClient {
     customTypeId: string,
   ) {
     try {
-      const response = await this.client
-        .carts()
-        .withId({ ID: cartId })
-        .post({
-          body: {
-            version: cartVersion,
-            actions: [
-              {
-                action: 'setCustomField',
-                name: 'ingridSessionId',
-                value: ingridSessionId,
-              },
-            ],
-          },
-        })
-        .execute();
-      const cart = response.body;
+      const cart = await this.setIngridCustomFieldOnCart(cartId, cartVersion, ingridSessionId);
       return cart;
     } catch (error) {
-      console.error(error);
-      const cart = await this.setCustomTypeOnCart(cartId, cartVersion, ingridSessionId, customTypeId);
+      if (error instanceof Error) {
+        console.info('Error setting Custom Field on Cart, setting Custom Type first. Error: ', error.message);
+      }
+      const cart = await this.setIngridCustomTypeOnCart(cartId, cartVersion, ingridSessionId, customTypeId);
       return cart;
     }
   }
 
-  private async setCustomTypeOnCart(
+  private async setIngridCustomFieldOnCart(cartId: string, cartVersion: number, ingridSessionId: string) {
+    const response = await this.client
+      .carts()
+      .withId({ ID: cartId })
+      .post({
+        body: {
+          version: cartVersion,
+          actions: [
+            {
+              action: 'setCustomField',
+              name: 'ingridSessionId',
+              value: ingridSessionId,
+            },
+          ],
+        },
+      })
+      .execute();
+    const cart = response.body;
+    return cart;
+  }
+
+  private async setIngridCustomTypeOnCart(
     cartId: string,
     cartVersion: number,
     ingridSessionId: string,
@@ -113,6 +124,48 @@ export class CommercetoolsApiClient implements CommercetoolsApiClient {
     const cart = response.body;
     return cart;
   }
+
+  private async getCustomType(typeKey: string) {
+    const response = await this.client.types().withKey({ key: typeKey }).get().execute();
+    const type = response.body;
+    return type;
+  }
+
+  /**
+   * Should only be called once and only if the custom type does not exist
+   *
+   * creates a custom type field definition for ingridSessionId
+   * returns the custom type
+   */
+  private async createCustomTypeFieldDefinitionForIngridSessionId() {
+    //TODO: hardcoded for now - is there a need for this to be dynamic?
+    const response = await this.client
+      .types()
+      .post({
+        body: {
+          key: 'ingrid-session-id',
+          name: {
+            en: 'Ingrid Session ID',
+          },
+          resourceTypeIds: ['order'],
+          fieldDefinitions: [
+            {
+              name: 'ingridSessionId',
+              label: {
+                en: 'Ingrid Session ID',
+              },
+              type: {
+                name: 'String',
+              },
+              required: false,
+            },
+          ],
+        },
+      })
+      .execute();
+    const customType = response.body;
+    return customType;
+  }
 }
 
 const createClient = (opts: {
@@ -139,6 +192,7 @@ const createClient = (opts: {
     enableRetry: true,
   };
 
+  // TODO: do we even need the correlationId?
   const correlationIdMiddlewareOptions: CorrelationIdMiddlewareOptions = {
     generate: () => {
       const contextData = opts.getContextFn();
@@ -157,42 +211,4 @@ const createClient = (opts: {
   return createApiBuilderFromCtpClient(ctpClient).withProjectKey({
     projectKey: opts.projectKey,
   });
-};
-
-const createSessionHeaderAuthHook = (opts: {
-  sessionUrl: string;
-  authUrl: string;
-  clientId: string;
-  clientSecret: string;
-  projectKey: string;
-  logger: typeof appLogger;
-  getContextFn: () => RequestContextData;
-  updateContextFn: (ctx: Partial<RequestContextData>) => void;
-}) => {
-  const contextProvider: ContextProvider<RequestContextData> = new RequestContextProvider({
-    getContextFn: opts.getContextFn,
-    updateContextFn: opts.updateContextFn,
-  });
-  const ctAuthorizationService = new DefaultAuthorizationService({
-    authUrl: opts.authUrl,
-    clientId: opts.clientId,
-    clientSecret: opts.clientSecret,
-    logger: opts.logger,
-  });
-  const sessionService = new DefaultSessionService({
-    authorizationService: ctAuthorizationService,
-    sessionUrl: opts.sessionUrl,
-    projectKey: opts.projectKey,
-    logger: opts.logger,
-  });
-  const sessionHeaderAuthenticationManager = new SessionHeaderAuthenticationManager({
-    sessionService,
-    logger: opts.logger,
-  });
-  const sessionHeaderAuthHookFn = new SessionHeaderAuthenticationHook({
-    authenticationManager: sessionHeaderAuthenticationManager,
-    contextProvider: contextProvider,
-    logger: opts.logger,
-  });
-  return sessionHeaderAuthHookFn;
 };
