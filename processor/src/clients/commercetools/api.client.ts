@@ -1,4 +1,4 @@
-import { AbstractCommercetoolsApiClient, CommercetoolsClient } from './types/api.client.type';
+import { ByProjectKeyRequestBuilder } from '@commercetools/platform-sdk/dist/declarations/src/generated/client/by-project-key-request-builder';
 import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
 import {
   AuthMiddlewareOptions,
@@ -10,8 +10,8 @@ import { RequestContextData } from '../../libs/fastify/context/types';
 import { randomUUID } from 'crypto';
 import { appLogger } from '../../libs/logger';
 
-export class CommercetoolsApiClient implements AbstractCommercetoolsApiClient {
-  private client: CommercetoolsClient;
+export class CommercetoolsApiClient {
+  private client: ByProjectKeyRequestBuilder;
 
   constructor(opts: {
     clientId: string;
@@ -176,7 +176,7 @@ const createClient = (opts: {
   projectKey: string;
   getContextFn: () => RequestContextData;
   updateContextFn: (ctx: Partial<RequestContextData>) => void;
-}): CommercetoolsClient => {
+}): ByProjectKeyRequestBuilder => {
   const authMiddlewareOptions: AuthMiddlewareOptions = {
     host: opts.authUrl,
     projectKey: opts.projectKey,
