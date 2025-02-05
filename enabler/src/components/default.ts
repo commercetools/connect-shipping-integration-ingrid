@@ -6,6 +6,7 @@ import {
 
 import { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
 
+import { replaceScriptNode } from '../utils/html-node.util';
 export class DefaultComponentBuilder implements ShippingComponentBuilder {
   constructor(private baseOptions: BaseOptions) {}
 
@@ -20,7 +21,7 @@ export class DefaultComponent implements ShippingComponent {
   protected onInitCompleted: (result: ShippingInitResult) => void;
   protected onUpdateCompleted: () => void;
   protected onError: (error?: unknown) => void;
-
+  
   constructor(baseOptions: BaseOptions) {
     this.processorUrl = baseOptions.processorUrl;
     this.sessionId = baseOptions.sessionId;
@@ -42,33 +43,26 @@ export class DefaultComponent implements ShippingComponent {
     // here we would call the SDK to submit the payment
     // this.sdk.init({ environment: this.environment });
     try {
-      // TODO: implement actuall API call to processor
-
       const response = await fetch(this.processorUrl + "/sessions/init", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           "X-Session-Id": this.sessionId,
         },
-        body: "{}",
       });
 
       const data = await response.json();
-      console.log(this.sessionId, cocoSessionId);
-      /*     const data = {
-            ingridSessionId: '1234-2345-3456-4567',
-            html: '<div>HelloWorld</div>'
-          } */
-      if (data) {
-        // TODO: fix the condition checking
-        this.onInitCompleted({
-          isSuccess: true,
-          ingridSessionId: data.ingridSessionId,
-          ingridHtml: data.html,
-        });
-        document
-          .querySelector(`#${this.clientDOMElementId}`)
-          .insertAdjacentHTML("afterbegin", data.html);
+      console.log(cocoSessionId)
+      
+      if (data) { // TODO: fix the condition checking 
+          this.onInitCompleted({
+            isSuccess: true,
+            ingridSessionId: data.ingridSessionId,
+            ingridHtml: data.html
+          });
+          const clientElement = document.querySelector(`#${this.clientDOMElementId}`) 
+          // clientElement.insertAdjacentHTML("afterbegin", data.html);
+          clientElement.insertAdjacentHTML("afterbegin", data.html);
+          replaceScriptNode(clientElement);
       } else {
         this.onError("Some error occurred. Please try again.");
       }
