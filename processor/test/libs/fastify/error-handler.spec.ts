@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, test } from '@jest/globals';
 import Fastify, { type FastifyInstance, FastifyError } from 'fastify';
 import { errorHandler } from '../../../src/libs/fastify/error-handler';
-import { ErrorAuthErrorResponse, Errorx, ErrorxAdditionalOpts } from '@commercetools/connect-payments-sdk';
+import { ErrorAuthErrorResponse, ErrorxAdditionalOpts } from '@commercetools/connect-payments-sdk';
 import { requestContextPlugin } from '../../../src/libs/fastify/context/context';
 import { FastifySchemaValidationError } from 'fastify/types/schema';
+import { CustomError } from '../../../src/libs/fastify/errors/custom.error';
 
 describe('error-handler', () => {
   let fastify: FastifyInstance;
@@ -19,7 +20,7 @@ describe('error-handler', () => {
 
   test('errox error', async () => {
     fastify.get('/', () => {
-      throw new Errorx({
+      throw new CustomError({
         code: 'ErrorCode',
         message: 'someMessage',
         httpErrorStatus: 404,
@@ -45,7 +46,7 @@ describe('error-handler', () => {
 
   test('errox with fields', async () => {
     fastify.get('/', () => {
-      throw new Errorx({
+      throw new CustomError({
         code: 'ErrorCode',
         message: 'someMessage',
         httpErrorStatus: 404,

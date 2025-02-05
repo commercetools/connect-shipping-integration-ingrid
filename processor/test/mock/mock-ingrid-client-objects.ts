@@ -16,7 +16,12 @@ export const mockCreateCheckoutSessionRequest = {
   locales: ['sv-SE'],
 };
 
-export const mockCreateCheckoutSessionResponse = {
+export const mockCreateCheckoutSessionAuthFailureResponse = {
+  error: 'unauthenticated: malformed authorization token',
+  trace_id: 'S20250205110810PA9Z3WZRV80ZZ4MG',
+};
+
+export const mockCreateCheckoutSessionSuccessResponse = {
   session: {
     checkout_session_id: 'VM2-475841538acb4c61a0c499daf715b7b6',
     status: 'ACTIVE',

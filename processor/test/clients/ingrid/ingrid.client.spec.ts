@@ -5,7 +5,7 @@ import { mockRequest } from '../../mock/mock-utils';
 import { IngridBasePath, IngridUrls, IngridEnvironment } from '../../../src/clients/ingrid/types/ingrid.client.type';
 import {
   mockCreateCheckoutSessionRequest,
-  mockCreateCheckoutSessionResponse,
+  mockCreateCheckoutSessionSuccessResponse,
   mockPullCheckoutSessionResponse,
 } from '../../mock/mock-ingrid-client-objects';
 
@@ -38,7 +38,7 @@ describe('Ingrid Client', () => {
           IngridBasePath.STAGING,
           IngridUrls.DELIVERY_CHECKOUT + '/session.create',
           200,
-          mockCreateCheckoutSessionResponse,
+          mockCreateCheckoutSessionSuccessResponse,
         ),
       );
 

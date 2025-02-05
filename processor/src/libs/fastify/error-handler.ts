@@ -10,7 +10,6 @@ import { ErrorInvalidField } from './errors/invalid-field.error';
 import { ErrorInvalidJsonInput } from './errors/invalid-json-input.error';
 import { ErrorRequiredField } from './errors/required-field.error';
 import { ErrorAuthErrorResponse } from '@commercetools/connect-payments-sdk';
-import { Errorx } from '@commercetools/connect-payments-sdk';
 
 function isFastifyValidationError(error: Error): error is FastifyError {
   return (error as unknown as FastifyError).validation != undefined;
@@ -21,7 +20,7 @@ export const errorHandler = (error: Error, req: FastifyRequest, reply: FastifyRe
     return handleErrors(transformValidationErrors(error.validation, req), reply);
   } else if (error instanceof ErrorAuthErrorResponse) {
     return handleAuthError(error, reply);
-  } else if (error instanceof Errorx) {
+  } else if (error instanceof CustomError) {
     return handleErrors([error], reply);
   }
   // If it isn't any of the cases above (for example a normal Error is thrown) then fallback to a general 500 internal server error
@@ -113,7 +112,7 @@ const handleAuthError = (error: ErrorAuthErrorResponse, reply: FastifyReply) => 
   return reply.code(error.httpErrorStatus).send(response);
 };
 
-const transformErrorxToHTTPModel = (errors: Errorx[]): TErrorObject[] => {
+const transformErrorxToHTTPModel = (errors: CustomError[]): TErrorObject[] => {
   const errorObjectList: TErrorObject[] = [];
 
   for (const err of errors) {

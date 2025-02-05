@@ -5,10 +5,14 @@ import { AbstractShippingService } from '../../src/services/abstract-shipping.se
 import { IngridApiClient } from '../../src/clients/ingrid/ingrid.client';
 import { CommercetoolsApiClient } from '../../src/clients/commercetools/api.client';
 import { IngridBasePath, IngridUrls, IngridEnvironment } from '../../src/clients/ingrid/types/ingrid.client.type';
-import { mockCreateCheckoutSessionResponse } from '../mock/mock-ingrid-client-objects';
+import {
+  mockCreateCheckoutSessionSuccessResponse,
+  mockCreateCheckoutSessionAuthFailureResponse,
+} from '../mock/mock-ingrid-client-objects';
 import { cart } from '../mock/mock-cart';
 import { mockRequest } from '../mock/mock-utils';
 import { InitSessionSuccessResponseSchemaDTO } from '../../src/dtos/ingrid-shipping.dto';
+import { CustomError } from '../../src/libs/fastify/errors/custom.error';
 
 describe('ingrid-shipping.service', () => {
   const mockServer = setupServer();
@@ -59,7 +63,7 @@ describe('ingrid-shipping.service', () => {
         IngridBasePath.STAGING,
         IngridUrls.DELIVERY_CHECKOUT + '/session.create',
         200,
-        mockCreateCheckoutSessionResponse,
+        mockCreateCheckoutSessionSuccessResponse,
       ),
     );
     mockServer.use(
@@ -67,7 +71,7 @@ describe('ingrid-shipping.service', () => {
         IngridBasePath.STAGING,
         IngridUrls.DELIVERY_CHECKOUT + '/session.get',
         200,
-        mockCreateCheckoutSessionResponse,
+        mockCreateCheckoutSessionSuccessResponse,
       ),
     );
     jest
@@ -84,5 +88,36 @@ describe('ingrid-shipping.service', () => {
     expect(typeof data.html).toBe('string');
     expect(typeof data.ingridSessionId).toBe('string');
     expect(typeof data.success).toBe('boolean');
+  });
+
+  test('init session failed due to wrong api key', async () => {
+    mockServer.use(
+      mockRequest(
+        IngridBasePath.STAGING,
+        IngridUrls.DELIVERY_CHECKOUT + '/session.create',
+        401,
+        mockCreateCheckoutSessionAuthFailureResponse,
+      ),
+    );
+    mockServer.use(
+      mockRequest(
+        IngridBasePath.STAGING,
+        IngridUrls.DELIVERY_CHECKOUT + '/session.get',
+        401,
+        mockCreateCheckoutSessionAuthFailureResponse,
+      ),
+    );
+    jest
+      .spyOn(IngridShippingService.prototype, 'checkIfIngridCustomTypeExists')
+      .mockResolvedValue('dummy-ingrid-session-id');
+    jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cart);
+
+    try {
+      await shippingService.init();
+    } catch (error) {
+      expect(error instanceof CustomError).toBe(true);
+      const customError = error as CustomError;
+      expect(customError.httpErrorStatus).toBe(401);
+    }
   });
 });
