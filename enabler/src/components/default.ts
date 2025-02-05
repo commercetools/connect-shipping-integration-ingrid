@@ -1,10 +1,10 @@
-import {
+import type {
   ShippingComponent,
   ShippingComponentBuilder,
   ShippingInitResult,
 } from "../shipping-enabler/shipping-enabler";
 
-import { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
+import type { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
 import { replaceScriptNode } from "../utils/html-node.util";
 export class DefaultComponentBuilder implements ShippingComponentBuilder {
   constructor(private baseOptions: BaseOptions) {}

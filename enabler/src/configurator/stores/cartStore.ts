@@ -1,6 +1,6 @@
 import client from "../coco/index";
 
-import { Cart } from "@commercetools/platform-sdk";
+import type { Cart } from "@commercetools/platform-sdk";
 import { exhaustiveMatchingGuard } from "../lib";
 import countryCurrencyLanguageStore from "./countryCurrencyLanguageStore";
 import loadingStore from "./loadingStore";

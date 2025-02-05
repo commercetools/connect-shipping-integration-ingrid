@@ -1,7 +1,7 @@
 import { memo, useEffect, useState, useSyncExternalStore } from "react";
 import countryCurrencyLanguageStore from "../stores/countryCurrencyLanguageStore";
 import client from "../coco";
-import { ProductProjection } from "@commercetools/platform-sdk";
+import type { ProductProjection } from "@commercetools/platform-sdk";
 import { ProductList } from "./ProductList";
 
 export const ProductSearch = memo(function ProductSearch() {

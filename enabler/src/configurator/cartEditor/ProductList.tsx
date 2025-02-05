@@ -1,4 +1,4 @@
-import { ProductProjection } from "@commercetools/platform-sdk";
+import type { ProductProjection } from "@commercetools/platform-sdk";
 import { memo, useSyncExternalStore } from "react";
 import CountryCurrencyLanguageStore from "../stores/countryCurrencyLanguageStore";
 import cartStore from "../stores/cartStore";
