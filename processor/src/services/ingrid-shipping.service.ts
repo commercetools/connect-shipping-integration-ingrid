@@ -16,7 +16,7 @@ export class IngridShippingService extends AbstractShippingService {
    * @remarks
    * Implementation to initialize session in Ingrid platform.
    *
-   * @returns void
+   * @returns {Promise<InitSessionResponse>}
    */
   public async init(): Promise<InitSessionResponse> {
     const ingridSessionCustomTypeId = await this.commercetoolsClient.getIngridCustomTypeId();
@@ -58,7 +58,7 @@ export class IngridShippingService extends AbstractShippingService {
    * @remarks
    * Implementation to update composable commerce platform if update is triggered in Ingrid platform.
    *
-   * @returns void
+   * @returns {Promise<InitSessionResponse>}
    */
   public async update(): Promise<InitSessionResponse> {
     return {

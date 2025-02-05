@@ -33,7 +33,8 @@ export class CommercetoolsApiClient {
 
   /*
    * checks if the type with key 'ingrid-session-id' exists and if not, creates it
-   * returns the type id
+   *
+   * @returns {Promise<string>}
    */
   public async getIngridCustomTypeId() {
     try {
