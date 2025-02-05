@@ -17,7 +17,7 @@ const initialState = {
   country: "",
   currency: "",
   language: "",
-}; // TODO should this really be our initial state, or should it be undefined with STATE: CCL | undefined?
+};
 
 const countryCurrencyLanguageStore = new Store<CCL, Action>(
   (action, _state, setState) => {
@@ -40,12 +40,21 @@ const unsubscribe = cocoProjectSettingsStore.subscribe(() => {
     });
   } else {
     const project = cocoProjectSettingsStore.getSnapshot();
+    if (
+      !project?.countries[0] ||
+      !project?.currencies[0] ||
+      !project?.languages[0]
+    ) {
+      console.error("Project is missing counry, currency or language:");
+      console.log("project is:", project);
+      throw new Error("Project is not set");
+    }
     countryCurrencyLanguageStore.dispatch({
       type: "SET_CCL",
       ccl: {
-        country: project?.countries[0] || "", //TODO should we still be dispatching if project is undefined and/or throw error/warning?
-        currency: project?.currencies[0] || "", //TODO should we still be dispatching if project is undefined and/or throw error/warning?
-        language: project?.languages[0] || "", //TODO should we still be dispatching if project is undefined and/or throw error/warning?
+        country: project.countries[0],
+        currency: project.currencies[0],
+        language: project.languages[0],
       },
     });
     unsubscribe();

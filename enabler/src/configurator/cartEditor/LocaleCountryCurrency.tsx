@@ -1,4 +1,4 @@
-import { memo, useSyncExternalStore } from "react";
+import { memo, useSyncExternalStore, ChangeEvent } from "react";
 import CountryCurrencyLanguageStore from "../stores/countryCurrencyLanguageStore";
 import { Cart, Project } from "@commercetools/platform-sdk";
 import cocoProjectSettingsStore from "../stores/cocoProjectSettingsStore";
@@ -21,7 +21,7 @@ export const LocaleCountryCurrency = memo(function LocaleCountryCurrency({
     cocoProjectSettingsStore.getSnapshot
   );
 
-  const createOnChange = (e: React.ChangeEvent<any>, key: string) => {
+  const createOnChange = (e: ChangeEvent<HTMLSelectElement>, key: string) => {
     CountryCurrencyLanguageStore.dispatch({
       type: "SET_CCL",
       ccl: {

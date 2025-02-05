@@ -21,7 +21,7 @@ function CartEditor() {
     loadingStore.getSnapshot
   );
 
-  return ccl ? (
+  return ccl.country && ccl.currency && ccl.language ? (
     <div>
       {session ? <p>SessionId: {session.id}</p> : ""}
       {cart && (
