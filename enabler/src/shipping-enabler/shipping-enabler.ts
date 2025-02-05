@@ -22,7 +22,7 @@
  *          paymentElement.mount('#card-component')
  *      })
  *
- *  
+ *
  */
 export interface ShippingEnabler {
   /**
@@ -51,7 +51,6 @@ export interface ShippingComponent {
    * update the shipping.
    */
   update(): void;
-
 }
 
 /**
@@ -85,7 +84,7 @@ export type EnablerOptions = {
   locale?: string;
 
   /**
-  * A callback function that is called when the shipping init is completed.
+   * A callback function that is called when the shipping init is completed.
    * @param result - The result of the shipping init.
    */
   onInitCompleted?: (result: ShippingInitResult) => void;
@@ -93,7 +92,7 @@ export type EnablerOptions = {
   /**
    * A callback function that is called when the shipping update is completed.
    */
-  onUpdateCompleted?: () => void;
+  onUpdateCompleted?: (result: ShippingInitResult) => void;
 
   /**
    * A callback function that is called when an error occurs during the shipping process.
@@ -128,7 +127,3 @@ export type ShippingInitResult =
        */
       isSuccess: false;
     };
-
-
-
-

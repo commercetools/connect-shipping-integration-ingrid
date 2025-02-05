@@ -6,6 +6,7 @@ import { ShippingInitResult } from "../shipping-enabler/shipping-enabler";
 const ingridElementId = "enablerContainer";
 const MountEnabler = memo(function MountEnabler() {
   const [showEnabler, setShowEnabler] = useState(false);
+  const [updateEndpoint, setUpdateEndpoint] = useState(false);
   const session = useSyncExternalStore(
     cocoSessionStore.subscribe,
     cocoSessionStore.getSnapshot
@@ -24,8 +25,8 @@ const MountEnabler = memo(function MountEnabler() {
               localStorage.setItem("ingrid-session-id", result.ingridSessionId);
             }
           },
-          onUpdateCompleted: () => {
-            console.log("onUpdateCompleted", "OK");
+          onUpdateCompleted: (result: ShippingInitResult) => {
+            console.log("onUpdateCompleted", { result });
           },
           onError: (err) => {
             console.error("onError", err);
@@ -36,14 +37,18 @@ const MountEnabler = memo(function MountEnabler() {
         const component = builder.build();
         component.mount(ingridElementId);
         if (session) {
-          component.init(session.id);
+          if (updateEndpoint) {
+            component.update();
+          } else {
+            component.init(session.id);
+          }
         } else {
           // TODO throw error? Should we still mount if there's no session?
         }
       };
       initEnabler();
     }
-  }, [session, showEnabler]);
+  }, [session, showEnabler, updateEndpoint]);
 
   return session ? (
     <div>
@@ -51,6 +56,9 @@ const MountEnabler = memo(function MountEnabler() {
         Toggle shipping content
       </button>
 
+      <button onClick={() => setUpdateEndpoint((e) => !e)}>
+        Toggle update endpoint
+      </button>
       {showEnabler ? <div id={ingridElementId} /> : null}
     </div>
   ) : null;

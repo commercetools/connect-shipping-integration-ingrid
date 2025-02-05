@@ -11,7 +11,7 @@ export type BaseOptions = {
   sessionId: string;
   locale?: string;
   onInitCompleted: (result: ShippingInitResult) => void;
-  onUpdateCompleted: () => void;
+  onUpdateCompleted: (result: ShippingInitResult) => void;
   onError: (error?: unknown) => void;
 };
 

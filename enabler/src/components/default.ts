@@ -18,7 +18,7 @@ export class DefaultComponent implements ShippingComponent {
   protected processorUrl: BaseOptions["processorUrl"];
   protected sessionId: BaseOptions["sessionId"];
   protected onInitCompleted: (result: ShippingInitResult) => void;
-  protected onUpdateCompleted: () => void;
+  protected onUpdateCompleted: (result: ShippingInitResult) => void;
   protected onError: (error?: unknown) => void;
 
   constructor(baseOptions: BaseOptions) {
@@ -36,9 +36,48 @@ export class DefaultComponent implements ShippingComponent {
 
   async update() {
     // TODO: implement update() to send request to processor /sessions/update API
+    "AUFGERUFEN";
+    try {
+      const response = await fetch(this.processorUrl + "/sessions/update", {
+        method: "POST",
+        headers: {
+          "X-Session-Id": this.sessionId,
+        },
+      });
+
+      const data = await response.json();
+      console.log(data);
+
+      const clientElement = document.querySelector(
+        `#${this.clientDOMElementId}`
+      );
+      if (data && clientElement) {
+        // TODO: fix the condition checking
+        this.onUpdateCompleted({
+          isSuccess: true,
+          ingridSessionId: data.ingridSessionId,
+          ingridHtml: data.html,
+        });
+        if (clientElement) {
+          clientElement.insertAdjacentHTML("afterbegin", data.html);
+          replaceScriptNode(clientElement);
+        }
+      } else {
+        if (!clientElement) {
+          this.onError(
+            `Error initialising Ingrid integration, element with ID ${this.clientDOMElementId} doesn't exist`
+          );
+        } else {
+          this.onError("Some error occurred. Please try again.");
+        }
+      }
+    } catch (e) {
+      console.log(e);
+      this.onError("Some error occurred. Please try again.");
+    }
   }
 
-  async init(cocoSessionId: string) {
+  async init() {
     // here we would call the SDK to submit the payment
     // this.sdk.init({ environment: this.environment });
     try {
@@ -50,7 +89,6 @@ export class DefaultComponent implements ShippingComponent {
       });
 
       const data = await response.json();
-      console.log(cocoSessionId);
 
       const clientElement = document.querySelector(
         `#${this.clientDOMElementId}`
