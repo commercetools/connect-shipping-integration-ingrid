@@ -1,4 +1,4 @@
-import { SessionAuthentication } from '../../auth/authns';
+import { SessionAuthentication } from '../../auth/authentications';
 import { RequestContextData } from './types';
 
 export function getCtSessionIdFromContext(context: RequestContextData): string | undefined {

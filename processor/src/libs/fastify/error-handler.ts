@@ -4,13 +4,15 @@ import { FastifySchemaValidationError } from 'fastify/types/schema';
 import { appLogger } from '../logger';
 
 import { TAuthErrorResponse, TErrorObject, TErrorResponse } from './errors/dtos/error.dto';
-import { GeneralError } from './errors/general.error';
-import { CustomError } from './errors/custom.error';
-import { ErrorInvalidField } from './errors/invalid-field.error';
-import { ErrorInvalidJsonInput } from './errors/invalid-json-input.error';
-import { ErrorRequiredField } from './errors/required-field.error';
-import { ErrorAuthErrorResponse } from './errors/auth.error';
-import { Errorx } from './errors/errorx';
+import {
+  GeneralError,
+  CustomError,
+  ErrorInvalidField,
+  ErrorInvalidJsonInput,
+  ErrorRequiredField,
+  ErrorAuthErrorResponse,
+  Errorx,
+} from './errors';
 
 function isFastifyValidationError(error: Error): error is FastifyError {
   return (error as unknown as FastifyError).validation != undefined;

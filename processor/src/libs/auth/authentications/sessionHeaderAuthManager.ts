@@ -1,8 +1,8 @@
-import { AuthenticationManager } from './types/authn.type';
-import { HeaderBasedAuthentication, SessionAuthentication } from './authns';
-import { DefaultSessionService } from './services/ctSession.service';
-import { ErrorAuthErrorResponse } from '../fastify/errors/auth.error';
-import { appLogger } from '../logger';
+import { AuthenticationManager } from '../types';
+import { HeaderBasedAuthentication, SessionAuthentication } from '../authentications';
+import { DefaultSessionService } from '../services';
+import { ErrorAuthErrorResponse } from '../../fastify/errors';
+import { appLogger } from '../../logger';
 
 export class SessionHeaderAuthenticationManager implements AuthenticationManager {
   private sessionService: DefaultSessionService;

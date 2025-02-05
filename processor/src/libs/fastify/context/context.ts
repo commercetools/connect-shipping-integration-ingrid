@@ -2,7 +2,7 @@ import { fastifyRequestContext, requestContext } from '@fastify/request-context'
 import { randomUUID } from 'crypto';
 import { FastifyInstance, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
-import { Authentication } from '../../auth/types/authn.type';
+import { Authentication } from '../../auth/types';
 import * as contextHelper from './helper';
 
 export type ContextData = {

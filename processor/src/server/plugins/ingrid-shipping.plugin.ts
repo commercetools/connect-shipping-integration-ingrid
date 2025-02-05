@@ -2,11 +2,10 @@ import { FastifyInstance } from 'fastify';
 import { shippingRoutes } from '../../routes/ingrid-shipping.route';
 import { IngridShippingService } from '../../services/ingrid-shipping.service';
 import { IngridApiClient } from '../../clients/ingrid/ingrid.client';
-import { getConfig } from '../../config/config';
+import { getConfig } from '../../config';
 import { CommercetoolsApiClient } from '../../clients/commercetools/api.client';
 import { appLogger } from '../../libs/logger';
-import { RequestContextData } from '../../libs/fastify/context/types';
-import { updateRequestContext, getRequestContext } from '../../libs/fastify/context/context';
+import { RequestContextData, updateRequestContext, getRequestContext } from '../../libs/fastify/context';
 import { SessionHeaderAuthInitializer } from '../../libs/auth/sessionHeaderAuthInitializer';
 
 export default async function (server: FastifyInstance) {

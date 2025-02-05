@@ -1,10 +1,8 @@
-import { RequestContextProvider } from '../fastify/context/provider';
-import { ContextProvider, RequestContextData } from '../fastify/context/types';
+import { RequestContextProvider, ContextProvider, RequestContextData } from '../fastify/context';
 import { appLogger } from '../logger';
-import { SessionHeaderAuthenticationHook } from './hooks/sessionHeaderAuth.hook';
-import { DefaultAuthorizationService } from './services/ctAuthorization.service';
-import { DefaultSessionService } from './services/ctSession.service';
-import { SessionHeaderAuthenticationManager } from './sessionHeaderAuthManager';
+import { SessionHeaderAuthenticationHook } from './hooks';
+import { DefaultAuthorizationService, DefaultSessionService } from './services';
+import { SessionHeaderAuthenticationManager } from './authentications';
 
 export class SessionHeaderAuthInitializer {
   private sessionHeaderAuthHookFn: SessionHeaderAuthenticationHook;

@@ -1,12 +1,11 @@
-import { ByProjectKeyRequestBuilder } from '@commercetools/platform-sdk/dist/declarations/src/generated/client/by-project-key-request-builder';
-import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
+import { createApiBuilderFromCtpClient, ByProjectKeyRequestBuilder } from '@commercetools/platform-sdk';
 import {
   AuthMiddlewareOptions,
   ClientBuilder,
   CorrelationIdMiddlewareOptions,
   HttpMiddlewareOptions,
 } from '@commercetools/sdk-client-v2';
-import { RequestContextData } from '../../libs/fastify/context/types';
+import { RequestContextData } from '../../libs/fastify/context';
 import { randomUUID } from 'crypto';
 import { appLogger } from '../../libs/logger';
 

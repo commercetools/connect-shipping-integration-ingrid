@@ -1,8 +1,6 @@
 import { appLogger } from '../../logger';
-import { ErrorAuthErrorResponse } from '../../fastify/errors/auth.error';
-import { GeneralError } from '../../fastify/errors/general.error';
-import { AuthorizationService, CommercetoolsToken } from '../types/authorization.type';
-import { Session, SessionService } from '../types/session.type';
+import { ErrorAuthErrorResponse, GeneralError } from '../../fastify/errors';
+import { AuthorizationService, CommercetoolsToken, Session, SessionService } from '../types';
 
 export class DefaultSessionService implements SessionService {
   private authorizationService: AuthorizationService;

@@ -1,6 +1,6 @@
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
 import { IngridApiClient } from '../clients/ingrid/ingrid.client';
-import { getCartIdFromContext } from '../libs/fastify/context/context';
+import { getCartIdFromContext } from '../libs/fastify/context';
 import { AbstractShippingService } from './abstract-shipping.service';
 import { InitSessionResponse } from './types/ingrid-shipping.type';
 import { mapCartToIngridCheckoutPayload } from './helpers/transformCart';

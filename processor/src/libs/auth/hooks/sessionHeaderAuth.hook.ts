@@ -1,9 +1,8 @@
 import { IncomingHttpHeaders } from 'node:http';
-import { ContextProvider, RequestContextData } from '../../fastify/context/types';
-import { SessionHeaderAuthenticationManager } from '../sessionHeaderAuthManager';
-import { AuthenticationHook } from '../types/hook.type';
+import { ContextProvider, RequestContextData } from '../../fastify/context';
+import { SessionHeaderAuthenticationManager, HeaderBasedAuthentication } from '../authentications';
+import { AuthenticationHook } from '../types';
 import { appLogger } from '../../logger';
-import { HeaderBasedAuthentication } from '../authns';
 
 export class SessionHeaderAuthenticationHook implements AuthenticationHook {
   private authenticationManager: SessionHeaderAuthenticationManager;

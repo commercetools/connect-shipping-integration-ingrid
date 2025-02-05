@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import { InitSessionResponseSchema, InitSessionResponseSchemaDTO } from '../dtos/ingrid-shipping.dto';
 import { IngridShippingService } from '../services/ingrid-shipping.service';
-import { SessionHeaderAuthenticationHook } from '../libs/auth/hooks/sessionHeaderAuth.hook';
+import { SessionHeaderAuthenticationHook } from '../libs/auth/hooks';
 
 type ShippingRoutesOptions = {
   shippingService: IngridShippingService;

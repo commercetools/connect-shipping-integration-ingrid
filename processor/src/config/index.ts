@@ -1,5 +1,5 @@
 const config = {
-  // Required by Payment SDK
+  // Required by commercetools
   projectKey: process.env.CTP_PROJECT_KEY || 'projectKey',
   clientId: process.env.CTP_CLIENT_ID || 'xxx',
   clientSecret: process.env.CTP_CLIENT_SECRET || 'xxx',

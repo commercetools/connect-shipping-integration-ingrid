@@ -1,6 +1,6 @@
-import { GeneralError } from '../../fastify/errors/general.error';
-import { AuthorizationService, CommercetoolsToken } from '../types/authorization.type';
+import { AuthorizationService, CommercetoolsToken } from '../types';
 import { appLogger } from '../../logger';
+import { GeneralError } from '../../fastify/errors';
 
 export class DefaultAuthorizationService implements AuthorizationService {
   private authUrl: string;
