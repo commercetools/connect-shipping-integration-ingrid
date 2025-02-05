@@ -1,16 +1,18 @@
 import { FastifyError, type FastifyReply, type FastifyRequest } from 'fastify';
 
 import { FastifySchemaValidationError } from 'fastify/types/schema';
-import { log } from '../logger';
+import { appLogger } from '../logger';
 
 import { TAuthErrorResponse, TErrorObject, TErrorResponse } from './errors/dtos/error.dto';
-import { GeneralError } from './errors/general.error';
-import { CustomError } from './errors/custom.error';
-import { ErrorInvalidField } from './errors/invalid-field.error';
-import { ErrorInvalidJsonInput } from './errors/invalid-json-input.error';
-import { ErrorRequiredField } from './errors/required-field.error';
-import { ErrorAuthErrorResponse } from '@commercetools/connect-payments-sdk';
-import { Errorx } from '@commercetools/connect-payments-sdk';
+import {
+  GeneralError,
+  CustomError,
+  ErrorInvalidField,
+  ErrorInvalidJsonInput,
+  ErrorRequiredField,
+  ErrorAuthErrorResponse,
+  Errorx,
+} from './errors';
 
 function isFastifyValidationError(error: Error): error is FastifyError {
   return (error as unknown as FastifyError).validation != undefined;
@@ -82,9 +84,9 @@ const transformCustomErrorToHTTPModel = (errors: CustomError[]): TErrorObject[] 
 
   for (const err of errors) {
     if (err.skipLog) {
-      log.debug(err.message, err);
+      appLogger.debug(err.message, err);
     } else {
-      log.error(err.message, err);
+      appLogger.error(err.message, err);
     }
 
     const tErrObj: TErrorObject = {
@@ -118,9 +120,9 @@ const transformErrorxToHTTPModel = (errors: Errorx[]): TErrorObject[] => {
 
   for (const err of errors) {
     if (err.skipLog) {
-      log.debug(err.message, err);
+      appLogger.debug(err.message, err);
     } else {
-      log.error(err.message, err);
+      appLogger.error(err.message, err);
     }
 
     const tErrObj: TErrorObject = {

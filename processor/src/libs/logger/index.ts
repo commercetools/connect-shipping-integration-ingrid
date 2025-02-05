@@ -1,6 +1,6 @@
 import { createApplicationLogger } from '@commercetools-backend/loggers';
 import { getRequestContext } from '../fastify/context/context';
-import { getConfig } from '../../config/config';
+import { getConfig } from '../../config';
 import setIn from 'lodash/set';
 import { format } from 'logform';
 import cloneDeep from 'lodash/cloneDeep';
@@ -27,7 +27,7 @@ const defaultFieldsFormatter = (defaults: DefaultFields) => {
   })(defaults);
 };
 
-export const log = createApplicationLogger({
+export const appLogger = createApplicationLogger({
   formatters: [
     defaultFieldsFormatter({
       projectKey: getConfig().projectKey,
