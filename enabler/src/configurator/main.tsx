@@ -3,7 +3,15 @@ import * as ReactDOM from "react-dom/client";
 import CartEditor from "./cartEditor";
 import MountEnabler from "./MountEnabler";
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
+const rootId = "root";
+
+const domRoot = document.getElementById(rootId);
+if (!domRoot) {
+  throw Error(
+    `Error loading Ingrid integration, element with ID ${rootId} does not exist.`
+  );
+}
+const root = ReactDOM.createRoot(domRoot);
 root.render(
   <React.StrictMode>
     <MyComponent />

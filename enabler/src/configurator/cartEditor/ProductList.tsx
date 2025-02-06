@@ -21,15 +21,16 @@ export const ProductList = memo(function ProductList({
   );
   return (
     <ul>
-      {products.map((p) => (
-        <li key={p.id}>
-          {p.name[language]} <PriceComponent price={p.masterVariant.price} />{" "}
+      {products.map((product) => (
+        <li key={product.id}>
+          {product.name[language]}{" "}
+          <PriceComponent price={product.masterVariant.price} />{" "}
           <button
-            disabled={!p.masterVariant.price || loading}
+            disabled={!product.masterVariant.price || loading}
             onClick={() => {
               cartStore.dispatch({
                 type: "ADD_ITEM",
-                sku: p.masterVariant.sku,
+                sku: product.masterVariant.sku || "",
               });
             }}
           >
