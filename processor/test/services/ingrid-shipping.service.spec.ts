@@ -13,6 +13,8 @@ import { cart } from '../mock/mock-cart';
 import { mockRequest } from '../mock/mock-utils';
 import { InitSessionSuccessResponseSchemaDTO } from '../../src/dtos/ingrid-shipping.dto';
 import { CustomError } from '../../src/libs/fastify/errors/custom.error';
+import { appLogger } from '../../src/libs/logger';
+import { RequestContextData, updateRequestContext, getRequestContext } from '../../src/libs/fastify/context';
 
 describe('ingrid-shipping.service', () => {
   const mockServer = setupServer();
@@ -24,8 +26,24 @@ describe('ingrid-shipping.service', () => {
     apiUrl: 'https://api.europe-west1.gcp.commercetools.com',
     projectKey: 'dummy-coco-project-key',
     sessionUrl: 'https://session.europe-west1.gcp.commercetools.com',
-    jwksUrl: 'dummy-jwksUrl',
-    jwtIssuer: 'dummy-jwtIssuer',
+    logger: appLogger,
+    getContextFn: (): RequestContextData => {
+      const { correlationId, requestId, authentication } = getRequestContext();
+      return {
+        correlationId: correlationId || '',
+        requestId: requestId || '',
+        authentication,
+      };
+    },
+    updateContextFn: (context: Partial<RequestContextData>) => {
+      const requestContext = Object.assign(
+        {},
+        context.correlationId ? { correlationId: context.correlationId } : {},
+        context.requestId ? { requestId: context.requestId } : {},
+        context.authentication ? { authentication: context.authentication } : {},
+      );
+      updateRequestContext(requestContext);
+    },
   };
 
   const ingridOpts = {
@@ -74,9 +92,7 @@ describe('ingrid-shipping.service', () => {
         mockCreateCheckoutSessionSuccessResponse,
       ),
     );
-    jest
-      .spyOn(IngridShippingService.prototype, 'checkIfIngridCustomTypeExists')
-      .mockResolvedValue('dummy-ingrid-session-id');
+    jest.spyOn(CommercetoolsApiClient.prototype, 'getIngridCustomTypeId').mockResolvedValue('dummy-ingrid-session-id');
     jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cart);
     jest.spyOn(CommercetoolsApiClient.prototype, 'updateCartWithIngridSessionId').mockResolvedValue(cart);
 
@@ -107,9 +123,7 @@ describe('ingrid-shipping.service', () => {
         mockCreateCheckoutSessionAuthFailureResponse,
       ),
     );
-    jest
-      .spyOn(IngridShippingService.prototype, 'checkIfIngridCustomTypeExists')
-      .mockResolvedValue('dummy-ingrid-session-id');
+    jest.spyOn(CommercetoolsApiClient.prototype, 'getIngridCustomTypeId').mockResolvedValue('dummy-ingrid-session-id');
     jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cart);
 
     try {
