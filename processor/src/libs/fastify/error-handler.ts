@@ -11,7 +11,6 @@ import {
   ErrorInvalidJsonInput,
   ErrorRequiredField,
   ErrorAuthErrorResponse,
-  Errorx,
 } from './errors';
 
 function isFastifyValidationError(error: Error): error is FastifyError {

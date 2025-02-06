@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, test } from '@jest/globals';
 import Fastify, { type FastifyInstance, FastifyError } from 'fastify';
 import { errorHandler } from '../../../src/libs/fastify/error-handler';
-import { ErrorAuthErrorResponse, ErrorxAdditionalOpts } from '@commercetools/connect-payments-sdk';
+import { CustomErrorAdditionalOpts } from '../../../src/libs/fastify/errors/dtos/error.dto';
 import { requestContextPlugin } from '../../../src/libs/fastify/context/context';
 import { FastifySchemaValidationError } from 'fastify/types/schema';
-import { CustomError } from '../../../src/libs/fastify/errors/custom.error';
+import { CustomError, ErrorAuthErrorResponse } from '../../../src/libs/fastify/errors';
 
 describe('error-handler', () => {
   let fastify: FastifyInstance;
@@ -134,7 +134,7 @@ describe('error-handler', () => {
   });
 
   test('ErrorAuthErrorResponse', async () => {
-    const opts: ErrorxAdditionalOpts = {
+    const opts: CustomErrorAdditionalOpts = {
       privateFields: {},
       privateMessage: '',
       fields: {},
