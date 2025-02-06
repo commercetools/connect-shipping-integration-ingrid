@@ -30,7 +30,7 @@ export class IngridApiClient implements AbstractIngridClient {
         throw new CustomError({
           message: error?.response?.data.error,
           code: error.code || '',
-          httpErrorStatus: error.status ? error.status : 500,
+          httpErrorStatus: error.status || 500,
           cause: error,
         });
       } else {
