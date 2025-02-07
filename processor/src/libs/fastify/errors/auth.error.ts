@@ -1,4 +1,4 @@
-import { CustomError } from './';
+import { CustomError } from './custom.error';
 import { CustomErrorAdditionalOpts } from './dtos/error.dto';
 
 /**
