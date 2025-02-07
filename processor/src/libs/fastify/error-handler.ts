@@ -101,7 +101,7 @@ const transformCustomErrorToHTTPModel = (errors: CustomError[]): TErrorObject[] 
 };
 
 const handleAuthError = (error: ErrorAuthErrorResponse, reply: FastifyReply) => {
-  const transformedErrors: TErrorObject[] = transformErrorxToHTTPModel([error]);
+  const transformedErrors: TErrorObject[] = transformCustomErrorToHTTPModel([error]);
 
   const response: TAuthErrorResponse = {
     message: error.message,
@@ -114,27 +114,6 @@ const handleAuthError = (error: ErrorAuthErrorResponse, reply: FastifyReply) => 
   return reply.code(error.httpErrorStatus).send(response);
 };
 
-const transformErrorxToHTTPModel = (errors: CustomError[]): TErrorObject[] => {
-  const errorObjectList: TErrorObject[] = [];
-
-  for (const err of errors) {
-    if (err.skipLog) {
-      appLogger.debug(err.message, err);
-    } else {
-      appLogger.error(err.message, err);
-    }
-
-    const tErrObj: TErrorObject = {
-      code: err.code,
-      message: err.message,
-      ...(err.fields ? err.fields : {}), // Add any additional field to the response object (which will differ per type of error)
-    };
-
-    errorObjectList.push(tErrObj);
-  }
-
-  return errorObjectList;
-};
 const getKeys = (path: string) => path.replace(/^\//, '').split('/');
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
