@@ -12,7 +12,7 @@ import { logger } from '../utils/logger.utils';
  * @returns
  */
 export const post = async (request: Request, response: Response) => {
-  let customerId = undefined;
+  let orderId = undefined;
 
   // Check request body
   if (!request.body) {
@@ -38,25 +38,25 @@ export const post = async (request: Request, response: Response) => {
   if (decodedData) {
     const jsonData = JSON.parse(decodedData);
 
-    customerId = jsonData.customer.id;
+    console.log(jsonData)
   }
 
-  if (!customerId) {
+  if (!orderId) {
     throw new CustomError(
       400,
-      'Bad request: No customer id in the Pub/Sub message'
+      'Bad request: No order id in the Pub/Sub message'
     );
   }
 
   try {
-    const customer = await createApiRoot()
-      .customers()
-      .withId({ ID: Buffer.from(customerId).toString() })
+    const order = await createApiRoot()
+      .orders()
+      .withId({ ID: Buffer.from(orderId).toString() })
       .get()
       .execute();
 
     // Execute the tasks in need
-    logger.info(customer);
+    logger.info(order);
   } catch (error) {
     throw new CustomError(400, `Bad request: ${error}`);
   }

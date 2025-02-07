@@ -33,8 +33,8 @@ async function createSubscription(
         destination,
         messages: [
           {
-            resourceTypeId: 'customer',
-            types: ['CustomerCreated'],
+            resourceTypeId: 'order',
+            types: ['OrderCreated'],
           },
         ],
       },
