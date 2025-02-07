@@ -12,7 +12,7 @@ import {
 import { cart } from '../mock/mock-cart';
 import { mockRequest } from '../mock/mock-utils';
 import { InitSessionSuccessResponseSchemaDTO } from '../../src/dtos/ingrid-shipping.dto';
-import { CustomError } from '../../src/libs/fastify/errors/custom.error';
+import { CustomError } from '../../src/libs/fastify/errors';
 import { appLogger } from '../../src/libs/logger';
 import { RequestContextData, updateRequestContext, getRequestContext } from '../../src/libs/fastify/context';
 

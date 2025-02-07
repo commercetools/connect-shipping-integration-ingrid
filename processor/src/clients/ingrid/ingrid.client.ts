@@ -12,7 +12,7 @@ import {
 } from './types/ingrid.client.type';
 import { AbstractIngridClient } from './abstract-ingrid.client';
 
-import { CustomError } from '../../libs/fastify/errors/custom.error';
+import { CustomError } from '../../libs/fastify/errors';
 
 export class IngridApiClient implements AbstractIngridClient {
   public client: AxiosInstance;
@@ -65,7 +65,7 @@ export class IngridApiClient implements AbstractIngridClient {
         throw new CustomError({
           message: error?.response?.data.error,
           code: error.code || '',
-          httpErrorStatus: error.status ? error.status : 500,
+          httpErrorStatus: error.status || 500,
           cause: error,
         });
       }
