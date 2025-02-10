@@ -6,6 +6,11 @@ import {
 
 import { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
 import { replaceScriptNode } from "../utils/html-node.util";
+
+interface Api {
+  on(event: string, callback: (data: unknown, meta: unknown) => void): void;
+}
+
 export class DefaultComponentBuilder implements ShippingComponentBuilder {
   constructor(private baseOptions: BaseOptions) {}
 
@@ -67,14 +72,28 @@ export class DefaultComponent implements ShippingComponent {
           ingridSessionId: data.ingridSessionId,
           ingridHtml: data.html,
         });
-        clientElement.insertAdjacentHTML("afterbegin", data.html);
-        replaceScriptNode(clientElement);
-        window._sw!((api: unknown) => {
-          api.on("data_changed", (data: unknown, meta: unknown) => {
-            console.log(meta)
-            this.update(data)
+        clientElement.insertAdjacentHTML("afterbegin", data.html + "<button id=proceed-button>Proceed</button>");
+        const proceedButton = document.getElementById('proceed-button');
+        if (proceedButton) {
+          proceedButton.addEventListener('click', function() {
+            // Your event handler code here
+            console.log('Proceed button clicked');
           });
-        });
+        }
+        
+        replaceScriptNode(clientElement);
+
+        if (typeof window !== 'undefined' && window._sw) {
+          window._sw!((api: unknown) => {
+            const typedApi = api as Api;
+            typedApi.on("data_changed", (data: unknown, meta: unknown) => {
+              console.log(meta)
+              this.update(data)
+            });
+          });
+        } else {
+          console.error('window._sw is not available');
+        }
       } else {
         if (!clientElement) {
           this.onError(
