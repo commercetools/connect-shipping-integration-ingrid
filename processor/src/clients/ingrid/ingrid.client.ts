@@ -12,6 +12,8 @@ import {
 } from './types/ingrid.client.type';
 import { AbstractIngridClient } from './abstract-ingrid.client';
 
+import { CustomError } from '../../libs/fastify/errors';
+
 export class IngridApiClient implements AbstractIngridClient {
   public client: AxiosInstance;
 
@@ -25,7 +27,12 @@ export class IngridApiClient implements AbstractIngridClient {
       return response.data as IngridCreateSessionResponse;
     } catch (error) {
       if (error instanceof axios.AxiosError) {
-        throw new Error(error?.response?.data || 'Error creating Ingrid session');
+        throw new CustomError({
+          message: error?.response?.data.error,
+          code: error.code || '',
+          httpErrorStatus: error.status || 500,
+          cause: error,
+        });
       } else {
         throw new Error('An unexpected error occurred');
       }
@@ -55,10 +62,14 @@ export class IngridApiClient implements AbstractIngridClient {
       return response.data as IngridGetSessionResponse;
     } catch (error) {
       if (error instanceof axios.AxiosError) {
-        throw new Error(error.response?.data || 'Error getting Ingrid session');
-      } else {
-        throw new Error('An unexpected error occurred');
+        throw new CustomError({
+          message: error?.response?.data.error,
+          code: error.code || '',
+          httpErrorStatus: error.status || 500,
+          cause: error,
+        });
       }
+      throw error;
     }
   }
 
