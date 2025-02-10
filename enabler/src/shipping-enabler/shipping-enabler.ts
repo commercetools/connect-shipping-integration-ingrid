@@ -45,12 +45,12 @@ export interface ShippingComponent {
   /**
    * init the shipping.
    */
-  init(sessionId: string): void;
+  init(): void;
 
   /**
    * update the shipping.
    */
-  update(): void;
+  update(data: unknown): void;
 
 }
 
@@ -75,9 +75,9 @@ export type EnablerOptions = {
   processorUrl: string;
 
   /**
-   * The session ID for the shipping.
+   * The CoCo session ID for the shipping.
    */
-  sessionId?: string;
+  sessionId: string;
 
   /**
    * The locale for the shipping.

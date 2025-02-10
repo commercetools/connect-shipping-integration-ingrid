@@ -34,11 +34,18 @@ export class DefaultComponent implements ShippingComponent {
     this.clientDOMElementId = elementId;
   }
 
-  async update() {
-    // TODO: implement update() to send request to processor /sessions/update API
+  async update(ingridData: unknown) {
+    // const response = await fetch(this.processorUrl + "/sessions/update", {
+    //   method: "POST",
+    //   headers: {
+    //     "X-Session-Id": this.sessionId,
+    //   },
+    // });
+    // const data = await response.json();
+    console.log(ingridData)
   }
 
-  async init(cocoSessionId: string) {
+  async init() {
     // here we would call the SDK to submit the payment
     // this.sdk.init({ environment: this.environment });
     try {
@@ -50,8 +57,6 @@ export class DefaultComponent implements ShippingComponent {
       });
 
       const data = await response.json();
-      console.log(cocoSessionId);
-
       const clientElement = document.querySelector(
         `#${this.clientDOMElementId}`
       );
@@ -62,10 +67,14 @@ export class DefaultComponent implements ShippingComponent {
           ingridSessionId: data.ingridSessionId,
           ingridHtml: data.html,
         });
-        if (clientElement) {
-          clientElement.insertAdjacentHTML("afterbegin", data.html);
-          replaceScriptNode(clientElement);
-        }
+        clientElement.insertAdjacentHTML("afterbegin", data.html);
+        replaceScriptNode(clientElement);
+        window._sw!((api: unknown) => {
+          api.on("data_changed", (data: unknown, meta: unknown) => {
+            console.log(meta)
+            this.update(data)
+          });
+        });
       } else {
         if (!clientElement) {
           this.onError(

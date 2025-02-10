@@ -14,9 +14,13 @@ const MountEnabler = memo(function MountEnabler() {
   useEffect(() => {
     if (showEnabler) {
       const initEnabler = async () => {
+        if (!session) {
+          console.error("session is undefined.")
+          return
+        }
         const enabler = new IngridShippingEnabler({
           processorUrl: import.meta.env.VITE_PROCESSOR_URL,
-          sessionId: session?.id,
+          sessionId: session.id,
 
           onInitCompleted: (result: ShippingInitResult) => {
             console.log("onInitCompleted", { result });
@@ -35,11 +39,8 @@ const MountEnabler = memo(function MountEnabler() {
         const builder = await enabler.createComponentBuilder();
         const component = builder.build();
         component.mount(ingridElementId);
-        if (session) {
-          component.init(session.id);
-        } else {
-          // TODO throw error? Should we still mount if there's no session?
-        }
+        component.init();
+       
       };
       initEnabler();
     }
