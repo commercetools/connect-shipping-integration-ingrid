@@ -41,6 +41,10 @@ const cartStore = new Store<Cart | undefined, ACTION>(
                 currency: countryCurrencyLanguageStore.getSnapshot().currency,
                 country: countryCurrencyLanguageStore.getSnapshot().country,
                 locale: countryCurrencyLanguageStore.getSnapshot().language,
+                //when you add country to where this will be shipped it will add tax
+                // shippingAddress: {
+                //   country: countryCurrencyLanguageStore.getSnapshot().country,
+                // },
               },
             })
             .execute()
