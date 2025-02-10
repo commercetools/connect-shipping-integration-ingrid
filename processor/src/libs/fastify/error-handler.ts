@@ -38,15 +38,23 @@ export const errorHandler = (error: Error, req: FastifyRequest, reply: FastifyRe
 
 const handleErrors = (customErrorList: CustomError[], reply: FastifyReply) => {
   const transformedErrors: TErrorObject[] = transformCustomErrorToHTTPModel(customErrorList);
+  if (customErrorList.length > 0) {
+    // Based on CoCo specs, the root level message attribute is always set to the values from the first error. MultiErrorx enforces the same HTTP status code.
+    const response: TErrorResponse = {
+      message: customErrorList[0]!.message,
+      statusCode: customErrorList[0]!.httpErrorStatus,
+      errors: transformedErrors,
+    };
 
-  // Based on CoCo specs, the root level message attribute is always set to the values from the first error. MultiErrorx enforces the same HTTP status code.
-  const response: TErrorResponse = {
-    message: customErrorList[0].message,
-    statusCode: customErrorList[0].httpErrorStatus,
-    errors: transformedErrors,
-  };
-
-  return reply.code(customErrorList[0].httpErrorStatus).send(response);
+    return reply.code(customErrorList[0]!.httpErrorStatus).send(response);
+  } else {
+    const response: TErrorResponse = {
+      message: 'An internal error occurred.',
+      statusCode: 500,
+      errors: [],
+    };
+    return reply.code(500).send(response);
+  }
 };
 
 const transformValidationErrors = (errors: FastifySchemaValidationError[], req: FastifyRequest): CustomError[] => {
@@ -106,8 +114,8 @@ const handleAuthError = (error: ErrorAuthErrorResponse, reply: FastifyReply) => 
     message: error.message,
     statusCode: error.httpErrorStatus,
     errors: transformedErrors,
-    error: transformedErrors[0].code,
-    error_description: transformedErrors[0].message,
+    error: transformedErrors[0]!.code,
+    error_description: transformedErrors[0]!.message,
   };
 
   return reply.code(error.httpErrorStatus).send(response);

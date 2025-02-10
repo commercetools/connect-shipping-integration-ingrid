@@ -10,6 +10,8 @@
     "lint:fix": "prettier --write \"**/**/*.{ts,js,json}\" && eslint --fix src test",
     "build": "rm -rf /dist && tsc",
     "watch": "nodemon --watch \"src/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec \"ts-node src/main.ts\"",
+    "watch-ts": "tsc --watch",
+    "check": "tsc --noEmit && npm run lint",
     "test": "jest --detectOpenHandles",
     "test:watch": "jest --watch --detectOpenHandles",
     "connector:post-deploy": "node dist/connectors/post-deploy.js",
