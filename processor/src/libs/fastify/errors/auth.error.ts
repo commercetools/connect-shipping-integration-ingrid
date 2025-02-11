@@ -1,4 +1,5 @@
-import { Errorx, ErrorxAdditionalOpts } from './errorx';
+import { CustomError } from './custom.error';
+import { CustomErrorAdditionalOpts } from './dtos/error.dto';
 
 /**
  * AuthErrorResponse (https://docs.commercetools.com/api/errors#autherrorresponse)
@@ -15,8 +16,8 @@ import { Errorx, ErrorxAdditionalOpts } from './errorx';
  *   "error": "invalid_token"
  * }
  */
-export class ErrorAuthErrorResponse extends Errorx {
-  constructor(message?: string, additionalOpts?: ErrorxAdditionalOpts, code?: string) {
+export class ErrorAuthErrorResponse extends CustomError {
+  constructor(message?: string, additionalOpts?: CustomErrorAdditionalOpts, code?: string) {
     super({
       code: code || 'invalid_token',
       httpErrorStatus: 401,
