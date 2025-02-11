@@ -1,10 +1,9 @@
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
 import { IngridApiClient } from '../clients/ingrid/ingrid.client';
-import { Cart, LineItem } from '@commercetools/connect-payments-sdk';
-import { getCartIdFromContext } from '../libs/fastify/context/context';
+import { getCartIdFromContext } from '../libs/fastify/context';
 import { AbstractShippingService } from './abstract-shipping.service';
-import { IngridCreateSessionRequestPayload, IngridCart } from '../clients/ingrid/types/ingrid.client.type';
 import { InitSessionResponse } from './types/ingrid-shipping.type';
+import { mapCartToIngridCheckoutPayload } from './helpers/transformCart';
 
 export class IngridShippingService extends AbstractShippingService {
   constructor(commercetoolsClient: CommercetoolsApiClient, ingridClient: IngridApiClient) {
@@ -17,10 +16,10 @@ export class IngridShippingService extends AbstractShippingService {
    * @remarks
    * Implementation to initialize session in Ingrid platform.
    *
-   * @returns void
+   * @returns {Promise<InitSessionResponse>}
    */
   public async init(): Promise<InitSessionResponse> {
-    const ingridSessionCustomTypeId = await this.checkIfIngridCustomTypeExists();
+    const ingridSessionCustomTypeId = await this.commercetoolsClient.getIngridCustomTypeId();
 
     if (!ingridSessionCustomTypeId) {
       throw new Error('Ingrid custom type does not exist and could not be created');
@@ -28,7 +27,7 @@ export class IngridShippingService extends AbstractShippingService {
 
     const ctCart = await this.commercetoolsClient.getCartById(getCartIdFromContext());
     const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
-    const ingridCheckoutPayload = this.mapCartToIngridCheckoutPayload(ctCart);
+    const ingridCheckoutPayload = mapCartToIngridCheckoutPayload(ctCart);
     const ingridCheckoutSession = ingridSessionId
       ? await this.ingridClient.getCheckoutSession(ingridSessionId)
       : await this.ingridClient.createCheckoutSession(ingridCheckoutPayload);
@@ -59,7 +58,7 @@ export class IngridShippingService extends AbstractShippingService {
    * @remarks
    * Implementation to update composable commerce platform if update is triggered in Ingrid platform.
    *
-   * @returns void
+   * @returns {Promise<InitSessionResponse>}
    */
   public async update(): Promise<InitSessionResponse> {
     return {

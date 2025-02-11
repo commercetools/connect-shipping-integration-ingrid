@@ -1,11 +1,11 @@
 import * as dotenv from 'dotenv';
-import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
+
 dotenv.config();
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function postDeploy(_properties: Map<string, unknown>) {
-  // TODO: Implement post deployment scripts if any
-  await checkIfIngridCustomTypeExists();
+  // TODO: as the TODO above the function. commented it out for now to pass the build process
+  //await checkIfIngridCustomTypeExists()
 }
 
 async function run() {
@@ -19,7 +19,7 @@ async function run() {
     process.exitCode = 1;
   }
 }
-
+/* 
 // TODO: this needs to be refactored, currently as of development, logic is inside service
 export async function checkIfIngridCustomTypeExists() {
   const sdk = new CommercetoolsApiClient({
@@ -75,6 +75,6 @@ export async function checkIfIngridCustomTypeExists() {
     console.error('Error checking if Ingrid custom type exists', error);
   }
   return;
-}
+} */
 
 run();

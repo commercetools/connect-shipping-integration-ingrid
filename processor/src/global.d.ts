@@ -1,5 +1,5 @@
 import '@fastify/request-context';
-import { ContextData, SessionContextData } from './libs/fastify/context/context';
+import { ContextData, SessionContextData } from './libs/fastify/context';
 
 declare module '@fastify/request-context' {
   interface RequestContextData {

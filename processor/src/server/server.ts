@@ -4,8 +4,8 @@ import fastifyFormBody from '@fastify/formbody';
 import Fastify from 'fastify';
 import { randomUUID } from 'node:crypto';
 import { join } from 'path';
-import { getConfig } from '../config/config';
-import { requestContextPlugin } from '../libs/fastify/context/context';
+import { getConfig } from '../config';
+import { requestContextPlugin } from '../libs/fastify/context';
 import { errorHandler } from '../libs/fastify/error-handler';
 
 /**

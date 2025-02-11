@@ -1,36 +1,16 @@
-import { CommercetoolsClient } from './types/api.client.type';
+import { createApiBuilderFromCtpClient, ByProjectKeyRequestBuilder } from '@commercetools/platform-sdk';
 import {
-  RequestContextData,
-  setupPaymentSDK,
-  JWTAuthenticationHook,
-  AuthorityAuthorizationHook,
-  Oauth2AuthenticationHook,
-  SessionQueryParamAuthenticationHook,
-  RequestContextProvider,
-  SessionHeaderAuthenticationHook,
-} from '@commercetools/connect-payments-sdk';
-import { updateRequestContext } from '../../libs/fastify/context/context';
-import { getRequestContext } from '../../libs/fastify/context/context';
-import { DefaultAuthorizationService } from '@commercetools/connect-payments-sdk/dist/commercetools/services/ct-authorization.service';
-import { DefaultCartService } from '@commercetools/connect-payments-sdk/dist/commercetools/services/ct-cart.service';
-import { DefaultOrderService } from '@commercetools/connect-payments-sdk/dist/commercetools/services/ct-order.service';
-import { DefaultPaymentService } from '@commercetools/connect-payments-sdk/dist/commercetools/services/ct-payment.service';
-import { DefaultCommercetoolsAPI } from '@commercetools/connect-payments-sdk/dist/commercetools/api/root-api';
+  AuthMiddlewareOptions,
+  ClientBuilder,
+  CorrelationIdMiddlewareOptions,
+  HttpMiddlewareOptions,
+} from '@commercetools/sdk-client-v2';
+import { RequestContextData } from '../../libs/fastify/context';
+import { randomUUID } from 'crypto';
+import { appLogger } from '../../libs/logger';
 
-export class CommercetoolsApiClient implements CommercetoolsClient {
-  public client: {
-    ctAPI: DefaultCommercetoolsAPI;
-    ctCartService: DefaultCartService;
-    ctOrderService: DefaultOrderService;
-    ctPaymentService: DefaultPaymentService;
-    ctAuthorizationService: DefaultAuthorizationService;
-    contextProvider: RequestContextProvider;
-    sessionHeaderAuthHookFn: SessionHeaderAuthenticationHook;
-    sessionQueryParamAuthHookFn: SessionQueryParamAuthenticationHook;
-    jwtAuthHookFn: JWTAuthenticationHook;
-    oauth2AuthHookFn: Oauth2AuthenticationHook;
-    authorityAuthorizationHookFn: AuthorityAuthorizationHook;
-  };
+export class CommercetoolsApiClient {
+  private client: ByProjectKeyRequestBuilder;
 
   constructor(opts: {
     clientId: string;
@@ -38,23 +18,34 @@ export class CommercetoolsApiClient implements CommercetoolsClient {
     authUrl: string;
     apiUrl: string;
     projectKey: string;
-    sessionUrl: string;
-    jwksUrl: string;
-    jwtIssuer: string;
+    getContextFn: () => RequestContextData;
+    updateContextFn: (ctx: Partial<RequestContextData>) => void;
+    logger: typeof appLogger;
   }) {
     this.client = createClient(opts);
   }
 
   public async getCartById(cartId: string) {
-    const response = await this.client.ctAPI.client.carts().withId({ ID: cartId }).get().execute();
+    const response = await this.client.carts().withId({ ID: cartId }).get().execute();
     const cart = response.body;
     return cart;
   }
 
-  public async getType(typeKey: string) {
-    const response = await this.client.ctAPI.client.types().withKey({ key: typeKey }).get().execute();
-    const type = response.body;
-    return type;
+  // checks if the type with key 'ingrid-session-id' exists and if not, creates it
+  // @returns {Promise<string>}
+  public async getIngridCustomTypeId() {
+    try {
+      const type = await this.getCustomType('ingrid-session-id');
+      return type.id;
+    } catch (error) {
+      console.error('Ingrid custom type does not exist, creating it', error);
+      try {
+        const type = await this.createCustomTypeFieldDefinitionForIngridSessionId();
+        return type.id;
+      } catch (error) {
+        console.error('Error creating Ingrid custom type', error);
+      }
+    }
   }
 
   // TODO: will the merchant or the enabler set the ingridSessionId
@@ -68,38 +59,45 @@ export class CommercetoolsApiClient implements CommercetoolsClient {
     customTypeId: string,
   ) {
     try {
-      const response = await this.client.ctAPI.client
-        .carts()
-        .withId({ ID: cartId })
-        .post({
-          body: {
-            version: cartVersion,
-            actions: [
-              {
-                action: 'setCustomField',
-                name: 'ingridSessionId',
-                value: ingridSessionId,
-              },
-            ],
-          },
-        })
-        .execute();
-      const cart = response.body;
+      const cart = await this.setIngridCustomFieldOnCart(cartId, cartVersion, ingridSessionId);
       return cart;
     } catch (error) {
-      console.error(error);
-      const cart = await this.setCustomTypeOnCart(cartId, cartVersion, ingridSessionId, customTypeId);
+      if (error instanceof Error) {
+        console.info('Error setting Custom Field on Cart, setting Custom Type first. Error: ', error.message);
+      }
+      const cart = await this.setIngridCustomTypeOnCart(cartId, cartVersion, ingridSessionId, customTypeId);
       return cart;
     }
   }
 
-  private async setCustomTypeOnCart(
+  private async setIngridCustomFieldOnCart(cartId: string, cartVersion: number, ingridSessionId: string) {
+    const response = await this.client
+      .carts()
+      .withId({ ID: cartId })
+      .post({
+        body: {
+          version: cartVersion,
+          actions: [
+            {
+              action: 'setCustomField',
+              name: 'ingridSessionId',
+              value: ingridSessionId,
+            },
+          ],
+        },
+      })
+      .execute();
+    const cart = response.body;
+    return cart;
+  }
+
+  private async setIngridCustomTypeOnCart(
     cartId: string,
     cartVersion: number,
     ingridSessionId: string,
     customTypeId: string,
   ) {
-    const response = await this.client.ctAPI.client
+    const response = await this.client
       .carts()
       .withId({ ID: cartId })
       .post({
@@ -123,6 +121,45 @@ export class CommercetoolsApiClient implements CommercetoolsClient {
     const cart = response.body;
     return cart;
   }
+
+  private async getCustomType(typeKey: string) {
+    const response = await this.client.types().withKey({ key: typeKey }).get().execute();
+    const type = response.body;
+    return type;
+  }
+
+  // Should only be called once and only if the custom type does not exist
+  // creates a custom type field definition for ingridSessionId
+  // returns the custom type
+  private async createCustomTypeFieldDefinitionForIngridSessionId() {
+    //TODO: hardcoded for now - is there a need for this to be dynamic?
+    const response = await this.client
+      .types()
+      .post({
+        body: {
+          key: 'ingrid-session-id',
+          name: {
+            en: 'Ingrid Session ID',
+          },
+          resourceTypeIds: ['order'],
+          fieldDefinitions: [
+            {
+              name: 'ingridSessionId',
+              label: {
+                en: 'Ingrid Session ID',
+              },
+              type: {
+                name: 'String',
+              },
+              required: false,
+            },
+          ],
+        },
+      })
+      .execute();
+    const customType = response.body;
+    return customType;
+  }
 }
 
 const createClient = (opts: {
@@ -131,35 +168,41 @@ const createClient = (opts: {
   authUrl: string;
   apiUrl: string;
   projectKey: string;
-  sessionUrl: string;
-  jwksUrl: string;
-  jwtIssuer: string;
-}) =>
-  setupPaymentSDK({
-    clientId: opts.clientId,
-    clientSecret: opts.clientSecret,
-    authUrl: opts.authUrl,
-    apiUrl: opts.apiUrl,
+  getContextFn: () => RequestContextData;
+  updateContextFn: (ctx: Partial<RequestContextData>) => void;
+}): ByProjectKeyRequestBuilder => {
+  const authMiddlewareOptions: AuthMiddlewareOptions = {
+    host: opts.authUrl,
     projectKey: opts.projectKey,
-    sessionUrl: opts.sessionUrl,
-    jwksUrl: opts.jwksUrl,
-    jwtIssuer: opts.jwtIssuer,
-    getContextFn: (): RequestContextData => {
-      const { correlationId, requestId, authentication } = getRequestContext();
-      return {
-        correlationId: correlationId || '',
-        requestId: requestId || '',
-        authentication,
-      };
+    credentials: {
+      clientId: opts.clientId,
+      clientSecret: opts.clientSecret,
     },
-    updateContextFn: (context: Partial<RequestContextData>) => {
-      const requestContext = Object.assign(
-        {},
-        context.correlationId ? { correlationId: context.correlationId } : {},
-        context.requestId ? { requestId: context.requestId } : {},
-        context.authentication ? { authentication: context.authentication } : {},
-      );
-      updateRequestContext(requestContext);
+  };
+
+  const httpMiddlewareOptions: HttpMiddlewareOptions = {
+    host: opts.apiUrl,
+    //Enables SDK retries when CoCo returns a 503 error. It retries up to 10 times with an 200ms backoff.
+    enableRetry: true,
+  };
+
+  // TODO: do we even need the correlationId?
+  const correlationIdMiddlewareOptions: CorrelationIdMiddlewareOptions = {
+    generate: () => {
+      const contextData = opts.getContextFn();
+      const correlationID =
+        contextData.correlationId && contextData.correlationId.length > 0 ? contextData.correlationId : randomUUID();
+      return correlationID;
     },
-    //logger: appLogger,
+  };
+
+  const ctpClient = new ClientBuilder()
+    .withClientCredentialsFlow(authMiddlewareOptions)
+    .withCorrelationIdMiddleware(correlationIdMiddlewareOptions)
+    .withHttpMiddleware(httpMiddlewareOptions)
+    .build();
+
+  return createApiBuilderFromCtpClient(ctpClient).withProjectKey({
+    projectKey: opts.projectKey,
   });
+};
