@@ -78,12 +78,12 @@ export class IngridShippingService extends AbstractShippingService {
     try {
       // TODO: Implement update cart with delivery information
       const { billingAddress, deliveryAddress } = mapIngridDeliveryGroupToCommercetoolsAddress(
-        ingridCheckoutSession.session.delivery_groups[0],
+        ingridCheckoutSession.session.delivery_groups[0]!,
       );
       await this.commercetoolsClient.setAddress(ctCart.id, ctCart.version, billingAddress, 'setBillingAddress');
       await this.commercetoolsClient.setAddress(ctCart.id, ctCart.version, deliveryAddress, 'setShippingAddress');
       const customShippingMethodPayload = mapIngridDeliveryGroupToCommercetoolsShippingMethod(
-        ingridCheckoutSession.session.delivery_groups[0],
+        ingridCheckoutSession.session.delivery_groups[0]!,
       );
       await this.commercetoolsClient.setShippingMethod(ctCart.id, ctCart.version, customShippingMethodPayload);
     } catch (err) {
