@@ -7,7 +7,7 @@ export class DefaultSessionService implements SessionService {
   private sessionUrl: string;
   private projectKey: string;
   protected token: CommercetoolsToken | undefined;
-  // @ts-ignore
+  // @ts-expect-error
   private logger: typeof appLogger;
 
   constructor(opts: {

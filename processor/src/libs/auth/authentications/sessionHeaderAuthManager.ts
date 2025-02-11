@@ -6,7 +6,7 @@ import { appLogger } from '../../logger';
 
 export class SessionHeaderAuthenticationManager implements AuthenticationManager {
   private sessionService: DefaultSessionService;
-  // @ts-ignore
+  // @ts-expect-error
   private logger: typeof appLogger;
 
   constructor(opts: { sessionService: DefaultSessionService; logger: typeof appLogger }) {

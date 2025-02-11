@@ -77,8 +77,8 @@ export class IngridShippingService extends AbstractShippingService {
    * returns the type id
    */
   public async checkIfIngridCustomTypeExists() {
-    // TODO remove ts-ignore and fix
-    // @ts-ignore
+    // TODO remove ts-expect-error and fix
+    // @ts-expect-error
     const client = this.commercetoolsClient.client.ctAPI.client;
     try {
       const response = await client.types().withKey({ key: 'ingrid-session-id' }).get().execute();
