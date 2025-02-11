@@ -1,23 +1,37 @@
 import { Static, Type } from '@sinclair/typebox';
 
-export const InitSessionRequestSchema = Type.Union([
+/* Session Request Schemas */
+export const sessionRequestSchema = Type.Union([
   Type.Object({
     sessionId: Type.Optional(Type.String()),
   }),
   Type.Null(),
 ]);
 
+/* Init Session Schemas */
 const InitSessionSuccessResponseSchema = Type.Object({
   html: Type.String(),
   success: Type.Boolean(),
   ingridSessionId: Type.String(),
 });
 
-export const InitSessionResponseSchema = Type.Union([
-  InitSessionSuccessResponseSchema,
-  Type.Object({ success: Type.Boolean(), message: Type.String() }),
-]);
+export const InitSessionResponseSchema = Type.Union([InitSessionSuccessResponseSchema]);
 
+/* Update Session Schemas */
+const UpdateSessionSuccessResponseSchema = Type.Object({
+  success: Type.Boolean(),
+  ingridSessionId: Type.String(),
+});
+
+export const UpdateSessionResponseSchema = Type.Union([UpdateSessionSuccessResponseSchema]);
+
+/* Session Request DTOs */
+export type sessionRequestSchemaDTO = Static<typeof sessionRequestSchema>;
+
+/* Init Session DTOs */
 export type InitSessionSuccessResponseSchemaDTO = Static<typeof InitSessionSuccessResponseSchema>;
-export type InitSessionRequestSchemaDTO = Static<typeof InitSessionRequestSchema>;
 export type InitSessionResponseSchemaDTO = Static<typeof InitSessionResponseSchema>;
+
+/* Update Session DTOs */
+export type UpdateSessionSuccessResponseSchemaDTO = Static<typeof UpdateSessionSuccessResponseSchema>;
+export type UpdateSessionResponseSchemaDTO = Static<typeof UpdateSessionResponseSchema>;

@@ -1,6 +1,6 @@
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
 import { IngridApiClient } from '../clients/ingrid/ingrid.client';
-import { InitSessionResponse } from './types/ingrid-shipping.type';
+import { InitSessionResponse, UpdateSessionResponse } from './types/ingrid-shipping.type';
 
 export abstract class AbstractShippingService {
   protected commercetoolsClient: CommercetoolsApiClient;
@@ -27,7 +27,7 @@ export abstract class AbstractShippingService {
    * @remarks
    * Abstract method to update composable commerce platform if update is triggered in Ingrid platform
    *
-   * @returns Promise<InitSessionResponse>
+   * @returns Promise<UpdateSessionResponse>
    */
-  abstract update(): Promise<InitSessionResponse>;
+  abstract update(): Promise<UpdateSessionResponse>;
 }

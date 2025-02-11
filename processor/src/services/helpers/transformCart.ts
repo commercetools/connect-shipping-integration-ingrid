@@ -1,7 +1,8 @@
 import { Cart, LineItem } from '@commercetools/platform-sdk';
 import { IngridCreateSessionRequestPayload, IngridCart } from '../../clients/ingrid/types/ingrid.client.type';
 
-export const mapCartToIngridCheckoutPayload = (ctCart: Cart): IngridCreateSessionRequestPayload => {
+// TODO: refactor to transform cart to "cart" / checkout session
+export const transformCartToIngridPayload = (ctCart: Cart): IngridCreateSessionRequestPayload => {
   const totalLineItemDiscount =
     ctCart.lineItems.length !== 0
       ? ctCart.lineItems.reduce((acc, item) => {
