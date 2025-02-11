@@ -50,7 +50,17 @@ export interface ShippingComponent {
   /**
    * update the shipping.
    */
-  update(data: unknown): void;
+  update(): void;
+
+  /**
+   * indicate whether the shipping data has changed.
+   */
+  get isShippingDataChanged(): boolean;
+
+  /**
+   * set boolean flag to indicate whether the shipping data has changed.
+   */
+  set isShippingDataChanged(value: boolean);
 
 }
 

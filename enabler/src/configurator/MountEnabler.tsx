@@ -2,14 +2,37 @@ import { memo, useEffect, useState, useSyncExternalStore } from "react";
 import cocoSessionStore from "./stores/cocoSessionStore";
 import { IngridShippingEnabler } from "../shipping-enabler/shipping-enabler-ingrid";
 import { ShippingInitResult } from "../shipping-enabler/shipping-enabler";
+import { stateEmitter } from '../state-emitter';
 
 const ingridElementId = "enablerContainer";
 const MountEnabler = memo(function MountEnabler() {
   const [showEnabler, setShowEnabler] = useState(false);
+  const [isShippingDataChanged, setIsShippingDataChanged] = useState(false);
+
   const session = useSyncExternalStore(
     cocoSessionStore.subscribe,
     cocoSessionStore.getSnapshot
   );
+
+  useEffect(() => {
+    const handleIngridDataChanged = (value: boolean) => {
+      setIsShippingDataChanged(value);
+    };
+
+    stateEmitter.on('shippingDataChanged', handleIngridDataChanged);
+
+    // Cleanup function to remove the event listener
+    return () => {
+      stateEmitter.off('shippingDataChanged', handleIngridDataChanged);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isShippingDataChanged) {
+      console.log('Ingrid data has changed.');
+      // Perform actions based on the change
+    }
+  }, [isShippingDataChanged]);
 
   useEffect(() => {
     if (showEnabler) {
@@ -40,7 +63,7 @@ const MountEnabler = memo(function MountEnabler() {
         const component = builder.build();
         component.mount(ingridElementId);
         component.init();
-       
+      
       };
       initEnabler();
     }

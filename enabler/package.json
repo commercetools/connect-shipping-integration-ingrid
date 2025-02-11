@@ -14,6 +14,7 @@
     "serve": "npm run build && serve public -l 3000 --cors"
   },
   "dependencies": {
+    "eventemitter3": "^5.0.1",
     "serve": "14.2.4"
   },
   "devDependencies": {

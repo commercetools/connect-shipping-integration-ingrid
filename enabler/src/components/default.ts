@@ -6,6 +6,7 @@ import {
 
 import { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
 import { replaceScriptNode } from "../utils/html-node.util";
+import { stateEmitter } from '../state-emitter';
 
 interface Api {
   on(event: string, callback: (data: unknown, meta: unknown) => void): void;
@@ -34,20 +35,40 @@ export class DefaultComponent implements ShippingComponent {
     this.onError = baseOptions.onError;
   }
   private clientDOMElementId: string = "";
+  private _isShippingDataChanged: boolean = false;
 
   mount(elementId: string) {
     this.clientDOMElementId = elementId;
   }
 
-  async update(ingridData: unknown) {
-    // const response = await fetch(this.processorUrl + "/sessions/update", {
-    //   method: "POST",
-    //   headers: {
-    //     "X-Session-Id": this.sessionId,
-    //   },
-    // });
-    // const data = await response.json();
-    console.log(ingridData)
+  get isShippingDataChanged(): boolean {
+    return this._isShippingDataChanged;
+  }
+
+  set isShippingDataChanged(value: boolean) {
+    this._isShippingDataChanged = value;
+    stateEmitter.isShippingDataChanged = value;
+  }
+
+
+
+  
+
+  async update() {
+    // try {
+    //   const response = await fetch(this.processorUrl + "/sessions/update", {
+    //     method: "POST",
+    //     headers: {
+    //       "X-Session-Id": this.sessionId,
+    //     },
+    //   });
+    //   console.log(response)
+    //   // const data = await response.json();
+    // } catch (e) {
+    //   console.log(e);
+    //   this.onError("Some error occurred. Please try again.");
+    // }
+    console.log("update called");
   }
 
   async init() {
@@ -72,39 +93,39 @@ export class DefaultComponent implements ShippingComponent {
           ingridSessionId: data.ingridSessionId,
           ingridHtml: data.html,
         });
-        clientElement.insertAdjacentHTML("afterbegin", data.html + "<button id=proceed-button>Proceed</button>");
-        const proceedButton = document.getElementById('proceed-button');
-        if (proceedButton) {
-          proceedButton.addEventListener('click', function() {
-            // Your event handler code here
-            console.log('Proceed button clicked');
-          });
-        }
-        
+        clientElement.insertAdjacentHTML("afterbegin", data.html);
+        // const proceedButton = document.getElementById('proceed-button');
+        // if (proceedButton) {
+        //   proceedButton.addEventListener('click', function() {
+        //     // Your event handler code here
+        //     console.log('Proceed button clicked');
+        //   });
+        // }
+
         replaceScriptNode(clientElement);
 
         if (typeof window !== 'undefined' && window._sw) {
           window._sw!((api: unknown) => {
             const typedApi = api as Api;
             typedApi.on("data_changed", (data: unknown, meta: unknown) => {
-              console.log(meta)
-              this.update(data)
+              console.log(data)
+              this._isShippingDataChanged = true;
+              // TODO: Update CoCo cart whenever data changed?
+              // this.update(data)
             });
           });
         } else {
           console.error('window._sw is not available');
         }
+      } else if (!clientElement) {
+        this.onError(
+          `Error initialising Ingrid integration, element with ID ${this.clientDOMElementId} doesn't exist`
+        );
       } else {
-        if (!clientElement) {
-          this.onError(
-            `Error initialising Ingrid integration, element with ID ${this.clientDOMElementId} doesn't exist`
-          );
-        } else {
-          this.onError("Some error occurred. Please try again.");
-        }
+        this.onError("Some error occurred. Please try again.");
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
       this.onError("Some error occurred. Please try again.");
     }
   }
