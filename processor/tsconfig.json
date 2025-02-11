@@ -10,7 +10,7 @@
     "isolatedModules": true,
     /* TODO verbatimModuleSyntax should be enabled but it's causing 100s of errors,
     this is one to fix when we have a better idea of time */
-    // "verbatimModuleSyntax": true,
+    /* "verbatimModuleSyntax": true, */
     "noImplicitAny": true,
     "rootDir": "./src",
     "outDir": "./dist",
