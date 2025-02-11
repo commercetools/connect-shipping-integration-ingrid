@@ -12,7 +12,7 @@
     "noImplicitAny": true,
     "rootDir": "./src",
     "outDir": "./dist",
-    
+
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
@@ -27,5 +27,5 @@
   "ts-node": {
     "files": true
   },
-  "files": ["src/main.ts", "src/global.d.ts"],
+  "files": ["src/main.ts", "src/global.d.ts"]
 }
