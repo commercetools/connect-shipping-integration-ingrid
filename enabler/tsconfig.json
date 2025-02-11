@@ -20,7 +20,7 @@
     "allowImportingTsExtensions": true,
     "allowSyntheticDefaultImports": true,
     "noEmit": true,
-    "types": ["vite/client", "node"],
+    "types": ["vite/client", "node", "jest"],
     "jsx": "react-jsx",
 
     "noUnusedLocals": true,
