@@ -8,20 +8,16 @@
     "resolveJsonModule": true,
     "moduleDetection": "force",
     "isolatedModules": true,
-    /* TODO verbatimModuleSyntax should be enabled but it's causing 100s of errors. */
-    /* This is one to fix when we have a better idea of time */
-    /* "verbatimModuleSyntax": true, */
+    "verbatimModuleSyntax": false,
     "noImplicitAny": true,
     "rootDir": "./src",
     "outDir": "./dist",
-
-    /* Strictness */
+    
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "lib": ["es2022"],
 
-    /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true

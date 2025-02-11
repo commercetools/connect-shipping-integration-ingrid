@@ -11,13 +11,11 @@
     "verbatimModuleSyntax": true,
     "noImplicitAny": true,
 
-    /* Strictness */
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "lib": ["es2022", "dom", "dom.iterable"],
 
-    /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "allowSyntheticDefaultImports": true,
@@ -25,7 +23,6 @@
     "types": ["vite/client", "node"],
     "jsx": "react-jsx",
 
-    /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
