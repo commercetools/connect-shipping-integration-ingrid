@@ -1,4 +1,9 @@
-import { createApiBuilderFromCtpClient, ByProjectKeyRequestBuilder, Address } from '@commercetools/platform-sdk';
+import {
+  createApiBuilderFromCtpClient,
+  ByProjectKeyRequestBuilder,
+  ShippingRateDraft,
+  BaseAddress,
+} from '@commercetools/platform-sdk';
 import {
   AuthMiddlewareOptions,
   ClientBuilder,
@@ -8,7 +13,6 @@ import {
 import { RequestContextData } from '../../libs/fastify/context';
 import { randomUUID } from 'crypto';
 import { appLogger } from '../../libs/logger';
-import { IngridDeliveryAddress } from '../ingrid/types/ingrid.client.type';
 
 export class CommercetoolsApiClient {
   private client: ByProjectKeyRequestBuilder;
@@ -72,11 +76,35 @@ export class CommercetoolsApiClient {
     }
   }
 
-  public async updateShippingAddress(cartId: string, cartVersion: number, address: Address) {
+  public async setAddress(
+    cartId: string,
+    cartVersion: number,
+    address: BaseAddress,
+    action: 'setShippingAddress' | 'setBillingAddress',
+  ) {
     const response = await this.client
       .carts()
       .withId({ ID: cartId })
-      .post({ body: { version: cartVersion, actions: [{ action: 'setShippingAddress', address }] } })
+      .post({ body: { version: cartVersion, actions: [{ action, address }] } })
+      .execute();
+    const cart = response.body;
+    return cart;
+  }
+
+  public async setShippingMethod(
+    cartId: string,
+    cartVersion: number,
+    customShippingMethodPayload: { shippingMethodName: string; shippingRate: ShippingRateDraft },
+  ) {
+    const response = await this.client
+      .carts()
+      .withId({ ID: cartId })
+      .post({
+        body: {
+          version: cartVersion,
+          actions: [{ action: 'setCustomShippingMethod', ...customShippingMethodPayload }],
+        },
+      })
       .execute();
     const cart = response.body;
     return cart;
