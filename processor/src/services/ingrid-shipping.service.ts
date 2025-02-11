@@ -4,6 +4,8 @@ import { getCartIdFromContext } from '../libs/fastify/context';
 import { AbstractShippingService } from './abstract-shipping.service';
 import { InitSessionResponse } from './types/ingrid-shipping.type';
 import { mapCartToIngridCheckoutPayload } from './helpers/transformCart';
+import { Cart, LineItem } from '@commercetools/platform-sdk';
+import { IngridCart, IngridCreateSessionRequestPayload } from '../clients/ingrid/types/ingrid.client.type';
 
 export class IngridShippingService extends AbstractShippingService {
   constructor(commercetoolsClient: CommercetoolsApiClient, ingridClient: IngridApiClient) {
@@ -75,6 +77,8 @@ export class IngridShippingService extends AbstractShippingService {
    * returns the type id
    */
   public async checkIfIngridCustomTypeExists() {
+    // TODO remove ts-ignore and fix
+    // @ts-ignore
     const client = this.commercetoolsClient.client.ctAPI.client;
     try {
       const response = await client.types().withKey({ key: 'ingrid-session-id' }).get().execute();

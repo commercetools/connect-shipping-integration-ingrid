@@ -7,6 +7,7 @@ import { appLogger } from '../../logger';
 export class SessionHeaderAuthenticationHook implements AuthenticationHook {
   private authenticationManager: SessionHeaderAuthenticationManager;
   private contextProvider: ContextProvider<RequestContextData>;
+  // @ts-ignore
   private logger: typeof appLogger;
 
   constructor(opts: {

@@ -6,6 +6,7 @@ export class DefaultAuthorizationService implements AuthorizationService {
   private authUrl: string;
   private clientId: string;
   private clientSecret: string;
+  // @ts-ignore
   private logger: typeof appLogger;
 
   constructor(opts: { authUrl: string; clientId: string; clientSecret: string; logger: typeof appLogger }) {
