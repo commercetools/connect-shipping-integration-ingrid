@@ -1,19 +1,20 @@
-import { memo, useEffect, useState, useSyncExternalStore } from "react";
+import { memo, useEffect, useState, useSyncExternalStore, useRef } from "react";
 import cocoSessionStore from "./stores/cocoSessionStore";
 import { IngridShippingEnabler } from "../shipping-enabler/shipping-enabler-ingrid";
+import { ShippingComponent } from "../shipping-enabler/shipping-enabler";
 import { ShippingInitResult } from "../shipping-enabler/shipping-enabler";
-import { stateEmitter } from '../state-emitter';
+import { stateEmitter } from '../components/state-emitter';
 
 const ingridElementId = "enablerContainer";
 const MountEnabler = memo(function MountEnabler() {
   const [showEnabler, setShowEnabler] = useState(false);
   const [isShippingDataChanged, setIsShippingDataChanged] = useState(false);
-
+  const [isProceedShipment, setIsProceedShipment] = useState(false);
   const session = useSyncExternalStore(
     cocoSessionStore.subscribe,
     cocoSessionStore.getSnapshot
   );
-
+  let ingridComponent = useRef<ShippingComponent | null>(null);
   useEffect(() => {
     const handleIngridDataChanged = (value: boolean) => {
       setIsShippingDataChanged(value);
@@ -35,8 +36,17 @@ const MountEnabler = memo(function MountEnabler() {
   }, [isShippingDataChanged]);
 
   useEffect(() => {
+    console.log("isProceedShipment", isProceedShipment);
+    console.log("ingridComponent", ingridComponent);
+
+    if (isProceedShipment && ingridComponent.current) {
+      ingridComponent.current.update();
+    }
+  }, [isProceedShipment]);
+
+  useEffect(() => {
     if (showEnabler) {
-      const initEnabler = async () => {
+       const initEnabler = async () => {
         if (!session) {
           console.error("session is undefined.")
           return
@@ -58,12 +68,10 @@ const MountEnabler = memo(function MountEnabler() {
             console.error("onError", err);
           },
         });
-        enabler.createComponentBuilder();
-        const builder = await enabler.createComponentBuilder();
-        const component = builder.build();
-        component.mount(ingridElementId);
-        component.init();
-      
+        ingridComponent.current = (await enabler.createComponentBuilder()).build();
+        console.log("ingridComponent", ingridComponent);
+        ingridComponent.current.mount(ingridElementId);
+        ingridComponent.current.init();
       };
       initEnabler();
     }
@@ -76,6 +84,7 @@ const MountEnabler = memo(function MountEnabler() {
       </button>
 
       {showEnabler ? <div id={ingridElementId} /> : null}
+      <button onClick={() => setIsProceedShipment((e) => !e)} style={{ display: isShippingDataChanged ? "inline" : "none" }}>proceed shipment</button>
     </div>
   ) : null;
 });

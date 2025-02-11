@@ -8,7 +8,7 @@ class StateEmitter extends EventEmitter {
     }
 
     set isShippingDataChanged(value: boolean) {
-        console.log("isShippingDataChanged");
+        console.log("StateEmitter.isShippingDataChanged");
         this._isShippingDataChanged = value;
         this.emit('shippingDataChanged', value);
     }

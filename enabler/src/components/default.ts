@@ -6,7 +6,7 @@ import {
 
 import { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
 import { replaceScriptNode } from "../utils/html-node.util";
-import { stateEmitter } from '../state-emitter';
+import { stateEmitter } from './state-emitter';
 
 interface Api {
   on(event: string, callback: (data: unknown, meta: unknown) => void): void;
@@ -46,6 +46,7 @@ export class DefaultComponent implements ShippingComponent {
   }
 
   set isShippingDataChanged(value: boolean) {
+    console.log("DefaultComponent.isShippingDataChanged");
     this._isShippingDataChanged = value;
     stateEmitter.isShippingDataChanged = value;
   }
@@ -109,7 +110,8 @@ export class DefaultComponent implements ShippingComponent {
             const typedApi = api as Api;
             typedApi.on("data_changed", (data: unknown, meta: unknown) => {
               console.log(data)
-              this._isShippingDataChanged = true;
+              console.log(meta)
+              this.isShippingDataChanged = true;
               // TODO: Update CoCo cart whenever data changed?
               // this.update(data)
             });
