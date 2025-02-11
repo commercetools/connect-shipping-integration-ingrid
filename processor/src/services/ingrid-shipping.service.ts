@@ -77,8 +77,7 @@ export class IngridShippingService extends AbstractShippingService {
    * returns the type id
    */
   public async checkIfIngridCustomTypeExists() {
-    // TODO remove ts-expect-error and fix
-    // @ts-expect-error
+    // @ts-expect-error: client is private and ctAPI doesn't exist on it. To be fixed
     const client = this.commercetoolsClient.client.ctAPI.client;
     try {
       const response = await client.types().withKey({ key: 'ingrid-session-id' }).get().execute();
