@@ -5,7 +5,7 @@ import { CustomErrorOpts } from './dtos/error.dto';
 export class CustomError extends Error {
   public code: string;
   public httpErrorStatus: number;
-  public cause?: Error | unknown;
+  public override cause?: Error | unknown;
   public privateFields?: object;
   public privateMessage?: string;
   public fields?: object;

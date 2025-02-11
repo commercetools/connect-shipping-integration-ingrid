@@ -1,6 +1,6 @@
 import client from "../coco/index";
 
-import { Project } from "@commercetools/platform-sdk";
+import type { Project } from "@commercetools/platform-sdk";
 import Store from "./Store";
 
 type Action = { type: "SET_PROJECT"; project: Project };

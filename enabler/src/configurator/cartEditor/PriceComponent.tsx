@@ -1,4 +1,4 @@
-import { Price } from "@commercetools/platform-sdk";
+import type { Price } from "@commercetools/platform-sdk";
 import { memo } from "react";
 
 type PriceComponentProps = { price?: Price };

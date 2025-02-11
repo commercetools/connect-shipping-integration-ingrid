@@ -1,6 +1,7 @@
-import { memo, useSyncExternalStore, ChangeEvent } from "react";
+import { memo, useSyncExternalStore } from "react";
+import type { ChangeEvent } from "react";
 import CountryCurrencyLanguageStore from "../stores/countryCurrencyLanguageStore";
-import { Cart, Project } from "@commercetools/platform-sdk";
+import type { Cart, Project } from "@commercetools/platform-sdk";
 import cocoProjectSettingsStore from "../stores/cocoProjectSettingsStore";
 
 type LocaleCountryCurrencyProps = {

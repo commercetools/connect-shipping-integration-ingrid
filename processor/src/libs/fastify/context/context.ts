@@ -50,7 +50,7 @@ export const requestContextPlugin = fp(async (fastify: FastifyInstance) => {
   fastify.decorateRequest('correlationId', '');
 
   // Propagate the correlationId from the request header to the request object
-  fastify.addHook('onRequest', (req, reply, done) => {
+  fastify.addHook('onRequest', (req, _, done) => {
     req.correlationId = req.headers['x-correlation-id'] ? (req.headers['x-correlation-id'] as string) : undefined;
     done();
   });
