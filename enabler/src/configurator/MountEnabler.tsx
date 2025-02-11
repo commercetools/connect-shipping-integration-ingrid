@@ -1,7 +1,7 @@
 import { memo, useEffect, useState, useSyncExternalStore } from "react";
 import cocoSessionStore from "./stores/cocoSessionStore";
 import { IngridShippingEnabler } from "../shipping-enabler/shipping-enabler-ingrid";
-import { ShippingInitResult } from "../shipping-enabler/shipping-enabler";
+import type { ShippingInitResult } from "../shipping-enabler/shipping-enabler";
 
 const ingridElementId = "enablerContainer";
 const MountEnabler = memo(function MountEnabler() {

@@ -1,5 +1,5 @@
 import { DefaultComponentBuilder } from "../components/default";
-import {
+import type {
   EnablerOptions,
   ShippingComponentBuilder,
   ShippingEnabler,

@@ -22,14 +22,9 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
       },
     },
 
-    async (request, reply) => {
-      try {
-        const { data } = await opts.shippingService.init();
-        return reply.status(200).send(data);
-      } catch (error) {
-        console.error('Error initializing Ingrid session', error);
-        return reply.status(500).send({ success: false, message: 'Error initializing Ingrid session' });
-      }
+    async (_, reply) => {
+      const { data } = await opts.shippingService.init();
+      return reply.status(200).send(data);
     },
   );
 
@@ -46,7 +41,7 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
       },
     },
 
-    async (request, reply) => {
+    async (_, reply) => {
       try {
         const { data } = await opts.shippingService.update();
         return reply.status(200).send(data);

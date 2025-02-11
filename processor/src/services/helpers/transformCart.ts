@@ -30,16 +30,26 @@ export const mapCartToIngridCheckoutPayload = (ctCart: Cart): IngridCreateSessio
 
   const items =
     ctCart.lineItems.length !== 0
-      ? ctCart.lineItems.map((item) => ({
-          // item.custom.fields may be undefined
-          attributes: [JSON.stringify(item.custom?.fields) || ''],
-          discount: calculateLineItemDiscount(item),
-          image_url: item.variant.images![0].url || item.variant.assets![0].sources[0].uri || '',
-          name: item.name[ctCart.locale!],
-          price: item.price.value.centAmount,
-          quantity: item.quantity,
-          sku: item.variant.sku,
-        }))
+      ? ctCart.lineItems.map((item) => {
+          let image_url = '';
+          if (item.variant.images && item.variant.images.length > 0) {
+            image_url = item.variant.images[0]!.url;
+          } else {
+            if (item.variant.assets && item.variant.assets.length > 0 && item.variant.assets[0]!.sources.length > 0) {
+              image_url = item.variant.assets[0]!.sources[0]!.uri;
+            }
+          }
+          return {
+            // item.custom.fields may be undefined
+            attributes: [JSON.stringify(item.custom?.fields) || ''],
+            discount: calculateLineItemDiscount(item),
+            image_url,
+            name: item.name[ctCart.locale!],
+            price: item.price.value.centAmount,
+            quantity: item.quantity,
+            sku: item.variant.sku,
+          };
+        })
       : [];
 
   // TODO: How to include / map tax?
@@ -69,7 +79,7 @@ const calculateLineItemDiscount = (item: LineItem) => {
   try {
     return (
       item.totalPrice.centAmount * item.quantity -
-      item.discountedPricePerQuantity[0].discountedPrice.value.centAmount * item.quantity
+      item.discountedPricePerQuantity[0]!.discountedPrice.value.centAmount * item.quantity
     );
   } catch (error) {
     console.error('Error calculating discount', error);
