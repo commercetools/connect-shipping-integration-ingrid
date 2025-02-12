@@ -2,11 +2,11 @@ import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
 import { IngridApiClient } from '../clients/ingrid/ingrid.client';
 import { getCartIdFromContext } from '../libs/fastify/context';
 import { AbstractShippingService } from './abstract-shipping.service';
-import { InitSessionResponse, UpdateSessionResponse } from './types/ingrid-shipping.type';
 import {
   transformCommercetoolsCartToIngridPayload,
   transformIngridDeliveryGroupsToCommercetoolsDataTypes,
 } from './helpers';
+import { InitSessionResponse, UpdateSessionResponse } from './types/ingrid-shipping.type';
 import { Cart } from '@commercetools/platform-sdk';
 
 export class IngridShippingService extends AbstractShippingService {
@@ -92,13 +92,17 @@ export class IngridShippingService extends AbstractShippingService {
 
     updatedCart = await this.commercetoolsClient.setAddress(
       ctCart.id,
-      ctCart.version,
+      updatedCart.version,
       deliveryAddress,
       'setShippingAddress',
     );
 
     // set shipping method
-    updatedCart = await this.commercetoolsClient.setShippingMethod(ctCart.id, ctCart.version, customShippingMethod);
+    updatedCart = await this.commercetoolsClient.setShippingMethod(
+      ctCart.id,
+      updatedCart.version,
+      customShippingMethod,
+    );
 
     console.info('updatedCart', updatedCart);
 
