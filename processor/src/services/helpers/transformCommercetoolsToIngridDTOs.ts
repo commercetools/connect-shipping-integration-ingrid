@@ -95,7 +95,7 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
  * @returns {string} image url or empty string if no image url is found
  */
 const getImageUrl = (item: LineItem): string => {
-  let image_url = item.variant.images?.[0]?.url || item.variant.assets?.[0]?.sources?.[0]?.uri;
+  const image_url = item.variant.images?.[0]?.url || item.variant.assets?.[0]?.sources?.[0]?.uri;
   if (!image_url) {
     return '';
   }
