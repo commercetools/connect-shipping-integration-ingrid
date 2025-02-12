@@ -58,7 +58,7 @@ export type IngridSession = {
 export type IngridAddresses = {
   billing_address: IngridBillingAddress;
   customer: IngridCustomerAddress;
-  delivery_address: IngridAddress;
+  delivery_address: IngridDeliveryAddress;
   location: IngridPickupLocation;
   search_address: IngridAddress;
 };
@@ -182,9 +182,30 @@ export type IngridDeliveryGroupWarehouse = {
 export type IngridCart = {
   total_value: number;
   total_discount: number;
-  items: unknown[];
+  items: IngridCartItem[];
   cart_id: string;
   groups?: unknown[];
+};
+
+export type IngridCartItem = {
+  attributes?: string[];
+  dimensions?: IngridDimensions;
+  discount: number;
+  image_url?: string;
+  name: string;
+  out_of_stock?: boolean;
+  price: number;
+  quantity: number;
+  shipping_date?: IngridShippingDate;
+  site_external_id?: string;
+  sku: string;
+  weight?: number;
+};
+
+export type IngridDimensions = {
+  height: number;
+  length: number;
+  width: number;
 };
 
 export type IngridDeliveryGroupSelection = {
