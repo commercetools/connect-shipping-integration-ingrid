@@ -1,7 +1,10 @@
 import { memo, useEffect, useState, useSyncExternalStore } from "react";
 import cocoSessionStore from "./stores/cocoSessionStore";
 import { IngridShippingEnabler } from "../shipping-enabler/shipping-enabler-ingrid";
-import type { ShippingInitResult } from "../shipping-enabler/shipping-enabler";
+import type {
+  ShippingInitResult,
+  ShippingUpdateResult,
+} from "../shipping-enabler/shipping-enabler";
 
 const ingridElementId = "enablerContainer";
 const MountEnabler = memo(function MountEnabler() {
@@ -25,7 +28,7 @@ const MountEnabler = memo(function MountEnabler() {
               localStorage.setItem("ingrid-session-id", result.ingridSessionId);
             }
           },
-          onUpdateCompleted: (result: ShippingInitResult) => {
+          onUpdateCompleted: (result: ShippingUpdateResult) => {
             console.log("onUpdateCompleted", { result });
           },
           onError: (err) => {
@@ -37,6 +40,8 @@ const MountEnabler = memo(function MountEnabler() {
         const component = builder.build();
         component.mount(ingridElementId);
         if (session) {
+          // TODO: would be great to fix this
+          // not working as expected
           if (updateEndpoint) {
             component.update();
           } else {
@@ -56,7 +61,10 @@ const MountEnabler = memo(function MountEnabler() {
         Toggle shipping content
       </button>
 
-      <button onClick={() => setUpdateEndpoint((e) => !e)}>
+      <button
+        disabled={!showEnabler}
+        onClick={() => setUpdateEndpoint((e) => !e)}
+      >
         Toggle update endpoint
       </button>
       {showEnabler ? <div id={ingridElementId} /> : null}

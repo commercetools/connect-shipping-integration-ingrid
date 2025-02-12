@@ -2,6 +2,7 @@ import type {
   ShippingComponent,
   ShippingComponentBuilder,
   ShippingInitResult,
+  ShippingUpdateResult,
 } from "../shipping-enabler/shipping-enabler";
 
 import type { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
@@ -18,7 +19,7 @@ export class DefaultComponent implements ShippingComponent {
   protected processorUrl: BaseOptions["processorUrl"];
   protected sessionId: BaseOptions["sessionId"];
   protected onInitCompleted: (result: ShippingInitResult) => void;
-  protected onUpdateCompleted: (result: ShippingInitResult) => void;
+  protected onUpdateCompleted: (result: ShippingUpdateResult) => void;
   protected onError: (error?: unknown) => void;
 
   constructor(baseOptions: BaseOptions) {
@@ -34,11 +35,11 @@ export class DefaultComponent implements ShippingComponent {
     this.clientDOMElementId = elementId;
   }
 
-  async update() {
-    // TODO: implement update() to send request to processor /sessions/update API
-    "AUFGERUFEN";
+  async init() {
+    // here we would call the SDK to submit the payment
+    // this.sdk.init({ environment: this.environment });
     try {
-      const response = await fetch(this.processorUrl + "/sessions/update", {
+      const response = await fetch(this.processorUrl + "/sessions/init", {
         method: "POST",
         headers: {
           "X-Session-Id": this.sessionId,
@@ -46,15 +47,14 @@ export class DefaultComponent implements ShippingComponent {
       });
 
       const data = await response.json();
-      console.log(data);
 
       const clientElement = document.querySelector(
         `#${this.clientDOMElementId}`
       );
       if (data && clientElement) {
         // TODO: fix the condition checking
-        this.onUpdateCompleted({
-          isSuccess: true,
+        this.onInitCompleted({
+          isSuccess: data.success,
           ingridSessionId: data.ingridSessionId,
           ingridHtml: data.html,
         });
@@ -77,11 +77,10 @@ export class DefaultComponent implements ShippingComponent {
     }
   }
 
-  async init() {
-    // here we would call the SDK to submit the payment
-    // this.sdk.init({ environment: this.environment });
+  async update() {
+    // TODO: implement update() to send request to processor /sessions/update API
     try {
-      const response = await fetch(this.processorUrl + "/sessions/init", {
+      const response = await fetch(this.processorUrl + "/sessions/update", {
         method: "POST",
         headers: {
           "X-Session-Id": this.sessionId,
@@ -89,16 +88,16 @@ export class DefaultComponent implements ShippingComponent {
       });
 
       const data = await response.json();
+      console.log(data);
 
       const clientElement = document.querySelector(
         `#${this.clientDOMElementId}`
       );
       if (data && clientElement) {
         // TODO: fix the condition checking
-        this.onInitCompleted({
-          isSuccess: true,
+        this.onUpdateCompleted({
+          isSuccess: data.success,
           ingridSessionId: data.ingridSessionId,
-          ingridHtml: data.html,
         });
         if (clientElement) {
           clientElement.insertAdjacentHTML("afterbegin", data.html);
