@@ -51,7 +51,7 @@ export class DefaultComponent implements ShippingComponent {
       const clientElement = document.querySelector(
         `#${this.clientDOMElementId}`
       );
-      if (data && clientElement) {
+      if (data.success && clientElement) {
         // TODO: fix the condition checking
         this.onInitCompleted({
           isSuccess: data.success,
@@ -68,7 +68,7 @@ export class DefaultComponent implements ShippingComponent {
             `Error initialising Ingrid integration, element with ID ${this.clientDOMElementId} doesn't exist`
           );
         } else {
-          this.onError("Some error occurred. Please try again.");
+          this.onError(data);
         }
       }
     } catch (e) {
@@ -78,7 +78,6 @@ export class DefaultComponent implements ShippingComponent {
   }
 
   async update() {
-    // TODO: implement update() to send request to processor /sessions/update API
     try {
       const response = await fetch(this.processorUrl + "/sessions/update", {
         method: "POST",
@@ -90,17 +89,15 @@ export class DefaultComponent implements ShippingComponent {
       const data = await response.json();
       console.log(data);
 
-      if (!data) {
-        // TODO: fix the condition checking
-        throw new Error("No data received from the update API");
+      if (!data.success) {
+        this.onError(data);
       }
       this.onUpdateCompleted({
         isSuccess: data.success,
         ingridSessionId: data.ingridSessionId,
       });
-    } catch (e) {
-      console.log(e);
-      this.onError("Some error occurred. Please try again.");
+    } catch (error) {
+      this.onError(error);
     }
   }
 
