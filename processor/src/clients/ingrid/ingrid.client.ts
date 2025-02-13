@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import {
+  IngridBasePath,
   type IngridClientOptions,
   type IngridCompleteSessionRequestPayload,
   type IngridCompleteSessionResponse,
@@ -103,7 +104,7 @@ export class IngridApiClient implements AbstractIngridClient {
 
 const createClient = (opts: IngridClientOptions): AxiosInstance => {
   return axios.create({
-    baseURL: opts.environment,
+    baseURL: IngridBasePath[opts.environment],
     timeout: 10000,
     headers: {
       'Content-Type': 'application/json',
