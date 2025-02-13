@@ -45,6 +45,7 @@ export class IngridShippingService extends AbstractShippingService {
 
     console.info('updatedCart', updatedCart);
 
+    // TODO: include updatedCart in response??
     return {
       data: {
         success: true,
@@ -79,6 +80,7 @@ export class IngridShippingService extends AbstractShippingService {
     const { billingAddress, deliveryAddress, customShippingMethod } =
       transformIngridDeliveryGroupsToCommercetoolsDataTypes(ingridCheckoutSession.session.delivery_groups);
 
+    // TODO: based on eventhandling we may need to seperate each update as well
     const updatedCart = await this.commercetoolsClient.updateCartWithAddressAndShippingMethod(
       ctCart.id,
       ctCart.version,
@@ -89,6 +91,7 @@ export class IngridShippingService extends AbstractShippingService {
       {
         shippingMethodName: customShippingMethod.shippingMethodName,
         shippingRate: customShippingMethod.shippingRate,
+        // TODO: What to do with tax??
         taxCategory: { key: 'standard-tax', typeId: 'tax-category' },
       },
     );
@@ -102,6 +105,7 @@ export class IngridShippingService extends AbstractShippingService {
     // if checkout session updated_at is newer than cart.updated_at and not older than 5 minutes update cart
     // if checkout session updated_at is older than cart.updated_at, update checkout session and pull
 
+    // TODO: include updatedCart in response??
     return {
       data: {
         success: true,

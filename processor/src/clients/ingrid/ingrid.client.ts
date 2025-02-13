@@ -11,8 +11,9 @@ import {
   type IngridUpdateSessionResponse,
 } from './types/ingrid.client.type';
 import { AbstractIngridClient } from './abstract-ingrid.client';
-
 import { CustomError } from '../../libs/fastify/errors';
+
+// TODO: Error Handling!!
 
 /**
  * Client for interacting with the Ingrid API
@@ -53,7 +54,7 @@ export class IngridApiClient implements AbstractIngridClient {
    * @throws {CustomError} When the API request fails with a specific error message and status code
    * @throws {Error} For unexpected errors during request processing
    */
-  public async createCheckoutSession(payload: IngridCreateSessionRequestPayload) {
+  public async createCheckoutSession(payload: IngridCreateSessionRequestPayload): Promise<IngridCreateSessionResponse> {
     try {
       const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.create', payload);
       return response.data as IngridCreateSessionResponse;
@@ -87,7 +88,7 @@ export class IngridApiClient implements AbstractIngridClient {
    * @throws {CustomError} When the API request fails
    * @throws {Error} For unexpected errors
    */
-  public async pullCheckoutSession(checkout_session_id: string) {
+  public async pullCheckoutSession(checkout_session_id: string): Promise<IngridGetSessionResponse> {
     try {
       const response = await this.client.get(
         IngridUrls.DELIVERY_CHECKOUT + `/session.pull?checkout_session_id=${checkout_session_id}`,
@@ -117,7 +118,7 @@ export class IngridApiClient implements AbstractIngridClient {
    * @throws {CustomError} When the API request fails
    * @throws {Error} For unexpected errors
    */
-  public async getCheckoutSession(checkout_session_id: string) {
+  public async getCheckoutSession(checkout_session_id: string): Promise<IngridGetSessionResponse> {
     try {
       const response = await this.client.get(
         IngridUrls.DELIVERY_CHECKOUT + `/session.get?checkout_session_id=${checkout_session_id}`,
@@ -151,7 +152,7 @@ export class IngridApiClient implements AbstractIngridClient {
    * @throws {CustomError} When the API request fails
    * @throws {Error} For unexpected errors
    */
-  public async updateCheckoutSession(payload: IngridUpdateSessionRequestPayload) {
+  public async updateCheckoutSession(payload: IngridUpdateSessionRequestPayload): Promise<IngridUpdateSessionResponse> {
     try {
       const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.update', payload);
       return response.data as IngridUpdateSessionResponse;
@@ -180,7 +181,9 @@ export class IngridApiClient implements AbstractIngridClient {
    * @throws {CustomError} When the API request fails
    * @throws {Error} For unexpected errors
    */
-  public async completeCheckoutSession(payload: IngridCompleteSessionRequestPayload) {
+  public async completeCheckoutSession(
+    payload: IngridCompleteSessionRequestPayload,
+  ): Promise<IngridCompleteSessionResponse> {
     try {
       const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.complete', payload);
       return response.data as IngridCompleteSessionResponse;
