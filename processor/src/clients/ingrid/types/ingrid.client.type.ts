@@ -9,6 +9,11 @@ export enum IngridUrls {
   DELIVERY_CHECKOUT = '/v1/delivery_checkout',
 }
 
+export interface IngridClientOptions {
+  apiSecret: string;
+  environment: IngridEnvironment;
+}
+
 export type IngridGetSessionResponse = {
   session: IngridSession;
   html_snippet: string;

@@ -1,14 +1,14 @@
 import axios, { AxiosInstance } from 'axios';
 import {
-  IngridBasePath,
-  IngridGetSessionResponse,
-  IngridUrls,
+  type IngridClientOptions,
   type IngridCompleteSessionRequestPayload,
   type IngridCompleteSessionResponse,
   type IngridCreateSessionRequestPayload,
   type IngridCreateSessionResponse,
+  IngridGetSessionResponse,
   type IngridUpdateSessionRequestPayload,
   type IngridUpdateSessionResponse,
+  IngridUrls,
 } from './types/ingrid.client.type';
 import { AbstractIngridClient } from './abstract-ingrid.client';
 
@@ -17,7 +17,8 @@ import { CustomError } from '../../libs/fastify/errors';
 export class IngridApiClient implements AbstractIngridClient {
   public client: AxiosInstance;
 
-  constructor(opts: { apiSecret: string; environment: keyof typeof IngridBasePath }) {
+  constructor(opts: IngridClientOptions) {
+    console.log('IngridApiClient constructor', opts);
     this.client = createClient(opts);
   }
 
@@ -100,9 +101,9 @@ export class IngridApiClient implements AbstractIngridClient {
   }
 }
 
-const createClient = (opts: { apiSecret: string; environment: keyof typeof IngridBasePath }): AxiosInstance => {
-  const instance = axios.create({
-    baseURL: IngridBasePath[opts.environment],
+const createClient = (opts: IngridClientOptions): AxiosInstance => {
+  return axios.create({
+    baseURL: opts.environment,
     timeout: 10000,
     headers: {
       'Content-Type': 'application/json',
@@ -111,6 +112,4 @@ const createClient = (opts: { apiSecret: string; environment: keyof typeof Ingri
     },
     maxRedirects: 20,
   });
-
-  return instance;
 };
