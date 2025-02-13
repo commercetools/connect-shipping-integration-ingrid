@@ -68,12 +68,15 @@ const MountEnabler = memo(function MountEnabler() {
         Toggle shipping content
       </button>
 
-      <button
-        disabled={!showEnabler}
-        onClick={() => setUpdateEndpoint((e) => !e)}
-      >
-        Toggle update endpoint
-      </button>
+      {component && (
+        /* only for development purposes to trigger update endpoint */
+        <button
+          disabled={!showEnabler}
+          onClick={() => setUpdateEndpoint((e) => !e)}
+        >
+          Toggle update endpoint
+        </button>
+      )}
       {showEnabler ? <div id={ingridElementId} /> : null}
     </div>
   ) : null;
