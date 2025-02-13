@@ -4,9 +4,9 @@ import fastifyFormBody from '@fastify/formbody';
 import Fastify from 'fastify';
 import { randomUUID } from 'node:crypto';
 import { join } from 'path';
-import { getConfig } from '../config';
 import { requestContextPlugin } from '../libs/fastify/context';
 import { errorHandler } from '../libs/fastify/error-handler';
+import { configureEnvironmentVariables } from './Env';
 
 /**
  * Setup Fastify server instance
@@ -16,12 +16,14 @@ export const setupFastify = async () => {
   // Create fastify server instance
   const server = Fastify({
     logger: {
-      level: getConfig().loggerLevel,
+      level: process.env.LOGGER_LEVEL || 'info',
     },
     genReqId: () => randomUUID().toString(),
     requestIdLogLabel: 'requestId',
     requestIdHeader: 'x-request-id',
   });
+
+  await configureEnvironmentVariables(server);
 
   // Setup error handler
   server.setErrorHandler(errorHandler);
