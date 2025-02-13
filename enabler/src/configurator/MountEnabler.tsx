@@ -49,17 +49,13 @@ const MountEnabler = memo(function MountEnabler() {
   }, [updateEndpoint]);
 
   useEffect(() => {
-    if (showEnabler) {
+    if (showEnabler && session) {
       const mountComponent = async () => {
         const componentResult = await initEnabler();
         if (componentResult) {
           setComponent(componentResult);
           componentResult.mount(ingridElementId);
-          if (session) {
-            componentResult.init(session.id);
-          } else {
-            // TODO throw error? Should we still mount if there's no session?
-          }
+          componentResult.init(session.id);
         }
       };
       mountComponent();
