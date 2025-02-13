@@ -14,13 +14,43 @@ import { AbstractIngridClient } from './abstract-ingrid.client';
 
 import { CustomError } from '../../libs/fastify/errors';
 
+/**
+ * Client for interacting with the Ingrid API
+ *
+ * This client provides methods to create, get and update checkout sessions with the Ingrid delivery platform.
+ * It handles authentication and request/response formatting.
+ *
+ * @remarks
+ * The client requires an API secret for authentication and targets a specific environment (staging/production).
+ * All methods return promises that resolve to typed response objects.
+ *
+ * @param opts - Configuration options for the client
+ * @param opts.apiSecret - API secret for authentication with Ingrid
+ * @param opts.environment - Environment to use (staging/production)
+ *
+ * @throws {CustomError} When API requests fail
+ * @throws {Error} For unexpected errors
+ */
 export class IngridApiClient implements AbstractIngridClient {
-  public client: AxiosInstance;
+  private client: AxiosInstance;
 
   constructor(opts: { apiSecret: string; environment: keyof typeof IngridBasePath }) {
     this.client = createClient(opts);
   }
 
+  /**
+   * Creates a new checkout session with Ingrid
+   *
+   * @remarks
+   * This method initializes a new delivery checkout session with the Ingrid platform.
+   * The session contains delivery options, pricing, and HTML snippet for rendering the checkout UI.
+   *
+   * @param payload - The payload containing cart details, delivery address, and other required information
+   * @returns {Promise<IngridCreateSessionResponse>} Response containing the session ID, HTML snippet, and session details
+   *
+   * @throws {CustomError} When the API request fails with a specific error message and status code
+   * @throws {Error} For unexpected errors during request processing
+   */
   public async createCheckoutSession(payload: IngridCreateSessionRequestPayload) {
     try {
       const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.create', payload);
@@ -39,6 +69,19 @@ export class IngridApiClient implements AbstractIngridClient {
     }
   }
 
+  /**
+   * Pulls a checkout session from Ingrid
+   *
+   * @remarks
+   * This method retrieves the latest state of a checkout session from Ingrid.
+   * It is useful for checking if any updates have been made to the session on Ingrid's side.
+   *
+   * @param checkout_session_id - The unique identifier of the checkout session to pull
+   * @returns {Promise<IngridGetSessionResponse>} The response containing the latest session data
+   *
+   * @throws {CustomError} When the API request fails
+   * @throws {Error} For unexpected errors
+   */
   public async pullCheckoutSession(checkout_session_id: string) {
     try {
       const response = await this.client.get(
@@ -54,6 +97,18 @@ export class IngridApiClient implements AbstractIngridClient {
     }
   }
 
+  /**
+   * Retrieves a checkout session from Ingrid
+   *
+   * @remarks
+   * This method retrieves the details of a specific checkout session from Ingrid.
+   *
+   * @param checkout_session_id - The unique identifier of the checkout session to retrieve
+   * @returns {Promise<IngridGetSessionResponse>} The response containing the session data
+   *
+   * @throws {CustomError} When the API request fails
+   * @throws {Error} For unexpected errors
+   */
   public async getCheckoutSession(checkout_session_id: string) {
     try {
       const response = await this.client.get(
@@ -73,6 +128,18 @@ export class IngridApiClient implements AbstractIngridClient {
     }
   }
 
+  /**
+   * Updates a checkout session with Ingrid
+   *
+   * @remarks
+   * This method updates an existing checkout session with Ingrid.
+   *
+   * @param payload - The payload containing the session ID and any updates to be made
+   * @returns {Promise<IngridUpdateSessionResponse>} The response containing the updated session data
+   *
+   * @throws {CustomError} When the API request fails
+   * @throws {Error} For unexpected errors
+   */
   public async updateCheckoutSession(payload: IngridUpdateSessionRequestPayload) {
     try {
       const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.update', payload);
@@ -86,6 +153,18 @@ export class IngridApiClient implements AbstractIngridClient {
     }
   }
 
+  /**
+   * Completes a checkout session with Ingrid
+   *
+   * @remarks
+   * This method completes a checkout session with Ingrid.
+   *
+   * @param payload - The payload containing the session ID and any updates to be made
+   * @returns {Promise<IngridCompleteSessionResponse>} The response containing the completed session data
+   *
+   * @throws {CustomError} When the API request fails
+   * @throws {Error} For unexpected errors
+   */
   public async completeCheckoutSession(payload: IngridCompleteSessionRequestPayload) {
     try {
       const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.complete', payload);
