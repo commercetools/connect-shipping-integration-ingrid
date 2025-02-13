@@ -7,7 +7,6 @@ import {
   transformIngridDeliveryGroupsToCommercetoolsDataTypes,
 } from './helpers';
 import { InitSessionResponse, UpdateSessionResponse } from './types/ingrid-shipping.type';
-import { Cart } from '@commercetools/platform-sdk';
 
 export class IngridShippingService extends AbstractShippingService {
   constructor(commercetoolsClient: CommercetoolsApiClient, ingridClient: IngridApiClient) {
@@ -80,28 +79,18 @@ export class IngridShippingService extends AbstractShippingService {
     const { billingAddress, deliveryAddress, customShippingMethod } =
       transformIngridDeliveryGroupsToCommercetoolsDataTypes(ingridCheckoutSession.session.delivery_groups);
 
-    let updatedCart: Cart;
-
-    // commercetools cart does not support concurrent updates of billing and delivery address
-    updatedCart = await this.commercetoolsClient.setAddress(
+    const updatedCart = await this.commercetoolsClient.updateCartWithAddressAndShippingMethod(
       ctCart.id,
       ctCart.version,
-      billingAddress,
-      'setBillingAddress',
-    );
-
-    updatedCart = await this.commercetoolsClient.setAddress(
-      ctCart.id,
-      updatedCart.version,
-      deliveryAddress,
-      'setShippingAddress',
-    );
-
-    // set shipping method
-    updatedCart = await this.commercetoolsClient.setShippingMethod(
-      ctCart.id,
-      updatedCart.version,
-      customShippingMethod,
+      {
+        billingAddress,
+        shippingAddress: deliveryAddress,
+      },
+      {
+        shippingMethodName: customShippingMethod.shippingMethodName,
+        shippingRate: customShippingMethod.shippingRate,
+        taxCategory: { key: 'standard-tax', typeId: 'tax-category' },
+      },
     );
 
     console.info('updatedCart', updatedCart);

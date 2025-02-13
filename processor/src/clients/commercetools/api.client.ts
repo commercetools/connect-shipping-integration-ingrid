@@ -3,6 +3,7 @@ import {
   ByProjectKeyRequestBuilder,
   ShippingRateDraft,
   BaseAddress,
+  TaxCategoryResourceIdentifier,
 } from '@commercetools/platform-sdk';
 import {
   AuthMiddlewareOptions,
@@ -14,6 +15,20 @@ import { RequestContextData } from '../../libs/fastify/context';
 import { randomUUID } from 'crypto';
 import { appLogger } from '../../libs/logger';
 
+/**
+ * Client for interacting with the Commercetools API
+ *
+ * @param opts - Configuration options for the client
+ * @param opts.clientId - OAuth client ID for authentication
+ * @param opts.clientSecret - OAuth client secret for authentication
+ * @param opts.authUrl - URL of the auth server
+ * @param opts.apiUrl - URL of the Commercetools API
+ * @param opts.projectKey - Project key in Commercetools
+ * @param opts.getContextFn - Function to get the current request context
+ * @param opts.updateContextFn - Function to update the request context
+ * @param opts.logger - Logger instance to use
+ * @returns A configured Commercetools API client instance
+ */
 export class CommercetoolsApiClient {
   private client: ByProjectKeyRequestBuilder;
 
@@ -36,8 +51,16 @@ export class CommercetoolsApiClient {
     return cart;
   }
 
-  // checks if the type with key 'ingrid-session-id' exists and if not, creates it
-  // @returns {Promise<string>}
+  /**
+   * Retrieves the ID of the Ingrid custom type
+   *
+   * @remarks
+   * First attempts to get an existing custom type with key 'ingrid-session-id'.
+   * If it doesn't exist, creates a new custom type for storing Ingrid session IDs.
+   *
+   * @returns {Promise<string>} The ID of the Ingrid custom type
+   * @throws {Error} If the custom type cannot be retrieved or created
+   */
   public async getIngridCustomTypeId() {
     try {
       const type = await this.getCustomType('ingrid-session-id');
@@ -53,16 +76,25 @@ export class CommercetoolsApiClient {
     }
   }
 
-  // TODO: will the merchant or the enabler set the ingridSessionId
-  // on the cart or does the processor handle the type logic?
-  // referring to prateek's comment here:
-  // https://github.com/commercetools/connect-shipping-integration-ingrid/pull/16#discussion_r1935235022
+  /**
+   * Updates the cart with the Ingrid session ID
+   *
+   * @param cartId - The ID of the cart to update
+   * @param cartVersion - The version of the cart to update
+   * @param ingridSessionId - The Ingrid session ID to set on the cart
+   * @param customTypeId - The ID of the custom type to set on the cart
+   * @returns The updated cart
+   */
   public async updateCartWithIngridSessionId(
     cartId: string,
     cartVersion: number,
     ingridSessionId: string,
     customTypeId: string,
   ) {
+    // TODO: will the merchant or the enabler set the ingridSessionId
+    // on the cart or does the processor handle the type logic?
+    // referring to prateek's comment here:
+    // https://github.com/commercetools/connect-shipping-integration-ingrid/pull/16#discussion_r1935235022
     try {
       const cart = await this.setIngridCustomFieldOnCart(cartId, cartVersion, ingridSessionId);
       return cart;
@@ -76,25 +108,29 @@ export class CommercetoolsApiClient {
     }
   }
 
-  public async setAddress(
+  /**
+   * Updates the cart with the address and shipping method
+   *
+   * @param cartId - The ID of the cart to update
+   * @param cartVersion - The version of the cart to update
+   * @param addresses - Object containing shipping and billing addresses to set on the cart
+   * @param addresses.shippingAddress - The shipping address to set on the cart
+   * @param addresses.billingAddress - The billing address to set on the cart
+   * @param customShippingMethodPayload - Configuration for the custom shipping method
+   * @param customShippingMethodPayload.shippingMethodName - The name of the shipping method
+   * @param customShippingMethodPayload.shippingRate - The shipping rate details including price and tiers
+   * @param customShippingMethodPayload.taxCategory - The tax category reference for the shipping method
+   * @returns The updated cart with the new addresses and shipping method
+   */
+  public async updateCartWithAddressAndShippingMethod(
     cartId: string,
     cartVersion: number,
-    address: BaseAddress,
-    action: 'setShippingAddress' | 'setBillingAddress',
-  ) {
-    const response = await this.client
-      .carts()
-      .withId({ ID: cartId })
-      .post({ body: { version: cartVersion, actions: [{ action, address }] } })
-      .execute();
-    const cart = response.body;
-    return cart;
-  }
-
-  public async setShippingMethod(
-    cartId: string,
-    cartVersion: number,
-    customShippingMethodPayload: { shippingMethodName: string; shippingRate: ShippingRateDraft },
+    addresses: { shippingAddress: BaseAddress; billingAddress: BaseAddress },
+    customShippingMethodPayload: {
+      shippingMethodName: string;
+      shippingRate: ShippingRateDraft;
+      taxCategory: TaxCategoryResourceIdentifier;
+    },
   ) {
     const response = await this.client
       .carts()
@@ -102,7 +138,11 @@ export class CommercetoolsApiClient {
       .post({
         body: {
           version: cartVersion,
-          actions: [{ action: 'setCustomShippingMethod', ...customShippingMethodPayload }],
+          actions: [
+            { action: 'setShippingAddress', address: addresses.shippingAddress },
+            { action: 'setBillingAddress', address: addresses.billingAddress },
+            { action: 'setCustomShippingMethod', ...customShippingMethodPayload },
+          ],
         },
       })
       .execute();
