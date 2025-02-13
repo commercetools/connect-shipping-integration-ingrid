@@ -4,6 +4,8 @@ import {
   ShippingRateDraft,
   BaseAddress,
   TaxCategoryResourceIdentifier,
+  Cart,
+  Type,
 } from '@commercetools/platform-sdk';
 import {
   AuthMiddlewareOptions,
@@ -61,7 +63,7 @@ export class CommercetoolsApiClient {
    * @returns {Promise<string>} The ID of the Ingrid custom type
    * @throws {Error} If the custom type cannot be retrieved or created
    */
-  public async getIngridCustomTypeId() {
+  public async getIngridCustomTypeId(): Promise<string | undefined> {
     try {
       const type = await this.getCustomType('ingrid-session-id');
       return type.id;
@@ -90,7 +92,7 @@ export class CommercetoolsApiClient {
     cartVersion: number,
     ingridSessionId: string,
     customTypeId: string,
-  ) {
+  ): Promise<Cart> {
     // TODO: will the merchant or the enabler set the ingridSessionId
     // on the cart or does the processor handle the type logic?
     // referring to prateek's comment here:
@@ -131,7 +133,7 @@ export class CommercetoolsApiClient {
       shippingRate: ShippingRateDraft;
       taxCategory: TaxCategoryResourceIdentifier;
     },
-  ) {
+  ): Promise<Cart> {
     const response = await this.client
       .carts()
       .withId({ ID: cartId })
@@ -150,7 +152,11 @@ export class CommercetoolsApiClient {
     return cart;
   }
 
-  private async setIngridCustomFieldOnCart(cartId: string, cartVersion: number, ingridSessionId: string) {
+  private async setIngridCustomFieldOnCart(
+    cartId: string,
+    cartVersion: number,
+    ingridSessionId: string,
+  ): Promise<Cart> {
     const response = await this.client
       .carts()
       .withId({ ID: cartId })
@@ -176,7 +182,7 @@ export class CommercetoolsApiClient {
     cartVersion: number,
     ingridSessionId: string,
     customTypeId: string,
-  ) {
+  ): Promise<Cart> {
     const response = await this.client
       .carts()
       .withId({ ID: cartId })
@@ -202,7 +208,7 @@ export class CommercetoolsApiClient {
     return cart;
   }
 
-  private async getCustomType(typeKey: string) {
+  private async getCustomType(typeKey: string): Promise<Type> {
     const response = await this.client.types().withKey({ key: typeKey }).get().execute();
     const type = response.body;
     return type;
@@ -211,7 +217,7 @@ export class CommercetoolsApiClient {
   // Should only be called once and only if the custom type does not exist
   // creates a custom type field definition for ingridSessionId
   // returns the custom type
-  private async createCustomTypeFieldDefinitionForIngridSessionId() {
+  private async createCustomTypeFieldDefinitionForIngridSessionId(): Promise<Type> {
     //TODO: hardcoded for now - is there a need for this to be dynamic?
     const response = await this.client
       .types()
