@@ -32,6 +32,7 @@ const schema = {
   },
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const typeboxSchema = Type.Object({
   CTP_PROJECT_KEY: Type.String(),
   CTP_CLIENT_ID: Type.String(),
