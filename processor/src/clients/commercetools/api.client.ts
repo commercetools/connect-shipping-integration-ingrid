@@ -16,6 +16,7 @@ import {
 import { RequestContextData } from '../../libs/fastify/context';
 import { randomUUID } from 'crypto';
 import { appLogger } from '../../libs/logger';
+import { CustomError } from '../../libs/fastify/errors';
 
 /**
  * Client for interacting with the Commercetools API
@@ -101,6 +102,14 @@ export class CommercetoolsApiClient {
       const cart = await this.setIngridCustomFieldOnCart(cartId, cartVersion, ingridSessionId);
       return cart;
     } catch (error) {
+      if (error instanceof Error) {
+        throw new CustomError({
+          message: error.message,
+          code: 'CUSTOM_FIELD_ERROR',
+          httpErrorStatus: 500,
+          cause: error,
+        });
+      }
       if (error instanceof Error) {
         console.info('Error setting Custom Field on Cart, setting Custom Type first. Error: ', error.message);
       }

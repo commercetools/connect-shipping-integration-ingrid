@@ -30,7 +30,6 @@ import { CustomError } from '../../libs/fastify/errors';
  * @param opts.environment - Environment to use (staging/production)
  *
  * @throws {CustomError} When API requests fail
- * @throws {Error} For unexpected errors
  */
 export class IngridApiClient implements AbstractIngridClient {
   private client: AxiosInstance;
@@ -50,26 +49,10 @@ export class IngridApiClient implements AbstractIngridClient {
    *
    * @param {IngridCreateSessionRequestPayload} payload - The payload containing cart details, delivery address, and other required information
    * @returns {Promise<IngridCreateSessionResponse>} Response containing the session ID, HTML snippet, and session details
-   *
-   * @throws {CustomError} When the API request fails with a specific error message and status code
-   * @throws {Error} For unexpected errors during request processing
    */
   public async createCheckoutSession(payload: IngridCreateSessionRequestPayload): Promise<IngridCreateSessionResponse> {
-    try {
-      const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.create', payload);
-      return response.data as IngridCreateSessionResponse;
-    } catch (error) {
-      if (error instanceof axios.AxiosError) {
-        throw new CustomError({
-          message: error?.response?.data.error,
-          code: error.code || '',
-          httpErrorStatus: error.status || 500,
-          cause: error,
-        });
-      } else {
-        throw new Error('An unexpected error occurred');
-      }
-    }
+    const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.create', payload);
+    return response.data as IngridCreateSessionResponse;
   }
 
   /**
@@ -84,23 +67,12 @@ export class IngridApiClient implements AbstractIngridClient {
    *
    * @param checkout_session_id - The unique identifier of the checkout session to pull
    * @returns {Promise<IngridGetSessionResponse>} The response containing the latest session data
-   *
-   * @throws {CustomError} When the API request fails
-   * @throws {Error} For unexpected errors
    */
   public async pullCheckoutSession(checkout_session_id: string): Promise<IngridGetSessionResponse> {
-    try {
-      const response = await this.client.get(
-        IngridUrls.DELIVERY_CHECKOUT + `/session.pull?checkout_session_id=${checkout_session_id}`,
-      );
-      return response.data as IngridGetSessionResponse;
-    } catch (error) {
-      if (error instanceof axios.AxiosError) {
-        throw new Error(error.response?.data || 'Error pulling Ingrid session');
-      } else {
-        throw new Error('An unexpected error occurred');
-      }
-    }
+    const response = await this.client.get(
+      IngridUrls.DELIVERY_CHECKOUT + `/session.pull?checkout_session_id=${checkout_session_id}`,
+    );
+    return response.data as IngridGetSessionResponse;
   }
 
   /**
@@ -114,27 +86,12 @@ export class IngridApiClient implements AbstractIngridClient {
    *
    * @param checkout_session_id - The unique identifier of the checkout session to retrieve
    * @returns {Promise<IngridGetSessionResponse>} The response containing the session data
-   *
-   * @throws {CustomError} When the API request fails
-   * @throws {Error} For unexpected errors
    */
   public async getCheckoutSession(checkout_session_id: string): Promise<IngridGetSessionResponse> {
-    try {
-      const response = await this.client.get(
-        IngridUrls.DELIVERY_CHECKOUT + `/session.get?checkout_session_id=${checkout_session_id}`,
-      );
-      return response.data as IngridGetSessionResponse;
-    } catch (error) {
-      if (error instanceof axios.AxiosError) {
-        throw new CustomError({
-          message: error?.response?.data.error,
-          code: error.code || '',
-          httpErrorStatus: error.status || 500,
-          cause: error,
-        });
-      }
-      throw error;
-    }
+    const response = await this.client.get(
+      IngridUrls.DELIVERY_CHECKOUT + `/session.get?checkout_session_id=${checkout_session_id}`,
+    );
+    return response.data as IngridGetSessionResponse;
   }
 
   /**
@@ -148,21 +105,10 @@ export class IngridApiClient implements AbstractIngridClient {
    *
    * @param {IngridUpdateSessionRequestPayload} payload - The payload containing the session ID and any updates to be made
    * @returns {Promise<IngridUpdateSessionResponse>} The response containing the updated session data
-   *
-   * @throws {CustomError} When the API request fails
-   * @throws {Error} For unexpected errors
    */
   public async updateCheckoutSession(payload: IngridUpdateSessionRequestPayload): Promise<IngridUpdateSessionResponse> {
-    try {
-      const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.update', payload);
-      return response.data as IngridUpdateSessionResponse;
-    } catch (error) {
-      if (error instanceof axios.AxiosError) {
-        throw new Error(error.response?.data || 'Error updating Ingrid session');
-      } else {
-        throw new Error('An unexpected error occurred');
-      }
-    }
+    const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.update', payload);
+    return response.data as IngridUpdateSessionResponse;
   }
 
   /**
@@ -177,28 +123,17 @@ export class IngridApiClient implements AbstractIngridClient {
    *
    * @param {IngridCompleteSessionRequestPayload} payload - The payload containing the session ID and customer information
    * @returns {Promise<IngridCompleteSessionResponse>} The response containing the completed session data
-   *
-   * @throws {CustomError} When the API request fails
-   * @throws {Error} For unexpected errors
    */
   public async completeCheckoutSession(
     payload: IngridCompleteSessionRequestPayload,
   ): Promise<IngridCompleteSessionResponse> {
-    try {
-      const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.complete', payload);
-      return response.data as IngridCompleteSessionResponse;
-    } catch (error) {
-      if (error instanceof axios.AxiosError) {
-        throw new Error(error.response?.data || 'Error completing Ingrid session');
-      } else {
-        throw new Error('An unexpected error occurred');
-      }
-    }
+    const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.complete', payload);
+    return response.data as IngridCompleteSessionResponse;
   }
 }
 
 const createClient = (opts: { apiSecret: string; environment: keyof typeof IngridBasePath }): AxiosInstance => {
-  const instance = axios.create({
+  let instance = axios.create({
     baseURL: IngridBasePath[opts.environment],
     timeout: 10000,
     headers: {
@@ -208,6 +143,18 @@ const createClient = (opts: { apiSecret: string; environment: keyof typeof Ingri
     },
     maxRedirects: 20,
   });
+
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      throw new CustomError({
+        message: error?.response?.data.error,
+        code: error.code || '',
+        httpErrorStatus: error.status || 500,
+        cause: error,
+      });
+    },
+  );
 
   return instance;
 };
