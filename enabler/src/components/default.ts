@@ -90,28 +90,14 @@ export class DefaultComponent implements ShippingComponent {
       const data = await response.json();
       console.log(data);
 
-      const clientElement = document.querySelector(
-        `#${this.clientDOMElementId}`
-      );
-      if (data && clientElement) {
+      if (!data) {
         // TODO: fix the condition checking
-        this.onUpdateCompleted({
-          isSuccess: data.success,
-          ingridSessionId: data.ingridSessionId,
-        });
-        if (clientElement) {
-          clientElement.insertAdjacentHTML("afterbegin", data.html);
-          replaceScriptNode(clientElement);
-        }
-      } else {
-        if (!clientElement) {
-          this.onError(
-            `Error initialising Ingrid integration, element with ID ${this.clientDOMElementId} doesn't exist`
-          );
-        } else {
-          this.onError("Some error occurred. Please try again.");
-        }
+        throw new Error("No data received from the update API");
       }
+      this.onUpdateCompleted({
+        isSuccess: data.success,
+        ingridSessionId: data.ingridSessionId,
+      });
     } catch (e) {
       console.log(e);
       this.onError("Some error occurred. Please try again.");

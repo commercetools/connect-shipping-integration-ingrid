@@ -2,6 +2,7 @@ import { memo, useEffect, useState, useSyncExternalStore } from "react";
 import cocoSessionStore from "./stores/cocoSessionStore";
 import { IngridShippingEnabler } from "../shipping-enabler/shipping-enabler-ingrid";
 import type {
+  ShippingComponent,
   ShippingInitResult,
   ShippingUpdateResult,
 } from "../shipping-enabler/shipping-enabler";
@@ -15,45 +16,55 @@ const MountEnabler = memo(function MountEnabler() {
     cocoSessionStore.getSnapshot
   );
 
+  const [component, setComponent] = useState<ShippingComponent | null>(null);
+
+  const initEnabler = async () => {
+    const enabler = new IngridShippingEnabler({
+      processorUrl: import.meta.env.VITE_PROCESSOR_URL,
+      sessionId: session?.id,
+
+      onInitCompleted: (result: ShippingInitResult) => {
+        console.log("onInitCompleted", { result });
+        if (result.isSuccess) {
+          localStorage.setItem("ingrid-session-id", result.ingridSessionId);
+        }
+      },
+      onUpdateCompleted: (result: ShippingUpdateResult) => {
+        console.log("onUpdateCompleted", { result });
+      },
+      onError: (err) => {
+        console.error("onError", err);
+      },
+    });
+    enabler.createComponentBuilder();
+    const builder = await enabler.createComponentBuilder();
+    const component = builder.build();
+    return component;
+  };
+
+  useEffect(() => {
+    if (component) {
+      component.update();
+    }
+  }, [updateEndpoint]);
+
   useEffect(() => {
     if (showEnabler) {
-      const initEnabler = async () => {
-        const enabler = new IngridShippingEnabler({
-          processorUrl: import.meta.env.VITE_PROCESSOR_URL,
-          sessionId: session?.id,
-
-          onInitCompleted: (result: ShippingInitResult) => {
-            console.log("onInitCompleted", { result });
-            if (result.isSuccess) {
-              localStorage.setItem("ingrid-session-id", result.ingridSessionId);
-            }
-          },
-          onUpdateCompleted: (result: ShippingUpdateResult) => {
-            console.log("onUpdateCompleted", { result });
-          },
-          onError: (err) => {
-            console.error("onError", err);
-          },
-        });
-        enabler.createComponentBuilder();
-        const builder = await enabler.createComponentBuilder();
-        const component = builder.build();
-        component.mount(ingridElementId);
-        if (session) {
-          // TODO: would be great to fix this
-          // not working as expected
-          if (updateEndpoint) {
-            component.update();
+      const mountComponent = async () => {
+        const componentResult = await initEnabler();
+        if (componentResult) {
+          setComponent(componentResult);
+          componentResult.mount(ingridElementId);
+          if (session) {
+            componentResult.init(session.id);
           } else {
-            component.init(session.id);
+            // TODO throw error? Should we still mount if there's no session?
           }
-        } else {
-          // TODO throw error? Should we still mount if there's no session?
         }
       };
-      initEnabler();
+      mountComponent();
     }
-  }, [session, showEnabler, updateEndpoint]);
+  }, [showEnabler]);
 
   return session ? (
     <div>
