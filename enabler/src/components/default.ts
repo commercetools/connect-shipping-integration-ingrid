@@ -56,10 +56,11 @@ export class DefaultComponent implements ShippingComponent {
         this.onInitCompleted({
           isSuccess: data.success,
           ingridSessionId: data.ingridSessionId,
-          ingridHtml: data.html,
+          ingridHtml: data.ingridHtml,
+          cartVersion: data.cartVersion,
         });
         if (clientElement) {
-          clientElement.insertAdjacentHTML("afterbegin", data.html);
+          clientElement.insertAdjacentHTML("afterbegin", data.ingridHtml);
           replaceScriptNode(clientElement);
         }
       } else {
@@ -95,6 +96,7 @@ export class DefaultComponent implements ShippingComponent {
       this.onUpdateCompleted({
         isSuccess: data.success,
         ingridSessionId: data.ingridSessionId,
+        cartVersion: data.cartVersion,
       });
     } catch (error) {
       this.onError(error);
