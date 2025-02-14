@@ -13,8 +13,6 @@ import {
 import { AbstractIngridClient } from './abstract-ingrid.client';
 import { CustomError } from '../../libs/fastify/errors';
 
-// TODO: Error Handling!!
-
 /**
  * Client for interacting with the Ingrid API
  *
@@ -133,7 +131,7 @@ export class IngridApiClient implements AbstractIngridClient {
 }
 
 const createClient = (opts: { apiSecret: string; environment: keyof typeof IngridBasePath }): AxiosInstance => {
-  let instance = axios.create({
+  const instance = axios.create({
     baseURL: IngridBasePath[opts.environment],
     timeout: 10000,
     headers: {
