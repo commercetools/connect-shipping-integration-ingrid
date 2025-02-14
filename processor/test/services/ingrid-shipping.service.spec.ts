@@ -101,9 +101,10 @@ describe('ingrid-shipping.service', () => {
     expect(typeof result.data).toBe('object');
 
     const data = result.data as unknown as InitSessionSuccessResponseSchemaDTO;
-    expect(typeof data.html).toBe('string');
+    expect(typeof data.ingridHtml).toBe('string');
     expect(typeof data.ingridSessionId).toBe('string');
     expect(typeof data.success).toBe('boolean');
+    expect(typeof data.cartVersion).toBe('number');
   });
 
   test('init session failed due to wrong api key', async () => {
