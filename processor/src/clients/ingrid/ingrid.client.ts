@@ -19,7 +19,6 @@ export class IngridApiClient implements AbstractIngridClient {
   public client: AxiosInstance;
 
   constructor(opts: IngridClientOptions) {
-    console.log('IngridApiClient constructor', opts);
     this.client = createClient(opts);
   }
 
