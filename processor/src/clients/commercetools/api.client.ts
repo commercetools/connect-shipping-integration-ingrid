@@ -62,21 +62,23 @@ export class CommercetoolsApiClient {
    * If it doesn't exist, creates a new custom type for storing Ingrid session IDs.
    *
    * @returns {Promise<string>} The ID of the Ingrid custom type
-   * @throws {Error} If the custom type cannot be retrieved or created
    */
-  public async getIngridCustomTypeId(): Promise<string | undefined> {
-    try {
-      const type = await this.getCustomType('ingrid-session-id');
-      return type.id;
-    } catch (error) {
-      console.error('Ingrid custom type does not exist, creating it', error);
-      try {
-        const type = await this.createCustomTypeFieldDefinitionForIngridSessionId();
-        return type.id;
-      } catch (error) {
-        console.error('Error creating Ingrid custom type', error);
-      }
+  public async getIngridCustomTypeId(): Promise<string> {
+    if (await this.checkIfCustomTypeExistsByKey('ingrid-session-id')) {
+      const { id } = await this.getCustomType('ingrid-session-id');
+      return id;
     }
+    console.info(
+      '[EXPECTED]: Ingrid custom type with key ingrid-session-id does not exist.\n[CONTINUING]: Creating custom type with key ingrid-session-id',
+    );
+    const { id } = await this.createCustomTypeFieldDefinitionForIngridSessionId();
+    console.info(`[SUCCESS]: Ingrid custom type with key ingrid-session-id is created with id ${id}`);
+    return id;
+  }
+
+  private async checkIfCustomTypeExistsByKey(key: string): Promise<boolean> {
+    const response = await this.client.types().withKey({ key: key }).head().execute();
+    return response.statusCode === 200;
   }
 
   /**
@@ -98,25 +100,20 @@ export class CommercetoolsApiClient {
     // on the cart or does the processor handle the type logic?
     // referring to prateek's comment here:
     // https://github.com/commercetools/connect-shipping-integration-ingrid/pull/16#discussion_r1935235022
-    try {
-      const cart = await this.setIngridCustomFieldOnCart(cartId, cartVersion, ingridSessionId);
-      return cart;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new CustomError({
-          message: error.message,
-          code: 'CUSTOM_FIELD_ERROR',
-          httpErrorStatus: 500,
-          cause: error,
-        });
+    const cart = await this.setIngridCustomFieldOnCart(cartId, cartVersion, ingridSessionId).catch((error) => {
+      if (error.body.statusCode === 400 && error.body.errors[0].code === 'InvalidOperation') {
+        console.info('[EXPECTED ERROR]:', error?.message, '\n[CONTINUING]: Calling setCustomType');
+        return this.setIngridCustomTypeOnCart(cartId, cartVersion, ingridSessionId, customTypeId);
       }
-      if (error instanceof Error) {
-        console.info('Error setting Custom Field on Cart, setting Custom Type first. Error: ', error.message);
-      }
-      const cart = await this.setIngridCustomTypeOnCart(cartId, cartVersion, ingridSessionId, customTypeId);
-      console.info('Successfully set Custom Type on Cart with ID!');
-      return cart;
-    }
+      throw new CustomError({
+        message: error?.message,
+        code: error.code,
+        httpErrorStatus: error.statusCode,
+        cause: error,
+      });
+    });
+    console.info(`[SUCCESS]: IngridSessionId ${ingridSessionId} is set on cart ${cartId}`);
+    return cart;
   }
 
   /**
@@ -281,7 +278,6 @@ const createClient = (opts: {
     enableRetry: true,
   };
 
-  // TODO: do we even need the correlationId?
   const correlationIdMiddlewareOptions: CorrelationIdMiddlewareOptions = {
     generate: () => {
       const contextData = opts.getContextFn();
