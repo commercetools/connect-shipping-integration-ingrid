@@ -10,8 +10,9 @@ export const sessionRequestSchema = Type.Union([
 
 /* Init Session Schemas */
 const InitSessionSuccessResponseSchema = Type.Object({
-  html: Type.String(),
   success: Type.Boolean(),
+  cartVersion: Type.Number(),
+  ingridHtml: Type.String(),
   ingridSessionId: Type.String(),
 });
 
@@ -20,6 +21,7 @@ export const InitSessionResponseSchema = Type.Union([InitSessionSuccessResponseS
 /* Update Session Schemas */
 const UpdateSessionSuccessResponseSchema = Type.Object({
   success: Type.Boolean(),
+  cartVersion: Type.Number(),
   ingridSessionId: Type.String(),
 });
 

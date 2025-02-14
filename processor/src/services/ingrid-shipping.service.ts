@@ -43,13 +43,11 @@ export class IngridShippingService extends AbstractShippingService {
       ingridSessionCustomTypeId,
     );
 
-    console.info('updatedCart', updatedCart);
-
-    // TODO: include updatedCart in response??
     return {
       data: {
         success: true,
-        html: ingridCheckoutSession.html_snippet,
+        cartVersion: updatedCart.version,
+        ingridHtml: ingridCheckoutSession.html_snippet,
         ingridSessionId: ingridCheckoutSession.session.checkout_session_id,
       },
     };
@@ -96,8 +94,6 @@ export class IngridShippingService extends AbstractShippingService {
       },
     );
 
-    console.info('updatedCart', updatedCart);
-
     // const timeToPull = 5 * 60 * 1000; // 5 minutes
     // verify cart version if an update has happened
     // get checkout session
@@ -105,10 +101,10 @@ export class IngridShippingService extends AbstractShippingService {
     // if checkout session updated_at is newer than cart.updated_at and not older than 5 minutes update cart
     // if checkout session updated_at is older than cart.updated_at, update checkout session and pull
 
-    // TODO: include updatedCart in response??
     return {
       data: {
         success: true,
+        cartVersion: updatedCart.version,
         ingridSessionId: ingridSessionId,
       },
     };
