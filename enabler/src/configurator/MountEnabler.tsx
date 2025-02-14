@@ -3,37 +3,36 @@ import cocoSessionStore from "./stores/cocoSessionStore";
 import { IngridShippingEnabler } from "../shipping-enabler/shipping-enabler-ingrid";
 import { ShippingComponent } from "../shipping-enabler/shipping-enabler";
 import { ShippingInitResult } from "../shipping-enabler/shipping-enabler";
-import { stateEmitter } from '../components/state-emitter';
+
 
 const ingridElementId = "enablerContainer";
 const MountEnabler = memo(function MountEnabler() {
   const [showEnabler, setShowEnabler] = useState(false);
-  const [isShippingDataChanged, setIsShippingDataChanged] = useState(false);
   const [isProceedShipment, setIsProceedShipment] = useState(false);
   const session = useSyncExternalStore(
     cocoSessionStore.subscribe,
     cocoSessionStore.getSnapshot
   );
   let ingridComponent = useRef<ShippingComponent | null>(null);
-  useEffect(() => {
-    const handleIngridDataChanged = (value: boolean) => {
-      setIsShippingDataChanged(value);
-    };
+  // useEffect(() => {
+  //   const handleIngridDataChanged = (value: boolean) => {
+  //     setIsShippingDataChanged(value);
+  //   };
 
-    stateEmitter.on('shippingDataChanged', handleIngridDataChanged);
+  //   stateEmitter.on('shippingDataChanged', handleIngridDataChanged);
 
-    // Cleanup function to remove the event listener
-    return () => {
-      stateEmitter.off('shippingDataChanged', handleIngridDataChanged);
-    };
-  }, []);
+  //   // Cleanup function to remove the event listener
+  //   return () => {
+  //     stateEmitter.off('shippingDataChanged', handleIngridDataChanged);
+  //   };
+  // }, []);
 
-  useEffect(() => {
-    if (isShippingDataChanged) {
-      console.log('Ingrid data has changed.');
-      // Perform actions based on the change
-    }
-  }, [isShippingDataChanged]);
+  // useEffect(() => {
+  //   if (isShippingDataChanged) {
+  //     console.log('Ingrid data has changed.');
+  //     // Perform actions based on the change
+  //   }
+  // }, [isShippingDataChanged]);
 
   useEffect(() => {
     console.log("isProceedShipment", isProceedShipment);
@@ -61,6 +60,13 @@ const MountEnabler = memo(function MountEnabler() {
               localStorage.setItem("ingrid-session-id", result.ingridSessionId);
             }
           },
+          onShippingDataChanged: () => {
+            console.log("onShippingDataChanged", "OK");
+            const updateShippingDataButton = document.getElementById("updateShippingDataButton");
+            if (updateShippingDataButton) {
+              updateShippingDataButton.style.display = "inline";
+            }
+          },
           onUpdateCompleted: () => {
             console.log("onUpdateCompleted", "OK");
           },
@@ -84,7 +90,7 @@ const MountEnabler = memo(function MountEnabler() {
       </button>
 
       {showEnabler ? <div id={ingridElementId} /> : null}
-      <button onClick={() => setIsProceedShipment((e) => !e)} style={{ display: isShippingDataChanged ? "inline" : "none" }}>proceed shipment</button>
+      <button id="updateShippingDataButton" onClick={() => setIsProceedShipment((e) => !e)} style={{ display: "none" }}>Update Shipping Data</button>
     </div>
   ) : null;
 });

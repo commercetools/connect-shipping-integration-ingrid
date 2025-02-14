@@ -11,6 +11,7 @@ export type BaseOptions = {
   sessionId: string;
   locale?: string;
   onInitCompleted: (result: ShippingInitResult) => void;
+  onShippingDataChanged: () => void;
   onUpdateCompleted: () => void;
   onError: (error?: unknown) => void;
 };
@@ -44,6 +45,7 @@ export class IngridShippingEnabler implements ShippingEnabler {
         processorUrl: options.processorUrl,
         sessionId: options.sessionId || "", // TODO should sessionId be required on BaseOptions but opt on EnablerOptions?
         onInitCompleted: options.onInitCompleted || (() => {}),
+        onShippingDataChanged: options.onShippingDataChanged || (() => {}),
         onUpdateCompleted: options.onUpdateCompleted || (() => {}),
         onError: options.onError || (() => {}),
       },

@@ -52,16 +52,6 @@ export interface ShippingComponent {
    */
   update(): void;
 
-  /**
-   * indicate whether the shipping data has changed.
-   */
-  get isShippingDataChanged(): boolean;
-
-  /**
-   * set boolean flag to indicate whether the shipping data has changed.
-   */
-  set isShippingDataChanged(value: boolean);
-
 }
 
 /**
@@ -99,6 +89,11 @@ export type EnablerOptions = {
    * @param result - The result of the shipping init.
    */
   onInitCompleted?: (result: ShippingInitResult) => void;
+
+  /**
+   * A callback function that is called when the shipping data on Ingrid Widget has been changed.
+   */
+  onShippingDataChanged?: () => void;
 
   /**
    * A callback function that is called when the shipping update is completed.
