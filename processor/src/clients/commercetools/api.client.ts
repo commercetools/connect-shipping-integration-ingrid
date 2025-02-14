@@ -12,7 +12,7 @@ import {
   ClientBuilder,
   CorrelationIdMiddlewareOptions,
   HttpMiddlewareOptions,
-} from '@commercetools/sdk-client-v2';
+} from '@commercetools/ts-client';
 import { RequestContextData } from '../../libs/fastify/context';
 import { randomUUID } from 'crypto';
 import { appLogger } from '../../libs/logger';
