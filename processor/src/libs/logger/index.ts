@@ -29,7 +29,7 @@ const defaultFieldsFormatter = (defaults: DefaultFields) => {
 export const appLogger = createApplicationLogger({
   formatters: [
     defaultFieldsFormatter({
-      projectKey: process.env.CTP_PROJECT_KEY || 'projectKey',
+      projectKey: process.env.CTP_PROJECT_KEY,
       version: process.env.npm_package_version,
       name: process.env.npm_package_name,
       correlationId: () => getRequestContext().correlationId,
