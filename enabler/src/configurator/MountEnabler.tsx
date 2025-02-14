@@ -90,7 +90,7 @@ const MountEnabler = memo(function MountEnabler() {
       </button>
 
       {showEnabler ? <div id={ingridElementId} /> : null}
-      <button id="updateShippingDataButton" onClick={() => setIsProceedShipment((e) => !e)} style={{ display: "none" }}>Update Shipping Data</button>
+      <button style={{ display: "none" }} id="updateShippingDataButton" onClick={() => setIsProceedShipment((e) => !e)}>Update Shipping Data</button>
     </div>
   ) : null;
 });

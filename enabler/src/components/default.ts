@@ -6,10 +6,10 @@ import {
 
 import { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
 import { replaceScriptNode } from "../utils/html-node.util";
-
+import { DataChangedMetaData, SummaryChangedMetaData } from "../dtos/ingrid.dtos";
 
 interface Api {
-  on(event: string, callback: (data: unknown, meta: unknown) => void): void;
+  on(event: string, callback: (data: unknown, meta: SummaryChangedMetaData | DataChangedMetaData) => void): void;
 }
 
 export class DefaultComponentBuilder implements ShippingComponentBuilder {
@@ -94,12 +94,12 @@ export class DefaultComponent implements ShippingComponent {
         if (typeof window !== 'undefined' && window._sw) {
           window._sw!((api: unknown) => {
             const typedApi = api as Api;
-            typedApi.on("summary_changed", () => {
-              this.onShippingDataChanged()
+            typedApi.on("summary_changed", (_, meta) => {   
+              let typedMeta = meta as SummaryChangedMetaData;
+              if (typedMeta.delivery_address_changed)
+                this.onShippingDataChanged()
             });
-            typedApi.on("data_changed", () => {          
-              this.onShippingDataChanged()
-            });
+            
           });
         } else {
           console.error('window._sw is not available');
