@@ -6,11 +6,15 @@ import { IngridBasePath, IngridUrls, IngridEnvironment } from '../../../src/clie
 import {
   mockCreateCheckoutSessionRequest,
   mockCreateCheckoutSessionSuccessResponse,
+  mockCreateCheckoutSessionAuthFailureResponse,
   mockPullCheckoutSessionResponse,
+  mockGetCheckoutSessionResponse,
 } from '../../mock/mock-ingrid-client-objects';
+import { CustomError } from '../../../src/libs/fastify/errors';
 
 describe('Ingrid Client', () => {
   const mockServer = setupServer();
+  const opts = { apiSecret: 'dummy-ingrid-api-key', environment: 'STAGING' as IngridEnvironment };
 
   beforeAll(() => {
     mockServer.listen({
@@ -42,7 +46,6 @@ describe('Ingrid Client', () => {
         ),
       );
 
-      const opts = { apiSecret: 'dummy-ingrid-api-key', environment: 'STAGING' as IngridEnvironment };
 
       const client = new IngridApiClient(opts);
       const response = await client.createCheckoutSession(mockCreateCheckoutSessionRequest);
@@ -68,7 +71,7 @@ describe('Ingrid Client', () => {
         ),
       );
 
-      const opts = { apiSecret: 'dummy-ingrid-api-key', environment: 'STAGING' as IngridEnvironment };
+   
 
       const client = new IngridApiClient(opts);
       const response = await client.pullCheckoutSession('dummy-checkout-session-id');
@@ -78,6 +81,49 @@ describe('Ingrid Client', () => {
       expect(typeof response.session.cart).toBe('object');
       expect(typeof response.session.delivery_groups).toBe('object');
       expect(typeof response.session.purchase_country).toBe('string');
+    });
+  });
+
+  describe('get Ingrid checkout session ', () => {
+    test('should return required properties', async () => {
+      mockServer.use(
+        mockRequest(
+          IngridBasePath.STAGING,
+          IngridUrls.DELIVERY_CHECKOUT + '/session.get',
+          200,
+          mockGetCheckoutSessionResponse,
+        ),
+      );
+
+      const client = new IngridApiClient(opts);
+      const response = await client.getCheckoutSession('dummy-checkout-session-id');
+
+      expect(typeof response.session).toBe('object');
+      expect(typeof response.html_snippet).toBe('string');
+      expect(typeof response.session.cart).toBe('object');
+      expect(typeof response.session.delivery_groups).toBe('object');
+      expect(typeof response.session.purchase_country).toBe('string');
+    });
+  });
+
+  describe('create Ingrid checkout session with wrong API key ', () => {
+    test('should throw error', async () => {
+      mockServer.use(
+        mockRequest(
+          IngridBasePath.STAGING,
+          IngridUrls.DELIVERY_CHECKOUT + '/session.create',
+          401,
+          mockCreateCheckoutSessionAuthFailureResponse,
+        ),
+      );
+      const client = new IngridApiClient(opts);
+      try {
+        await client.createCheckoutSession(mockCreateCheckoutSessionRequest);
+      } catch (error) {
+        expect(error instanceof CustomError).toBe(true);
+        const customError = error as CustomError;
+        expect(customError.httpErrorStatus).toBe(401);
+      }
     });
   });
 });
