@@ -1,12 +1,7 @@
 export const mockSessionUrl = 'https://session.commercetools.com';
 export const mockProjectKey = 'dummy-project-key';
 export const mockSessionId = 'dummy-session-id';
-export const mockAccessToken = {
-  access_token: 'dummy-access-token',
-  token_type: 'string',
-  scope: 'dummy-scope',
-  expires_in: 3600,
-};
+
 export const mockGetSessionResponse = {
   id: mockSessionId,
   version: 1,

@@ -7,13 +7,14 @@ import { GeneralError, ErrorAuthErrorResponse } from '../../../../src/libs/fasti
 import {
   ErrorPrivateFields,
   InactiveSessionErrorPrivateFields,
-  mockAccessToken,
   mockSessionId,
   mockSessionUrl,
   mockGetExpiredSessionResponse,
   mockGetSessionResponse,
   mockProjectKey,
 } from '../../../mock/mock-session';
+import { mockAccessToken } from '../../../mock/mock-authorization';
+
 describe('ct-session.service', () => {
   const mockServer = setupServer();
 
