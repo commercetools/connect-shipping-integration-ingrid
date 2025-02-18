@@ -4,17 +4,22 @@ import {
   IngridCart,
   IngridCartItem,
 } from '../../clients/ingrid/types/ingrid.client.type';
+import { CustomError } from '../../libs/fastify/errors';
 
 /**
  * Transform commercetools cart to ingrid cart
  *
  * @param {Cart} ctCart - commercetools cart
  * @returns {IngridCreateSessionRequestPayload} ingrid cart
- * @throws {Error} When cart is empty
+ * @throws {CustomError} When cart is empty
  */
 export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridCreateSessionRequestPayload => {
   if (ctCart.lineItems.length === 0) {
-    throw new Error('Cart is empty');
+    throw new CustomError({
+      message: 'Cart is empty',
+      code: 'CART_IS_EMPTY',
+      httpErrorStatus: 400,
+    });
   }
 
   // TODO: How to include / map tax?
