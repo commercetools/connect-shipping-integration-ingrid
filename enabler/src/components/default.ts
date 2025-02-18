@@ -47,10 +47,14 @@ export class DefaultComponent implements ShippingComponent {
       });
 
       const data = await response.json();
+      if (!data.success) {
+        this.onError(data);
+      }
 
       const clientElement = document.querySelector(
         `#${this.clientDOMElementId}`
       );
+
       if (data.success && clientElement) {
         this.onInitCompleted({
           isSuccess: data.success,
@@ -61,13 +65,9 @@ export class DefaultComponent implements ShippingComponent {
         clientElement.insertAdjacentHTML("afterbegin", data.ingridHtml);
         replaceScriptNode(clientElement);
       } else {
-        if (!clientElement) {
-          this.onError(
-            `Error initialising Ingrid integration, element with ID ${this.clientDOMElementId} doesn't exist`
-          );
-        } else {
-          throw new Error(data);
-        }
+        this.onError(
+          `Error initialising Ingrid integration, element with ID ${this.clientDOMElementId} doesn't exist`
+        );
       }
     } catch (error) {
       this.onError(error);
