@@ -24,13 +24,10 @@ export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridC
     });
   }
 
-  // TODO: How to include / map tax?
   const transformedCart = transformCommercetoolsCartToIngridCart(ctCart);
 
   const payload: IngridCreateSessionRequestPayload = {
     cart: transformedCart,
-    // TODO: is external_id even needed when we set the cartId as well as cart_id (@line 158)?
-    external_id: ctCart.id,
     locales: [ctCart.locale!],
     purchase_country: ctCart.country!,
     purchase_currency: ctCart.totalPrice.currencyCode,

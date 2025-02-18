@@ -92,10 +92,6 @@ export class CommercetoolsApiClient {
     ingridSessionId: string,
     customTypeId: string,
   ): Promise<Cart> {
-    // TODO: will the merchant or the enabler set the ingridSessionId
-    // on the cart or does the processor handle the type logic?
-    // referring to prateek's comment here:
-    // https://github.com/commercetools/connect-shipping-integration-ingrid/pull/16#discussion_r1935235022
     const cart = await this.setIngridCustomFieldOnCart(cartId, cartVersion, ingridSessionId).catch((error) => {
       if (error.body.statusCode === 400 && error.body.errors[0].code === 'InvalidOperation') {
         appLogger.info('[EXPECTED ERROR]: ' + error?.message);
@@ -222,7 +218,6 @@ export class CommercetoolsApiClient {
   // creates a custom type field definition for ingridSessionId
   // returns the custom type
   private async createCustomTypeFieldDefinitionForIngridSessionId(): Promise<Type> {
-    //TODO: hardcoded for now - is there a need for this to be dynamic?
     const response = await this.client
       .types()
       .post({

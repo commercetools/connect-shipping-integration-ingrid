@@ -91,7 +91,6 @@ export class IngridShippingService extends AbstractShippingService {
     const { billingAddress, deliveryAddress, customShippingMethod } =
       transformIngridDeliveryGroupsToCommercetoolsDataTypes(ingridCheckoutSession.session.delivery_groups);
 
-    // TODO: based on eventhandling we may need to seperate each update as well
     const updatedCart = await this.commercetoolsClient.updateCartWithAddressAndShippingMethod(
       ctCart.id,
       ctCart.version,
@@ -102,7 +101,6 @@ export class IngridShippingService extends AbstractShippingService {
       {
         shippingMethodName: customShippingMethod.shippingMethodName,
         shippingRate: customShippingMethod.shippingRate,
-        // TODO: What to do with tax??
         taxCategory: { key: 'standard-tax', typeId: 'tax-category' },
       },
     );
