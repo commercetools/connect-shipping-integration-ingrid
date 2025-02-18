@@ -16,9 +16,11 @@ export class SessionHeaderAuthenticationManager implements AuthenticationManager
 
   async authenticate(authentication: HeaderBasedAuthentication): Promise<SessionAuthentication> {
     const principal = authentication.getPrincipal();
+    console.log('principal', principal);
     try {
+      console.log('session1');
       const session = await this.sessionService.verifySession(principal.authHeader);
-
+      console.log('session2');
       return new SessionAuthentication(principal.authHeader, {
         cartId: this.sessionService.getCartFromSession(session),
         processorUrl: this.sessionService.getProcessorUrlFromSession(session),

@@ -46,7 +46,6 @@ describe('Ingrid Client', () => {
         ),
       );
 
-
       const client = new IngridApiClient(opts);
       const response = await client.createCheckoutSession(mockCreateCheckoutSessionRequest);
 
@@ -70,8 +69,6 @@ describe('Ingrid Client', () => {
           mockPullCheckoutSessionResponse,
         ),
       );
-
-   
 
       const client = new IngridApiClient(opts);
       const response = await client.pullCheckoutSession('dummy-checkout-session-id');
