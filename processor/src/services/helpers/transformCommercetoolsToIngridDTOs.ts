@@ -10,7 +10,9 @@ import { CustomError } from '../../libs/fastify/errors';
  * Transform commercetools cart to ingrid cart
  *
  * @param {Cart} ctCart - commercetools cart
+ *
  * @returns {IngridCreateSessionRequestPayload} ingrid cart
+ *
  * @throws {CustomError} When cart is empty
  */
 export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridCreateSessionRequestPayload => {
@@ -41,6 +43,7 @@ export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridC
  * Convert commercetools cart to ingrid cart
  *
  * @param {Cart} ctCart - commercetools cart
+ *
  * @returns {IngridCart} ingrid cart
  */
 const transformCommercetoolsCartToIngridCart = (ctCart: Cart): IngridCart => {
@@ -64,6 +67,7 @@ const transformCommercetoolsCartToIngridCart = (ctCart: Cart): IngridCart => {
  *
  * @param {LineItem[]} items - commercetools line items
  * @param {string} locale - commercetools locale
+ *
  * @returns {IngridCartItem[]} ingrid cart items
  */
 const transformCommercetoolsLineItemsToIngridCartItems = (items: LineItem[], locale: string): IngridCartItem[] => {
@@ -75,6 +79,7 @@ const transformCommercetoolsLineItemsToIngridCartItems = (items: LineItem[], loc
  *
  * @param {LineItem} item - commercetools line item
  * @param {string} locale - commercetools locale
+ *
  * @returns {IngridCartItem} ingrid cart item
  */
 const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: string): IngridCartItem => {
@@ -97,6 +102,7 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
  * Get image url
  *
  * @param {LineItem} item - commercetools line item
+ *
  * @returns {string} image url or empty string if no image url is found
  */
 const getImageUrl = (item: LineItem): string => {
@@ -111,6 +117,7 @@ const getImageUrl = (item: LineItem): string => {
  * Calculate total line item discount
  *
  * @param {LineItem[]} items - commercetools line items
+ *
  * @returns {number} total line item discount
  */
 const calculateTotalLineItemsDiscount = (items: LineItem[]): number => {
@@ -123,6 +130,7 @@ const calculateTotalLineItemsDiscount = (items: LineItem[]): number => {
  * Calculate line item discount
  *
  * @param {LineItem} lineItem - commercetools line item
+ *
  * @returns {number} line item discount
  */
 const calculateLineItemDiscount = (lineItem: LineItem): number => {

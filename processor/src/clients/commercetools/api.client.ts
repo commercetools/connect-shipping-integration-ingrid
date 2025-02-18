@@ -30,6 +30,7 @@ import { CustomError } from '../../libs/fastify/errors';
  * @param opts.getContextFn - Function to get the current request context
  * @param opts.updateContextFn - Function to update the request context
  * @param opts.logger - Logger instance to use
+ *
  * @returns A configured Commercetools API client instance
  */
 export class CommercetoolsApiClient {
@@ -75,11 +76,6 @@ export class CommercetoolsApiClient {
     return id;
   }
 
-  private async checkIfCustomTypeExistsByKey(key: string): Promise<boolean> {
-    const response = await this.client.types().withKey({ key: key }).head().execute();
-    return response.statusCode === 200;
-  }
-
   /**
    * Updates the cart with the Ingrid session ID
    *
@@ -87,7 +83,8 @@ export class CommercetoolsApiClient {
    * @param cartVersion - The version of the cart to update
    * @param ingridSessionId - The Ingrid session ID to set on the cart
    * @param customTypeId - The ID of the custom type to set on the cart
-   * @returns The updated cart
+   *
+   * @returns {Promise<Cart>} The updated cart
    */
   public async updateCartWithIngridSessionId(
     cartId: string,
@@ -128,7 +125,8 @@ export class CommercetoolsApiClient {
    * @param customShippingMethodPayload.shippingMethodName - The name of the shipping method
    * @param customShippingMethodPayload.shippingRate - The shipping rate details including price and tiers
    * @param customShippingMethodPayload.taxCategory - The tax category reference for the shipping method
-   * @returns The updated cart with the new addresses and shipping method
+   *
+   * @returns {Promise<Cart>} The updated cart with the new addresses and shipping method
    */
   public async updateCartWithAddressAndShippingMethod(
     cartId: string,
@@ -251,6 +249,11 @@ export class CommercetoolsApiClient {
       .execute();
     const customType = response.body;
     return customType;
+  }
+
+  private async checkIfCustomTypeExistsByKey(key: string): Promise<boolean> {
+    const response = await this.client.types().withKey({ key: key }).head().execute();
+    return response.statusCode === 200;
   }
 }
 

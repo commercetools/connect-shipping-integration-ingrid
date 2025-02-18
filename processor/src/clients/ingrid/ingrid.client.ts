@@ -27,6 +27,8 @@ import { CustomError } from '../../libs/fastify/errors';
  * @param opts.apiSecret - API secret for authentication with Ingrid
  * @param opts.environment - Environment to use (staging/production)
  *
+ * @returns A configured Ingrid API client instance
+ *
  * @throws {CustomError} When API requests fail
  */
 export class IngridApiClient implements AbstractIngridClient {
@@ -64,6 +66,7 @@ export class IngridApiClient implements AbstractIngridClient {
    * @see {@link https://developer.ingrid.com/delivery_checkout/backend_integration/#pull-checkout-session}
    *
    * @param checkout_session_id - The unique identifier of the checkout session to pull
+   *
    * @returns {Promise<IngridGetSessionResponse>} The response containing the latest session data
    */
   public async pullCheckoutSession(checkout_session_id: string): Promise<IngridGetSessionResponse> {
@@ -83,6 +86,7 @@ export class IngridApiClient implements AbstractIngridClient {
    * @see {@link https://developer.ingrid.com/delivery_checkout/backend_integration/#get-checkout-session}
    *
    * @param checkout_session_id - The unique identifier of the checkout session to retrieve
+   *
    * @returns {Promise<IngridGetSessionResponse>} The response containing the session data
    */
   public async getCheckoutSession(checkout_session_id: string): Promise<IngridGetSessionResponse> {
@@ -102,6 +106,7 @@ export class IngridApiClient implements AbstractIngridClient {
    * @see {@link https://developer.ingrid.com/delivery_checkout/backend_integration/#update-checkout-session}
    *
    * @param {IngridUpdateSessionRequestPayload} payload - The payload containing the session ID and any updates to be made
+   *
    * @returns {Promise<IngridUpdateSessionResponse>} The response containing the updated session data
    */
   public async updateCheckoutSession(payload: IngridUpdateSessionRequestPayload): Promise<IngridUpdateSessionResponse> {
@@ -120,6 +125,7 @@ export class IngridApiClient implements AbstractIngridClient {
    * @see {@link https://developer.ingrid.com/delivery_checkout/backend_integration/#complete-checkout-session}
    *
    * @param {IngridCompleteSessionRequestPayload} payload - The payload containing the session ID and customer information
+   *
    * @returns {Promise<IngridCompleteSessionResponse>} The response containing the completed session data
    */
   public async completeCheckoutSession(

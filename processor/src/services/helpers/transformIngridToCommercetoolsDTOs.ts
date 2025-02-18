@@ -15,10 +15,12 @@ type CustomShippingMethod = {
  * Transform Ingrid delivery groups to Commercetools data types
  *
  * @param {IngridDeliveryGroup[]} ingridDeliveryGroups - Array of Ingrid delivery groups
+ *
  * @returns {Object} Object containing billing address, delivery address and custom shipping method
  * @returns {BaseAddress} returns.billingAddress - Commercetools billing address
  * @returns {BaseAddress} returns.deliveryAddress - Commercetools delivery address
  * @returns {CustomShippingMethod} returns.customShippingMethod - Custom shipping method with name and rate
+ *
  * @throws {CustomError} When no delivery groups are found
  * @throws {CustomError} When multiple delivery groups are provided (not yet supported)
  */
@@ -55,6 +57,7 @@ export const transformIngridDeliveryGroupsToCommercetoolsDataTypes = (
  * Convert ingrid address to commercetools base address
  *
  * @param address - Ingrid billing or delivery address
+ *
  * @returns {BaseAddress}
  */
 const transformIngridAddressToCommercetoolsAddress = (
@@ -77,6 +80,7 @@ const transformIngridAddressToCommercetoolsAddress = (
  * Transform ingrid delivery group to custom shipping method
  *
  * @param ingridDeliveryGroup - Ingrid delivery group
+ *
  * @returns {CustomShippingMethod}
  */
 const transformIngridDeliveryGroupToCustomShippingMethod = (
