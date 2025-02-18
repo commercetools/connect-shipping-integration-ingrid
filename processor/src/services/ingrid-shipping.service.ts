@@ -1,4 +1,3 @@
-import { Cart } from '@commercetools/platform-sdk';
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
 import { IngridApiClient } from '../clients/ingrid/ingrid.client';
 import { getCartIdFromContext } from '../libs/fastify/context';
@@ -35,7 +34,7 @@ export class IngridShippingService extends AbstractShippingService {
     }
 
     const ctCart = await this.commercetoolsClient.getCartById(getCartIdFromContext());
-    const ingridSessionId = this.getIngridSessionId(ctCart);
+    const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
     const ingridCheckoutPayload = transformCommercetoolsCartToIngridPayload(ctCart);
 
     const ingridCheckoutSession = ingridSessionId
@@ -72,7 +71,7 @@ export class IngridShippingService extends AbstractShippingService {
     const ctCart = await this.commercetoolsClient.getCartById(getCartIdFromContext());
 
     // get ingrid session id
-    const ingridSessionId = this.getIngridSessionId(ctCart);
+    const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
 
     // get ingrid checkout session
     const ingridCheckoutSession = await this.ingridClient.getCheckoutSession(ingridSessionId);
@@ -115,16 +114,5 @@ export class IngridShippingService extends AbstractShippingService {
         ingridSessionId: ingridSessionId,
       },
     };
-  }
-
-  private getIngridSessionId(ctCart: Cart): string {
-    if (!ctCart.custom?.fields?.ingridSessionId) {
-      throw new CustomError({
-        message: `No ingrid session id found on cart with ID: ${ctCart.id}`,
-        code: 'NO_INGRID_SESSION_ID_FOUND_ON_CART',
-        httpErrorStatus: 400,
-      });
-    }
-    return ctCart.custom?.fields?.ingridSessionId;
   }
 }

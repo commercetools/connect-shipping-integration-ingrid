@@ -68,9 +68,8 @@ export class CommercetoolsApiClient {
       const { id } = await this.getCustomType('ingrid-session-id');
       return id;
     }
-    appLogger.info(
-      '[EXPECTED]: Ingrid custom type with key ingrid-session-id does not exist.\n[CONTINUING]: Creating custom type with key ingrid-session-id',
-    );
+    appLogger.info('[EXPECTED]: Ingrid custom type with key ingrid-session-id does not exist.');
+    appLogger.info('[CONTINUING]: Creating custom type with key ingrid-session-id');
     const { id } = await this.createCustomTypeFieldDefinitionForIngridSessionId();
     appLogger.info(`[SUCCESS]: Ingrid custom type with key ingrid-session-id is created with id ${id}`);
     return id;
@@ -102,7 +101,8 @@ export class CommercetoolsApiClient {
     // https://github.com/commercetools/connect-shipping-integration-ingrid/pull/16#discussion_r1935235022
     const cart = await this.setIngridCustomFieldOnCart(cartId, cartVersion, ingridSessionId).catch((error) => {
       if (error.body.statusCode === 400 && error.body.errors[0].code === 'InvalidOperation') {
-        appLogger.info('[EXPECTED ERROR]:', error?.message, '\n[CONTINUING]: Calling setCustomType');
+        appLogger.info('[EXPECTED ERROR]: ' + error?.message);
+        appLogger.info('[CONTINUING]: Calling setCustomType');
         return this.setIngridCustomTypeOnCart(cartId, cartVersion, ingridSessionId, customTypeId);
       }
       throw new CustomError({
