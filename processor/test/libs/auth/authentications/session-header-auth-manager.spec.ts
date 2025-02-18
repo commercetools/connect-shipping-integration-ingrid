@@ -49,7 +49,6 @@ describe('session-header-auth-manager', () => {
     jest.spyOn(defaultSessionService, 'getProcessorUrlFromSession').mockReturnValue('https://localhost:8080');
     jest.spyOn(defaultSessionService, 'getCorrelationIdFromSession').mockReturnValue('dummy-correlation-id');
     const sessionAuthentication = await sessionHeaderAuthManager.authenticate(sessionIdAuthn);
-    console.log(sessionAuthentication.getAuthorities());
 
     expect(sessionAuthentication).toBeDefined();
     expect(sessionAuthentication.getPrincipal()).toBeDefined();
