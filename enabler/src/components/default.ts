@@ -52,29 +52,25 @@ export class DefaultComponent implements ShippingComponent {
         `#${this.clientDOMElementId}`
       );
       if (data.success && clientElement) {
-        // TODO: fix the condition checking
         this.onInitCompleted({
           isSuccess: data.success,
           ingridSessionId: data.ingridSessionId,
           ingridHtml: data.ingridHtml,
           cartVersion: data.cartVersion,
         });
-        if (clientElement) {
-          clientElement.insertAdjacentHTML("afterbegin", data.ingridHtml);
-          replaceScriptNode(clientElement);
-        }
+        clientElement.insertAdjacentHTML("afterbegin", data.ingridHtml);
+        replaceScriptNode(clientElement);
       } else {
         if (!clientElement) {
           this.onError(
             `Error initialising Ingrid integration, element with ID ${this.clientDOMElementId} doesn't exist`
           );
         } else {
-          this.onError(data);
+          throw new Error(data);
         }
       }
-    } catch (e) {
-      console.log(e);
-      this.onError("Some error occurred. Please try again.");
+    } catch (error) {
+      this.onError(error);
     }
   }
 
