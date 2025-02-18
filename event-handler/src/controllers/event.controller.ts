@@ -38,7 +38,7 @@ export const post = async (request: Request, response: Response) => {
   if (decodedData) {
     const jsonData = JSON.parse(decodedData);
 
-    console.log(jsonData)
+    console.log(jsonData);
   }
 
   if (!orderId) {
