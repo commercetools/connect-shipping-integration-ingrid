@@ -13,8 +13,8 @@ import {
   CorrelationIdMiddlewareOptions,
   HttpMiddlewareOptions,
 } from '@commercetools/ts-client';
-import { RequestContextData } from '../../libs/fastify/context';
 import { randomUUID } from 'crypto';
+import { RequestContextData } from '../../libs/fastify/context';
 import { appLogger } from '../../libs/logger';
 import { CustomError } from '../../libs/fastify/errors';
 
@@ -68,11 +68,11 @@ export class CommercetoolsApiClient {
       const { id } = await this.getCustomType('ingrid-session-id');
       return id;
     }
-    console.info(
+    appLogger.info(
       '[EXPECTED]: Ingrid custom type with key ingrid-session-id does not exist.\n[CONTINUING]: Creating custom type with key ingrid-session-id',
     );
     const { id } = await this.createCustomTypeFieldDefinitionForIngridSessionId();
-    console.info(`[SUCCESS]: Ingrid custom type with key ingrid-session-id is created with id ${id}`);
+    appLogger.info(`[SUCCESS]: Ingrid custom type with key ingrid-session-id is created with id ${id}`);
     return id;
   }
 
@@ -102,7 +102,7 @@ export class CommercetoolsApiClient {
     // https://github.com/commercetools/connect-shipping-integration-ingrid/pull/16#discussion_r1935235022
     const cart = await this.setIngridCustomFieldOnCart(cartId, cartVersion, ingridSessionId).catch((error) => {
       if (error.body.statusCode === 400 && error.body.errors[0].code === 'InvalidOperation') {
-        console.info('[EXPECTED ERROR]:', error?.message, '\n[CONTINUING]: Calling setCustomType');
+        appLogger.info('[EXPECTED ERROR]:', error?.message, '\n[CONTINUING]: Calling setCustomType');
         return this.setIngridCustomTypeOnCart(cartId, cartVersion, ingridSessionId, customTypeId);
       }
       throw new CustomError({
@@ -112,7 +112,7 @@ export class CommercetoolsApiClient {
         cause: error,
       });
     });
-    console.info(`[SUCCESS]: IngridSessionId ${ingridSessionId} is set on cart ${cartId}`);
+    appLogger.info(`[SUCCESS]: IngridSessionId ${ingridSessionId} is set on cart ${cartId}`);
     return cart;
   }
 
