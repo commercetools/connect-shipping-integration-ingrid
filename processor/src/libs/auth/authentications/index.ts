@@ -1,3 +1,3 @@
-export * from './headerBasedAuthentication';
-export * from './sessionAuthentication';
+export * from './header-based-authentication';
+export * from './session-authentication';
 export * from './session-header-auth-manager';
