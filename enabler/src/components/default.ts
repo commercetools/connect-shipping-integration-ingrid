@@ -63,6 +63,7 @@ export class DefaultComponent implements ShippingComponent {
           ingridHtml: data.ingridHtml,
           cartVersion: data.cartVersion,
         });
+
         clientElement.insertAdjacentHTML("afterbegin", data.ingridHtml);
         replaceScriptNode(clientElement);
       } else {
