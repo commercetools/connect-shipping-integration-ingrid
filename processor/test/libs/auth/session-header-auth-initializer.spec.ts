@@ -20,9 +20,7 @@ describe('session-header-auth-initializer', () => {
       getContextFn: () => {
         return null as unknown as RequestContextData;
       },
-      updateContextFn: (ctx: Partial<RequestContextData>) => {
-        console.log(ctx);
-      },
+      updateContextFn: () => {},
       logger: appLogger,
     };
     const sessionHeaderAuthInitializer = new SessionHeaderAuthInitializer(opt);
