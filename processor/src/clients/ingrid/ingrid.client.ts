@@ -34,7 +34,7 @@ export class IngridApiClient implements AbstractIngridClient {
           cause: error,
         });
       } else {
-        throw new Error('An unexpected error occurred');
+        throw error;
       }
     }
   }
@@ -49,7 +49,7 @@ export class IngridApiClient implements AbstractIngridClient {
       if (error instanceof axios.AxiosError) {
         throw new Error(error.response?.data || 'Error pulling Ingrid session');
       } else {
-        throw new Error('An unexpected error occurred');
+        throw error;
       }
     }
   }

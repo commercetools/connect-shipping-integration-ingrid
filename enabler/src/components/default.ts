@@ -21,6 +21,7 @@ export class DefaultComponent implements ShippingComponent {
   protected onInitCompleted: (result: ShippingInitResult) => void;
   protected onUpdateCompleted: () => void;
   protected onError: (error?: unknown) => void;
+  private clientDOMElementId: string = "";
 
   constructor(baseOptions: BaseOptions) {
     this.processorUrl = baseOptions.processorUrl;
@@ -29,7 +30,6 @@ export class DefaultComponent implements ShippingComponent {
     this.onUpdateCompleted = baseOptions.onUpdateCompleted;
     this.onError = baseOptions.onError;
   }
-  private clientDOMElementId: string = "";
 
   mount(elementId: string) {
     this.clientDOMElementId = elementId;
@@ -57,16 +57,14 @@ export class DefaultComponent implements ShippingComponent {
         `#${this.clientDOMElementId}`
       );
       if (data && clientElement) {
-        // TODO: fix the condition checking
         this.onInitCompleted({
           isSuccess: true,
           ingridSessionId: data.ingridSessionId,
           ingridHtml: data.html,
         });
-        if (clientElement) {
-          clientElement.insertAdjacentHTML("afterbegin", data.html);
-          replaceScriptNode(clientElement);
-        }
+
+        clientElement.insertAdjacentHTML("afterbegin", data.html);
+        replaceScriptNode(clientElement);
       } else {
         if (!clientElement) {
           this.onError(
