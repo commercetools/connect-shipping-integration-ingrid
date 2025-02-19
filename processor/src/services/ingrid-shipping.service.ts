@@ -23,7 +23,7 @@ export class IngridShippingService extends AbstractShippingService {
    * @returns {Promise<InitSessionResponse>} Returns the commercetools cart id, ingrid session id and ingrid checkout session html snippet
    */
   public async init(): Promise<InitSessionResponse> {
-    const ingridSessionCustomTypeId = await this.commercetoolsClient.getIngridCustomTypeId();
+    const ingridSessionCustomTypeId = await this.commercetoolsClient.getIngridCustomTypeId('ingrid-session-id');
 
     if (!ingridSessionCustomTypeId) {
       throw new CustomError({
