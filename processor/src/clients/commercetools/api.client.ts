@@ -59,19 +59,19 @@ export class CommercetoolsApiClient {
    * Retrieves the ID of the Ingrid custom type
    *
    * @remarks
-   * First attempts to get an existing custom type with key 'ingrid-session-id'.
+   * First attempts to get an existing custom type with specified key.
    * If it doesn't exist, creates a new custom type for storing Ingrid session IDs.
    *
    * @returns {Promise<string>} The ID of the Ingrid custom type
    */
-  public async getIngridCustomTypeId(ingridSessionIdTypeKey: string): Promise<string> {
-    if (await this.checkIfCustomTypeExistsByKey(ingridSessionIdTypeKey)) {
-      const { id } = await this.getCustomType(ingridSessionIdTypeKey);
+  public async getIngridCustomTypeId(keyOfIngridSessionIdCustomType: string): Promise<string> {
+    if (await this.checkIfCustomTypeExistsByKey(keyOfIngridSessionIdCustomType)) {
+      const { id } = await this.getCustomType(keyOfIngridSessionIdCustomType);
       return id;
     }
     appLogger.info('[EXPECTED]: Ingrid custom type with key ingrid-session-id does not exist.');
     appLogger.info('[CONTINUING]: Creating custom type with key ingrid-session-id');
-    const { id } = await this.createCustomTypeFieldDefinitionForIngridSessionId(ingridSessionIdTypeKey);
+    const { id } = await this.createCustomTypeFieldDefinitionForIngridSessionId(keyOfIngridSessionIdCustomType);
     appLogger.info(`[SUCCESS]: Ingrid custom type with key ingrid-session-id is created with id ${id}`);
     return id;
   }

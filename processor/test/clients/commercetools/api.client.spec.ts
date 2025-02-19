@@ -66,9 +66,9 @@ describe('commercetools api client', () => {
       };
       const apiClient = new CommercetoolsApiClient(opt);
       const resp = await apiClient.getIngridCustomTypeId('dummy-type-key');
-      console.log(resp);
-      //   expect(resp).toBeDefined();
-      //   expect(resp).toEqual(cart);
+
+      expect(resp).toBeDefined();
+      expect(resp).toEqual(type.id);
     });
   });
 });
