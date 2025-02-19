@@ -13,8 +13,8 @@ import {
   CorrelationIdMiddlewareOptions,
   HttpMiddlewareOptions,
 } from '@commercetools/ts-client';
-import { RequestContextData } from '../../libs/fastify/context';
 import { randomUUID } from 'crypto';
+import { RequestContextData } from '../../libs/fastify/context';
 import { appLogger } from '../../libs/logger';
 import { CustomError } from '../../libs/fastify/errors';
 
@@ -30,6 +30,7 @@ import { CustomError } from '../../libs/fastify/errors';
  * @param opts.getContextFn - Function to get the current request context
  * @param opts.updateContextFn - Function to update the request context
  * @param opts.logger - Logger instance to use
+ *
  * @returns A configured Commercetools API client instance
  */
 export class CommercetoolsApiClient {
@@ -68,17 +69,11 @@ export class CommercetoolsApiClient {
       const { id } = await this.getCustomType('ingrid-session-id');
       return id;
     }
-    console.info(
-      '[EXPECTED]: Ingrid custom type with key ingrid-session-id does not exist.\n[CONTINUING]: Creating custom type with key ingrid-session-id',
-    );
+    appLogger.info('[EXPECTED]: Ingrid custom type with key ingrid-session-id does not exist.');
+    appLogger.info('[CONTINUING]: Creating custom type with key ingrid-session-id');
     const { id } = await this.createCustomTypeFieldDefinitionForIngridSessionId();
-    console.info(`[SUCCESS]: Ingrid custom type with key ingrid-session-id is created with id ${id}`);
+    appLogger.info(`[SUCCESS]: Ingrid custom type with key ingrid-session-id is created with id ${id}`);
     return id;
-  }
-
-  private async checkIfCustomTypeExistsByKey(key: string): Promise<boolean> {
-    const response = await this.client.types().withKey({ key: key }).head().execute();
-    return response.statusCode === 200;
   }
 
   /**
@@ -88,7 +83,8 @@ export class CommercetoolsApiClient {
    * @param cartVersion - The version of the cart to update
    * @param ingridSessionId - The Ingrid session ID to set on the cart
    * @param customTypeId - The ID of the custom type to set on the cart
-   * @returns The updated cart
+   *
+   * @returns {Promise<Cart>} The updated cart
    */
   public async updateCartWithIngridSessionId(
     cartId: string,
@@ -96,13 +92,10 @@ export class CommercetoolsApiClient {
     ingridSessionId: string,
     customTypeId: string,
   ): Promise<Cart> {
-    // TODO: will the merchant or the enabler set the ingridSessionId
-    // on the cart or does the processor handle the type logic?
-    // referring to prateek's comment here:
-    // https://github.com/commercetools/connect-shipping-integration-ingrid/pull/16#discussion_r1935235022
     const cart = await this.setIngridCustomFieldOnCart(cartId, cartVersion, ingridSessionId).catch((error) => {
       if (error.body.statusCode === 400 && error.body.errors[0].code === 'InvalidOperation') {
-        console.info('[EXPECTED ERROR]:', error?.message, '\n[CONTINUING]: Calling setCustomType');
+        appLogger.info('[EXPECTED ERROR]: ' + error?.message);
+        appLogger.info('[CONTINUING]: Calling setCustomType');
         return this.setIngridCustomTypeOnCart(cartId, cartVersion, ingridSessionId, customTypeId);
       }
       throw new CustomError({
@@ -112,7 +105,7 @@ export class CommercetoolsApiClient {
         cause: error,
       });
     });
-    console.info(`[SUCCESS]: IngridSessionId ${ingridSessionId} is set on cart ${cartId}`);
+    appLogger.info(`[SUCCESS]: IngridSessionId ${ingridSessionId} is set on cart ${cartId}`);
     return cart;
   }
 
@@ -128,7 +121,8 @@ export class CommercetoolsApiClient {
    * @param customShippingMethodPayload.shippingMethodName - The name of the shipping method
    * @param customShippingMethodPayload.shippingRate - The shipping rate details including price and tiers
    * @param customShippingMethodPayload.taxCategory - The tax category reference for the shipping method
-   * @returns The updated cart with the new addresses and shipping method
+   *
+   * @returns {Promise<Cart>} The updated cart with the new addresses and shipping method
    */
   public async updateCartWithAddressAndShippingMethod(
     cartId: string,
@@ -224,7 +218,6 @@ export class CommercetoolsApiClient {
   // creates a custom type field definition for ingridSessionId
   // returns the custom type
   private async createCustomTypeFieldDefinitionForIngridSessionId(): Promise<Type> {
-    //TODO: hardcoded for now - is there a need for this to be dynamic?
     const response = await this.client
       .types()
       .post({
@@ -251,6 +244,11 @@ export class CommercetoolsApiClient {
       .execute();
     const customType = response.body;
     return customType;
+  }
+
+  private async checkIfCustomTypeExistsByKey(key: string): Promise<boolean> {
+    const response = await this.client.types().withKey({ key: key }).head().execute();
+    return response.statusCode === 200;
   }
 }
 

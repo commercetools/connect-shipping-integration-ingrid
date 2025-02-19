@@ -4,6 +4,7 @@ import {
   IngridDeliveryAddress,
   IngridDeliveryGroup,
 } from '../../clients/ingrid/types/ingrid.client.type';
+import { CustomError } from '../../libs/fastify/errors';
 
 type CustomShippingMethod = {
   shippingMethodName: string;
@@ -14,12 +15,14 @@ type CustomShippingMethod = {
  * Transform Ingrid delivery groups to Commercetools data types
  *
  * @param {IngridDeliveryGroup[]} ingridDeliveryGroups - Array of Ingrid delivery groups
+ *
  * @returns {Object} Object containing billing address, delivery address and custom shipping method
  * @returns {BaseAddress} returns.billingAddress - Commercetools billing address
  * @returns {BaseAddress} returns.deliveryAddress - Commercetools delivery address
  * @returns {CustomShippingMethod} returns.customShippingMethod - Custom shipping method with name and rate
- * @throws {Error} When no delivery groups are found
- * @throws {Error} When multiple delivery groups are provided (not yet supported)
+ *
+ * @throws {CustomError} When no delivery groups are found
+ * @throws {CustomError} When multiple delivery groups are provided (not yet supported)
  */
 export const transformIngridDeliveryGroupsToCommercetoolsDataTypes = (
   ingridDeliveryGroups: IngridDeliveryGroup[],
@@ -29,42 +32,32 @@ export const transformIngridDeliveryGroupsToCommercetoolsDataTypes = (
   customShippingMethod: CustomShippingMethod;
 } => {
   if (ingridDeliveryGroups.length === 0) {
-    throw new Error('No delivery groups found');
+    throw new CustomError({
+      message: 'No delivery groups found',
+      code: 'NO_DELIVERY_GROUPS_FOUND',
+      httpErrorStatus: 500,
+    });
   }
   if (ingridDeliveryGroups.length > 1) {
-    throw new Error("We don't support multiple delivery groups yet");
+    throw new CustomError({
+      message: "We don't support multiple delivery groups yet",
+      code: 'MULTIPLE_DELIVERY_GROUPS_NOT_SUPPORTED',
+      httpErrorStatus: 500,
+    });
   }
   const ingridDeliveryGroup = ingridDeliveryGroups[0]!;
-  const billingAddress = getBillingAddress(ingridDeliveryGroup.addresses.billing_address);
-  const deliveryAddress = getDeliveryAddress(ingridDeliveryGroup.addresses.delivery_address);
+  const billingAddress = transformIngridAddressToCommercetoolsAddress(ingridDeliveryGroup.addresses.billing_address);
+  const deliveryAddress = transformIngridAddressToCommercetoolsAddress(ingridDeliveryGroup.addresses.delivery_address);
   const customShippingMethod = transformIngridDeliveryGroupToCustomShippingMethod(ingridDeliveryGroup);
+
   return { billingAddress, deliveryAddress, customShippingMethod };
-};
-
-/**
- * Get billing address
- *
- * @param address - Ingrid billing address
- * @returns {BaseAddress}
- */
-const getBillingAddress = (address: IngridBillingAddress): BaseAddress => {
-  return transformIngridAddressToCommercetoolsAddress(address);
-};
-
-/**
- * Get delivery address
- *
- * @param address - Ingrid delivery address
- * @returns {BaseAddress}
- */
-const getDeliveryAddress = (address: IngridDeliveryAddress): BaseAddress => {
-  return transformIngridAddressToCommercetoolsAddress(address);
 };
 
 /**
  * Convert ingrid address to commercetools base address
  *
  * @param address - Ingrid billing or delivery address
+ *
  * @returns {BaseAddress}
  */
 const transformIngridAddressToCommercetoolsAddress = (
@@ -87,6 +80,7 @@ const transformIngridAddressToCommercetoolsAddress = (
  * Transform ingrid delivery group to custom shipping method
  *
  * @param ingridDeliveryGroup - Ingrid delivery group
+ *
  * @returns {CustomShippingMethod}
  */
 const transformIngridDeliveryGroupToCustomShippingMethod = (

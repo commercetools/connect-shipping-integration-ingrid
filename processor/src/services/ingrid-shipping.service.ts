@@ -1,6 +1,7 @@
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
 import { IngridApiClient } from '../clients/ingrid/ingrid.client';
 import { getCartIdFromContext } from '../libs/fastify/context';
+import { CustomError } from '../libs/fastify/errors';
 import { AbstractShippingService } from './abstract-shipping.service';
 import {
   transformCommercetoolsCartToIngridPayload,
@@ -25,7 +26,11 @@ export class IngridShippingService extends AbstractShippingService {
     const ingridSessionCustomTypeId = await this.commercetoolsClient.getIngridCustomTypeId();
 
     if (!ingridSessionCustomTypeId) {
-      throw new Error('Ingrid custom type does not exist and could not be created');
+      throw new CustomError({
+        message: 'No ingrid session custom type id found',
+        code: 'NO_INGRID_SESSION_CUSTOM_TYPE_ID_FOUND',
+        httpErrorStatus: 400,
+      });
     }
 
     const ctCart = await this.commercetoolsClient.getCartById(getCartIdFromContext());
@@ -67,18 +72,25 @@ export class IngridShippingService extends AbstractShippingService {
 
     // get ingrid session id
     const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
-    if (!ingridSessionId) {
-      throw new Error(`No ingrid session id found for cart with ID: ${ctCart.id}`);
-    }
 
     // get ingrid checkout session
     const ingridCheckoutSession = await this.ingridClient.getCheckoutSession(ingridSessionId);
 
-    // transform ingrid checkout session to commercetools data types
+    // check for presence of billing and delivery addresses
+    const { billing_address, delivery_address } = ingridCheckoutSession.session.delivery_groups[0]?.addresses ?? {};
+    if (!billing_address || !delivery_address) {
+      throw new CustomError({
+        message:
+          "Failed to get billing and delivery addresses from ingrid checkout session. It seems like the addresses weren't provided by the customer.",
+        code: 'FAILED_TO_GET_BILLING_OR_DELIVERY_ADDRESSES_FROM_INGRID_CHECKOUT_SESSION',
+        httpErrorStatus: 400,
+      });
+    }
+
+    // transform ingrid checkout session delivery groups to commercetools data types
     const { billingAddress, deliveryAddress, customShippingMethod } =
       transformIngridDeliveryGroupsToCommercetoolsDataTypes(ingridCheckoutSession.session.delivery_groups);
 
-    // TODO: based on eventhandling we may need to seperate each update as well
     const updatedCart = await this.commercetoolsClient.updateCartWithAddressAndShippingMethod(
       ctCart.id,
       ctCart.version,
@@ -89,17 +101,9 @@ export class IngridShippingService extends AbstractShippingService {
       {
         shippingMethodName: customShippingMethod.shippingMethodName,
         shippingRate: customShippingMethod.shippingRate,
-        // TODO: What to do with tax??
         taxCategory: { key: 'standard-tax', typeId: 'tax-category' },
       },
     );
-
-    // const timeToPull = 5 * 60 * 1000; // 5 minutes
-    // verify cart version if an update has happened
-    // get checkout session
-    // check updated_at on ingrid checkout session
-    // if checkout session updated_at is newer than cart.updated_at and not older than 5 minutes update cart
-    // if checkout session updated_at is older than cart.updated_at, update checkout session and pull
 
     return {
       data: {

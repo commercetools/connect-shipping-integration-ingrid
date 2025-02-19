@@ -17,7 +17,7 @@ export abstract class AbstractShippingService {
    * @remarks
    * Abstract method to initialize session in Ingrid platform
    *
-   * @returns Promise<InitSessionResponse>
+   * @returns {Promise<InitSessionResponse>}
    */
   abstract init(): Promise<InitSessionResponse>;
 
@@ -27,7 +27,7 @@ export abstract class AbstractShippingService {
    * @remarks
    * Abstract method to update composable commerce platform if update is triggered in Ingrid platform
    *
-   * @returns Promise<UpdateSessionResponse>
+   * @returns {Promise<UpdateSessionResponse>}
    */
   abstract update(): Promise<UpdateSessionResponse>;
 }

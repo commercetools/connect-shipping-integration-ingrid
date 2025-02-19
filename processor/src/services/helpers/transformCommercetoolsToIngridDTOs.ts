@@ -4,26 +4,30 @@ import {
   IngridCart,
   IngridCartItem,
 } from '../../clients/ingrid/types/ingrid.client.type';
+import { CustomError } from '../../libs/fastify/errors';
 
 /**
  * Transform commercetools cart to ingrid cart
  *
  * @param {Cart} ctCart - commercetools cart
+ *
  * @returns {IngridCreateSessionRequestPayload} ingrid cart
- * @throws {Error} When cart is empty
+ *
+ * @throws {CustomError} When cart is empty
  */
 export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridCreateSessionRequestPayload => {
   if (ctCart.lineItems.length === 0) {
-    throw new Error('Cart is empty');
+    throw new CustomError({
+      message: 'Cart is empty',
+      code: 'CART_IS_EMPTY',
+      httpErrorStatus: 400,
+    });
   }
 
-  // TODO: How to include / map tax?
   const transformedCart = transformCommercetoolsCartToIngridCart(ctCart);
 
   const payload: IngridCreateSessionRequestPayload = {
     cart: transformedCart,
-    // TODO: is external_id even needed when we set the cartId as well as cart_id (@line 158)?
-    external_id: ctCart.id,
     locales: [ctCart.locale!],
     purchase_country: ctCart.country!,
     purchase_currency: ctCart.totalPrice.currencyCode,
@@ -36,6 +40,7 @@ export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridC
  * Convert commercetools cart to ingrid cart
  *
  * @param {Cart} ctCart - commercetools cart
+ *
  * @returns {IngridCart} ingrid cart
  */
 const transformCommercetoolsCartToIngridCart = (ctCart: Cart): IngridCart => {
@@ -59,6 +64,7 @@ const transformCommercetoolsCartToIngridCart = (ctCart: Cart): IngridCart => {
  *
  * @param {LineItem[]} items - commercetools line items
  * @param {string} locale - commercetools locale
+ *
  * @returns {IngridCartItem[]} ingrid cart items
  */
 const transformCommercetoolsLineItemsToIngridCartItems = (items: LineItem[], locale: string): IngridCartItem[] => {
@@ -70,6 +76,7 @@ const transformCommercetoolsLineItemsToIngridCartItems = (items: LineItem[], loc
  *
  * @param {LineItem} item - commercetools line item
  * @param {string} locale - commercetools locale
+ *
  * @returns {IngridCartItem} ingrid cart item
  */
 const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: string): IngridCartItem => {
@@ -92,6 +99,7 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
  * Get image url
  *
  * @param {LineItem} item - commercetools line item
+ *
  * @returns {string} image url or empty string if no image url is found
  */
 const getImageUrl = (item: LineItem): string => {
@@ -106,6 +114,7 @@ const getImageUrl = (item: LineItem): string => {
  * Calculate total line item discount
  *
  * @param {LineItem[]} items - commercetools line items
+ *
  * @returns {number} total line item discount
  */
 const calculateTotalLineItemsDiscount = (items: LineItem[]): number => {
@@ -118,6 +127,7 @@ const calculateTotalLineItemsDiscount = (items: LineItem[]): number => {
  * Calculate line item discount
  *
  * @param {LineItem} lineItem - commercetools line item
+ *
  * @returns {number} line item discount
  */
 const calculateLineItemDiscount = (lineItem: LineItem): number => {
