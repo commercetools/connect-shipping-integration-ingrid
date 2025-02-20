@@ -35,10 +35,12 @@ export const post = async (request: Request, response: Response) => {
       .execute()
       .then((res) => res.body);
 
-    const order = commercetoolsOrder.cart?.id;
-
     const ingridSessionId =
       commercetoolsOrder.cart?.obj?.custom?.fields?.ingridSessionId;
+
+    if (!ingridSessionId) {
+      throw new CustomError(400, 'Bad request: Ingrid session ID not found');
+    }
 
     const apiSecret = readConfiguration().ingridApiKey;
     const environment = readConfiguration().ingridEnvironment;
