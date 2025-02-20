@@ -1,5 +1,10 @@
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
-import { InitSessionResponseSchema, InitSessionResponseSchemaDTO } from '../dtos/ingrid-shipping.dto';
+import {
+  InitSessionResponseSchema,
+  InitSessionResponseSchemaDTO,
+  UpdateSessionResponseSchema,
+  UpdateSessionResponseSchemaDTO,
+} from '../dtos/ingrid-shipping.dto';
 import { IngridShippingService } from '../services/ingrid-shipping.service';
 import { SessionHeaderAuthenticationHook } from '../libs/auth/hooks';
 
@@ -22,33 +27,28 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
       },
     },
 
-    async (request, reply) => {
+    async (_, reply) => {
       const { data } = await opts.shippingService.init();
       return reply.status(200).send(data);
     },
   );
 
   fastify.post<{
-    Reply: InitSessionResponseSchemaDTO;
+    Reply: UpdateSessionResponseSchemaDTO;
   }>(
     '/sessions/update',
     {
       preHandler: [opts.sessionHeaderAuthenticationHook.authenticate()],
       schema: {
         response: {
-          200: InitSessionResponseSchema,
+          200: UpdateSessionResponseSchema,
         },
       },
     },
 
-    async (request, reply) => {
-      try {
-        const { data } = await opts.shippingService.update();
-        return reply.status(200).send(data);
-      } catch (error) {
-        console.error('Error updating Ingrid session', error);
-        return reply.status(500).send({ success: false, message: 'Error updating Ingrid session' });
-      }
+    async (_, reply) => {
+      const { data } = await opts.shippingService.update();
+      return reply.status(200).send(data);
     },
   );
 };

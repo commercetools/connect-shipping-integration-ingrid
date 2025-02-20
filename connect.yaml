@@ -31,6 +31,10 @@ deployAs:
           description: Ingrid environment (STAGING or PRODUCTION)
           required: true
           default: STAGING
+        - key: INGRID_SESSION_CUSTOM_TYPE_KEY
+          description: Key of CustomType to store ingrid session inside cart
+          required: false
+          default: ingrid-session
       securedConfiguration:
         - key: INGRID_API_KEY
           description: the key used to connect to the Ingrid instance

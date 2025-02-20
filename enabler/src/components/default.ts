@@ -1,10 +1,11 @@
-import {
+import type {
   ShippingComponent,
   ShippingComponentBuilder,
   ShippingInitResult,
+  ShippingUpdateResult,
 } from "../shipping-enabler/shipping-enabler";
 
-import { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
+import type { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
 import { replaceScriptNode } from "../utils/html-node.util";
 export class DefaultComponentBuilder implements ShippingComponentBuilder {
   constructor(private baseOptions: BaseOptions) {}
@@ -18,7 +19,7 @@ export class DefaultComponent implements ShippingComponent {
   protected processorUrl: BaseOptions["processorUrl"];
   protected sessionId: BaseOptions["sessionId"];
   protected onInitCompleted: (result: ShippingInitResult) => void;
-  protected onUpdateCompleted: () => void;
+  protected onUpdateCompleted: (result: ShippingUpdateResult) => void;
   protected onError: (error?: unknown) => void;
 
   constructor(baseOptions: BaseOptions) {
@@ -34,11 +35,7 @@ export class DefaultComponent implements ShippingComponent {
     this.clientDOMElementId = elementId;
   }
 
-  async update() {
-    // TODO: implement update() to send request to processor /sessions/update API
-  }
-
-  async init(cocoSessionId: string) {
+  async init() {
     // here we would call the SDK to submit the payment
     // this.sdk.init({ environment: this.environment });
     try {
@@ -50,34 +47,55 @@ export class DefaultComponent implements ShippingComponent {
       });
 
       const data = await response.json();
-      console.log(cocoSessionId);
+      if (!data.success) {
+        this.onError(data);
+      }
 
       const clientElement = document.querySelector(
         `#${this.clientDOMElementId}`
       );
-      if (data && clientElement) {
-        // TODO: fix the condition checking
+
+      if (data.success && clientElement) {
         this.onInitCompleted({
-          isSuccess: true,
+          isSuccess: data.success,
           ingridSessionId: data.ingridSessionId,
-          ingridHtml: data.html,
+          ingridHtml: data.ingridHtml,
+          cartVersion: data.cartVersion,
         });
-        if (clientElement) {
-          clientElement.insertAdjacentHTML("afterbegin", data.html);
-          replaceScriptNode(clientElement);
-        }
+        clientElement.insertAdjacentHTML("afterbegin", data.ingridHtml);
+        replaceScriptNode(clientElement);
       } else {
-        if (!clientElement) {
-          this.onError(
-            `Error initialising Ingrid integration, element with ID ${this.clientDOMElementId} doesn't exist`
-          );
-        } else {
-          this.onError("Some error occurred. Please try again.");
-        }
+        this.onError(
+          `Error initialising Ingrid integration, element with ID ${this.clientDOMElementId} doesn't exist`
+        );
       }
-    } catch (e) {
-      console.log(e);
-      this.onError("Some error occurred. Please try again.");
+    } catch (error) {
+      this.onError(error);
+    }
+  }
+
+  async update() {
+    try {
+      const response = await fetch(this.processorUrl + "/sessions/update", {
+        method: "POST",
+        headers: {
+          "X-Session-Id": this.sessionId,
+        },
+      });
+
+      const data = await response.json();
+      console.log(data);
+
+      if (!data.success) {
+        this.onError(data);
+      }
+      this.onUpdateCompleted({
+        isSuccess: data.success,
+        ingridSessionId: data.ingridSessionId,
+        cartVersion: data.cartVersion,
+      });
+    } catch (error) {
+      this.onError(error);
     }
   }
 

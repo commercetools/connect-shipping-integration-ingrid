@@ -1,9 +1,16 @@
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
 import { IngridApiClient } from '../clients/ingrid/ingrid.client';
 import { getCartIdFromContext } from '../libs/fastify/context';
+import { appLogger } from '../libs/logger';
+import { CustomError } from '../libs/fastify/errors';
 import { AbstractShippingService } from './abstract-shipping.service';
-import { InitSessionResponse } from './types/ingrid-shipping.type';
-import { mapCartToIngridCheckoutPayload } from './helpers/transformCart';
+import {
+  transformCommercetoolsCartToIngridPayload,
+  transformIngridDeliveryGroupsToCommercetoolsDataTypes,
+} from './helpers';
+import { Cart } from '@commercetools/platform-sdk';
+import { InitSessionResponse, UpdateSessionResponse } from './types/ingrid-shipping.type';
+import { getConfig } from '../config';
 
 export class IngridShippingService extends AbstractShippingService {
   constructor(commercetoolsClient: CommercetoolsApiClient, ingridClient: IngridApiClient) {
@@ -16,37 +23,39 @@ export class IngridShippingService extends AbstractShippingService {
    * @remarks
    * Implementation to initialize session in Ingrid platform.
    *
-   * @returns {Promise<InitSessionResponse>}
+   * @returns {Promise<InitSessionResponse>} Returns the commercetools cart id, ingrid session id and ingrid checkout session html snippet
    */
   public async init(): Promise<InitSessionResponse> {
-    const ingridSessionCustomTypeId = await this.commercetoolsClient.getIngridCustomTypeId();
+    const ingridSessionCustomTypeKey = getConfig().keyOfIngridSessionCustomType;
+    const customType = await this.commercetoolsClient.getCustomType(ingridSessionCustomTypeKey);
 
-    if (!ingridSessionCustomTypeId) {
-      throw new Error('Ingrid custom type does not exist and could not be created');
+    if (!customType) {
+      throw new CustomError({
+        message: 'No ingrid session custom type id found',
+        code: 'NO_INGRID_SESSION_CUSTOM_TYPE_ID_FOUND',
+        httpErrorStatus: 400,
+      });
     }
 
     const ctCart = await this.commercetoolsClient.getCartById(getCartIdFromContext());
     const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
-    const ingridCheckoutPayload = mapCartToIngridCheckoutPayload(ctCart);
+    const ingridCheckoutPayload = transformCommercetoolsCartToIngridPayload(ctCart);
+
     const ingridCheckoutSession = ingridSessionId
       ? await this.ingridClient.getCheckoutSession(ingridSessionId)
       : await this.ingridClient.createCheckoutSession(ingridCheckoutPayload);
 
-    try {
-      await this.commercetoolsClient.updateCartWithIngridSessionId(
-        ctCart.id,
-        ctCart.version,
-        ingridCheckoutSession.session.checkout_session_id,
-        ingridSessionCustomTypeId,
-      );
-    } catch (err) {
-      console.error('Error updating cart with Ingrid session ID', err);
-    }
+    const updatedCart = await this.updateCartWithIngridSessionId(
+      ctCart,
+      ingridCheckoutSession.session.checkout_session_id,
+      customType.id,
+    );
 
     return {
       data: {
         success: true,
-        html: ingridCheckoutSession.html_snippet,
+        cartVersion: updatedCart.version,
+        ingridHtml: ingridCheckoutSession.html_snippet,
         ingridSessionId: ingridCheckoutSession.session.checkout_session_id,
       },
     };
@@ -58,15 +67,86 @@ export class IngridShippingService extends AbstractShippingService {
    * @remarks
    * Implementation to update composable commerce platform if update is triggered in Ingrid platform.
    *
-   * @returns {Promise<InitSessionResponse>}
+   * @returns {Promise<UpdateSessionResponse>} Returns the commercetools cart id and ingrid session id
    */
-  public async update(): Promise<InitSessionResponse> {
+  public async update(): Promise<UpdateSessionResponse> {
+    // get commercetools cart
+    const ctCart = await this.commercetoolsClient.getCartById(getCartIdFromContext());
+
+    // get ingrid session id
+    const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
+
+    // get ingrid checkout session
+    const ingridCheckoutSession = await this.ingridClient.getCheckoutSession(ingridSessionId);
+
+    // check for presence of billing and delivery addresses
+    const { billing_address, delivery_address } = ingridCheckoutSession.session.delivery_groups[0]?.addresses ?? {};
+    if (!billing_address || !delivery_address) {
+      throw new CustomError({
+        message:
+          "Failed to get billing and delivery addresses from ingrid checkout session. It seems like the addresses weren't provided by the customer.",
+        code: 'FAILED_TO_GET_BILLING_OR_DELIVERY_ADDRESSES_FROM_INGRID_CHECKOUT_SESSION',
+        httpErrorStatus: 400,
+      });
+    }
+
+    // transform ingrid checkout session delivery groups to commercetools data types
+    const { billingAddress, deliveryAddress, customShippingMethod } =
+      transformIngridDeliveryGroupsToCommercetoolsDataTypes(ingridCheckoutSession.session.delivery_groups);
+
+    const updatedCart = await this.commercetoolsClient.updateCartWithAddressAndShippingMethod(
+      ctCart.id,
+      ctCart.version,
+      {
+        billingAddress,
+        shippingAddress: deliveryAddress,
+      },
+      {
+        shippingMethodName: customShippingMethod.shippingMethodName,
+        shippingRate: customShippingMethod.shippingRate,
+        taxCategory: { key: 'standard-tax', typeId: 'tax-category' },
+      },
+    );
+
     return {
       data: {
         success: true,
-        html: 'ingridCheckoutSession',
-        ingridSessionId: 'ingridCheckoutSession',
+        cartVersion: updatedCart.version,
+        ingridSessionId: ingridSessionId,
       },
     };
+  }
+
+  /**
+   * Updates the cart with the Ingrid session ID
+   *
+   * @param cartId - The ID of the cart to update
+   * @param cartVersion - The version of the cart to update
+   * @param ingridSessionId - The Ingrid session ID to set on the cart
+   * @param customTypeId - The ID of the custom type to set on the cart
+   *
+   * @returns {Promise<Cart>} The updated cart
+   */
+  private async updateCartWithIngridSessionId(
+    cart: Cart,
+    ingridSessionId: string,
+    customTypeId: string,
+  ): Promise<Cart> {
+    if (!cart.custom) {
+      cart = await this.commercetoolsClient.setCartCustomType(cart.id, cart.version, customTypeId);
+    }
+    cart = await this.commercetoolsClient
+      .setCartCustomField(cart.id, cart.version, 'ingridSessionId', ingridSessionId)
+      .catch((error) => {
+        appLogger.error(`[ERROR]: Failed to set IngridSessionId ${ingridSessionId} on cart ${cart.id}`);
+        throw new CustomError({
+          message: error?.message,
+          code: error.code,
+          httpErrorStatus: error.statusCode,
+          cause: error,
+        });
+      });
+    appLogger.info(`[SUCCESS]: IngridSessionId ${ingridSessionId} is set on cart ${cart.id}`);
+    return cart;
   }
 }

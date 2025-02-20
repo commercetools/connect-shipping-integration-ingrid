@@ -1,9 +1,10 @@
 import { DefaultComponentBuilder } from "../components/default";
-import {
+import type {
   EnablerOptions,
   ShippingComponentBuilder,
   ShippingEnabler,
   ShippingInitResult,
+  ShippingUpdateResult,
 } from "./shipping-enabler";
 
 export type BaseOptions = {
@@ -11,7 +12,7 @@ export type BaseOptions = {
   sessionId: string;
   locale?: string;
   onInitCompleted: (result: ShippingInitResult) => void;
-  onUpdateCompleted: () => void;
+  onUpdateCompleted: (result: ShippingUpdateResult) => void;
   onError: (error?: unknown) => void;
 };
 
