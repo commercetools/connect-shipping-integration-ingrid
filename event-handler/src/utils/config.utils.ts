@@ -15,6 +15,10 @@ export const readConfiguration = () => {
     projectKey: process.env.CTP_PROJECT_KEY as string,
     scope: process.env.CTP_SCOPE,
     region: process.env.CTP_REGION as string,
+    ingridApiKey: process.env.INGRID_API_KEY as string,
+    ingridEnvironment: process.env.INGRID_ENVIRONMENT as
+      | 'STAGING'
+      | 'PRODUCTION',
   };
 
   const validationErrors = getValidateMessages(envValidators, envVars);
