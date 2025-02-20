@@ -1,11 +1,11 @@
-import { Request, Response } from 'express';
-import { createApiRoot } from '../client/commercetools/create.client';
+import {Request, Response} from 'express';
+import {createApiRoot} from '../client/commercetools/create.client';
 import CustomError from '../errors/custom.error';
-import { logger } from '../utils/logger.utils';
+import {logger} from '../utils/logger.utils';
 import PubSubValidator from '../utils/validate_requsts.utils';
 import IngridApiClient from '../client/ingrid/ingrid.client';
-import { readConfiguration } from '../utils/config.utils';
-import type { IngridCompleteSessionRequestPayload } from '../client/ingrid/types/ingrid.client.type';
+import {readConfiguration} from '../utils/config.utils';
+import type {IngridCompleteSessionRequestPayload} from '../client/ingrid/types/ingrid.client.type';
 
 /**
  * Exposed event POST endpoint.
@@ -62,6 +62,7 @@ export const post = async (request: Request, response: Response) => {
     logger.info(ingridResponse);
     return response.status(204).send();
   } catch (error) {
+    logger.error(error);
     throw new CustomError(400, `Bad request: ${error}`);
   }
 };

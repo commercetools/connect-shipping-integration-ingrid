@@ -1,5 +1,5 @@
-import {type AuthMiddlewareOptions} from '@commercetools/ts-client'; // Required for auth
-import {readConfiguration} from '../utils/config.utils';
+import { type AuthMiddlewareOptions } from '@commercetools/ts-client'; // Required for auth
+import { readConfiguration } from '../utils/config.utils';
 
 /**
  * Configure Middleware. Example only. Adapt on your own
