@@ -1,9 +1,9 @@
 import dotenv from 'dotenv';
-dotenv.config();
-
-import { createApiRoot } from '../client/create.client';
+import { createApiRoot } from '../client/commercetools/create.client';
 import { assertError, assertString } from '../utils/assert.utils';
 import { createGcpPubSubOrderCreateSubscription } from './actions';
+
+dotenv.config();
 
 const CONNECT_GCP_TOPIC_NAME_KEY = 'CONNECT_GCP_TOPIC_NAME';
 const CONNECT_GCP_PROJECT_ID_KEY = 'CONNECT_GCP_PROJECT_ID';
