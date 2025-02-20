@@ -3,34 +3,9 @@ export enum IngridBasePath {
   PRODUCTION = 'https://api.ingrid.com',
 }
 
-export type IngridEnvironment = 'STAGING' | 'PRODUCTION';
-
 export enum IngridUrls {
   DELIVERY_CHECKOUT = '/v1/delivery_checkout',
 }
-
-export type IngridGetSessionResponse = {
-  session: IngridSession;
-  html_snippet: string;
-};
-
-export type IngridCreateSessionRequestPayload = {
-  additional_information?: unknown;
-  cart: IngridCart;
-  external_id?: string;
-  locales: string[];
-  meta?: Record<string, unknown>;
-  prefill_delivery_address?: IngridAddress;
-  purchase_country: string;
-  purchase_currency: string;
-  search_address?: IngridAddress;
-};
-
-export type IngridCreateSessionResponse = {
-  html_snippet: string;
-  session: IngridSession;
-  token: string;
-};
 
 export type IngridDeliveryGroup = {
   addresses: IngridAddresses;
@@ -310,25 +285,6 @@ export type IngridSectionItem = {
   text: string;
 };
 
-export type IngridPriceComponentType = 'SHIPPING' | 'ADDON';
-
-export type IngridUpdateSessionRequestPayload = {
-  cart: IngridCart;
-  checkout_session_id: string;
-  external_id?: string;
-  locales?: string[];
-  meta?: Record<string, unknown>;
-  prefill_delivery_address?: IngridDeliveryAddress;
-  purchase_country: string;
-  purchase_currency: string;
-  search_address?: IngridSearchAddress;
-};
-
-export type IngridUpdateSessionResponse = {
-  html_snippet: string;
-  session: IngridSession;
-};
-
 export type IngridCompleteSessionRequestPayload = {
   checkout_session_id: string;
   customer?: IngridCustomerAddress;
@@ -337,38 +293,4 @@ export type IngridCompleteSessionRequestPayload = {
 
 export type IngridCompleteSessionResponse = {
   session: IngridSession;
-};
-
-export type IngridDeliveryAddress = {
-  address_lines: string[];
-  apartment_number: string;
-  attn?: string;
-  care_of?: string;
-  city: string;
-  company_name?: string;
-  coordinates?: IngridCoordinates;
-  country: string;
-  door_code?: string;
-  email: string;
-  external_id: string;
-  first_name: string;
-  last_name: string;
-  phone: string;
-  phone_country?: string;
-  postal_code: string;
-  region?: string;
-  street: string;
-  street_number: string;
-};
-
-export type IngridSearchAddress = {
-  address_lines: string[];
-  apartment_number: string;
-  city: string;
-  coordinates?: IngridCoordinates;
-  country: string;
-  postal_code: string;
-  region?: string;
-  street: string;
-  street_number: string;
 };
