@@ -16,7 +16,6 @@ import {
 import { randomUUID } from 'crypto';
 import { RequestContextData } from '../../libs/fastify/context';
 import { appLogger } from '../../libs/logger';
-import { CustomError } from '../../libs/fastify/errors';
 
 /**
  * Client for interacting with the Commercetools API
@@ -79,39 +78,6 @@ export class CommercetoolsApiClient {
   }
 
   /**
-   * Updates the cart with the Ingrid session ID
-   *
-   * @param cartId - The ID of the cart to update
-   * @param cartVersion - The version of the cart to update
-   * @param ingridSessionId - The Ingrid session ID to set on the cart
-   * @param customTypeId - The ID of the custom type to set on the cart
-   *
-   * @returns {Promise<Cart>} The updated cart
-   */
-  public async updateCartWithIngridSessionId(
-    cartId: string,
-    cartVersion: number,
-    ingridSessionId: string,
-    customTypeId: string,
-  ): Promise<Cart> {
-    const cart = await this.setIngridCustomFieldOnCart(cartId, cartVersion, ingridSessionId).catch((error) => {
-      if (error.body.statusCode === 400 && error.body.errors[0].code === 'InvalidOperation') {
-        appLogger.info('[EXPECTED ERROR]: ' + error?.message);
-        appLogger.info('[CONTINUING]: Calling setCustomType');
-        return this.setIngridCustomTypeOnCart(cartId, cartVersion, ingridSessionId, customTypeId);
-      }
-      throw new CustomError({
-        message: error?.message,
-        code: error.code,
-        httpErrorStatus: error.statusCode,
-        cause: error,
-      });
-    });
-    appLogger.info(`[SUCCESS]: IngridSessionId ${ingridSessionId} is set on cart ${cartId}`);
-    return cart;
-  }
-
-  /**
    * Updates the cart with the address and shipping method
    *
    * @param cartId - The ID of the cart to update
@@ -154,11 +120,7 @@ export class CommercetoolsApiClient {
     return cart;
   }
 
-  private async setIngridCustomFieldOnCart(
-    cartId: string,
-    cartVersion: number,
-    ingridSessionId: string,
-  ): Promise<Cart> {
+  public async setCartCustomField(cartId: string, cartVersion: number, name: string, value: string): Promise<Cart> {
     const response = await this.client
       .carts()
       .withId({ ID: cartId })
@@ -168,8 +130,8 @@ export class CommercetoolsApiClient {
           actions: [
             {
               action: 'setCustomField',
-              name: 'ingridSessionId',
-              value: ingridSessionId,
+              name,
+              value,
             },
           ],
         },
@@ -179,12 +141,7 @@ export class CommercetoolsApiClient {
     return cart;
   }
 
-  private async setIngridCustomTypeOnCart(
-    cartId: string,
-    cartVersion: number,
-    ingridSessionId: string,
-    customTypeId: string,
-  ): Promise<Cart> {
+  public async setCartCustomType(cartId: string, cartVersion: number, customTypeId: string): Promise<Cart> {
     const response = await this.client
       .carts()
       .withId({ ID: cartId })
@@ -198,9 +155,6 @@ export class CommercetoolsApiClient {
                 id: customTypeId,
                 typeId: 'type',
               },
-              fields: {
-                ingridSessionId: ingridSessionId,
-              },
             },
           ],
         },
@@ -210,7 +164,7 @@ export class CommercetoolsApiClient {
     return cart;
   }
 
-  private async getCustomType(typeKey: string): Promise<Type> {
+  public async getCustomType(typeKey: string): Promise<Type> {
     const response = await this.client.types().withKey({ key: typeKey }).get().execute();
     const type = response.body;
     return type;
