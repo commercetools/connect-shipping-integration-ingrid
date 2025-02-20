@@ -61,7 +61,7 @@ export class CommercetoolsApiClient {
    * @remarks
    * First attempts to get an existing custom type with specified key.
    * If it doesn't exist, creates a new custom type for storing Ingrid session IDs.
-   *
+   * @param keyOfIngridSessionIdCustomType - The key of the Ingrid custom type
    * @returns {Promise<string>} The ID of the Ingrid custom type
    */
   public async getIngridCustomTypeId(keyOfIngridSessionIdCustomType: string): Promise<string> {
