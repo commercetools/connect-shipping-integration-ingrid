@@ -41,6 +41,7 @@ const cartStore = new Store<Cart | undefined, ACTION>(
                 currency: countryCurrencyLanguageStore.getSnapshot().currency,
                 country: countryCurrencyLanguageStore.getSnapshot().country,
                 locale: countryCurrencyLanguageStore.getSnapshot().language,
+                shippingAddress: { country: countryCurrencyLanguageStore.getSnapshot().country },
               },
             })
             .execute()

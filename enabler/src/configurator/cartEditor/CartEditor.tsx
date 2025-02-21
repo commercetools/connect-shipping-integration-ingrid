@@ -49,6 +49,10 @@ function CartEditor() {
           <LocaleCountryCurrency cart={cart} />
           <ProductSearch />
           <LineItems cart={cart} />
+          <div className="standard-font" >
+            <br/>
+            Total : {cart?.taxedPrice?.totalGross.centAmount}
+          </div>
         </div>
         <div className="cart-editor_column">
           <p className="title-font">Cart Object</p>

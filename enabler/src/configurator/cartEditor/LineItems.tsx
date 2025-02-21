@@ -22,7 +22,7 @@ export const LineItems = memo(function LineItems({
       <p className="title-font">Items in Cart</p>
       
       {lineItems.map((item, index) => (
-        <div className="standard-font" key={index}>{item.name["en-US"]} x {item.quantity}</div>
+        <div className="standard-font" key={index}>{item.name["en-US"]} x {item.quantity} : {item.taxedPrice?.totalGross.centAmount}</div>
       ))}
     </div>
   );
