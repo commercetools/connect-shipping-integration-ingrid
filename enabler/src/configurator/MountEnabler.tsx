@@ -65,7 +65,7 @@ const MountEnabler = memo(function MountEnabler() {
   return session ? (
     <div>
       <button onClick={() => setShowEnabler((e) => !e)}>
-        Toggle shipping content
+        Shipping Methods
       </button>
 
       {component && (

@@ -25,9 +25,10 @@ function MyComponent() {
       <button onClick={() => setShow((s) => !s)}>
         {show ? "Hide" : "Show"} config editor
       </button>
-      <MountEnabler />
+     
       <div style={{ display: show ? "inline" : "none" }}>
         <CartEditor />
+        <MountEnabler />
       </div>
     </div>
   );
