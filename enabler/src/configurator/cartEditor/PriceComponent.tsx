@@ -13,7 +13,7 @@ export const PriceComponent = memo(function PriceComponent({
   return (
     <>
       {price.discounted && <s>{price.value.centAmount} </s>}
-      <b>
+      <b className="standard-font">
         {actualPrice}{" "}
         {price.discounted?.value.currencyCode || price.value.currencyCode}
       </b>

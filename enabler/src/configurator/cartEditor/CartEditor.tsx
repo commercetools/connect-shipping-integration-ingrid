@@ -2,6 +2,7 @@ import { memo, useSyncExternalStore, useState, useEffect} from "react";
 import cartStore from "../stores/cartStore";
 import cocoSessionStore from "../stores/cocoSessionStore";
 import { LocaleCountryCurrency } from "./LocaleCountryCurrency";
+import { LineItems } from "./LineItems";
 import { ProductSearch } from "./ProductSearch";
 import loadingStore from "../stores/loadingStore";
 import countryCurrencyLanguageStore from "../stores/countryCurrencyLanguageStore";
@@ -29,7 +30,7 @@ function CartEditor() {
 
   return ccl.country && ccl.currency && ccl.language ? (
     <div className="cart-editor">
-      <div className="cart-editor_column">
+      <div className="cart-editor_column standard-font">
           {session ? <p>SessionId: {session.id}</p> : ""}
           {cart && (
             <button
@@ -47,9 +48,10 @@ function CartEditor() {
           )}
           <LocaleCountryCurrency cart={cart} />
           <ProductSearch />
+          <LineItems cart={cart} />
         </div>
         <div className="cart-editor_column">
-          <p><b>Cart Object</b></p>
+          <p className="title-font">Cart Object</p>
           <textarea id="cart-editor_textarea-id" className="cart-editor_textarea"  cols={70} rows={40} value={textareaValue} />
         </div>
     </div>
