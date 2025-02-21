@@ -1,0 +1,11 @@
+.cart-editor {
+    display: flex;
+    gap: 20px; /* Optional: Adds space between columns */
+  }
+  
+  .cart-editor_column {
+    flex: 1; /* Each column takes up equal space */
+  }
+  .cart-editor_textarea {
+    resize: none; /* Disable resizing */
+ }
