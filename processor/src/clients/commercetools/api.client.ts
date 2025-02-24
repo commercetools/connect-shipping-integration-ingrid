@@ -182,6 +182,7 @@ export class CommercetoolsApiClient {
     try {
       const response = await this.client.types().withKey({ key: key }).head().execute();
       return response.statusCode === 200;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return false;
     }
@@ -221,6 +222,7 @@ export class CommercetoolsApiClient {
     try {
       const response = await this.client.taxCategories().withKey({ key: key }).head().execute();
       return response.statusCode === 200;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return false;
     }

@@ -1,8 +1,7 @@
 import { describe, test, afterAll, expect, beforeAll } from '@jest/globals';
 import { setupServer } from 'msw/node';
-import { mockHead, mockRequest, mockGet, mockPost } from '../../mock/mock-utils';
+import { mockRequest } from '../../mock/mock-utils';
 import { cart } from '../../mock/mock-cart';
-import { type } from '../../mock/mock-type';
 import { mockAccessToken } from '../../mock/mock-authorization';
 import { appLogger } from '../../../src/libs/logger';
 import { CommercetoolsApiClient } from '../../../src/clients/commercetools/api.client';
