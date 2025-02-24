@@ -1,11 +1,11 @@
-import { Request, Response } from 'express';
-import { createApiRoot } from '../client/commercetools/create.client';
+import {Request, Response} from 'express';
+import {createApiRoot} from '../client/commercetools/create.client';
 import CustomError from '../errors/custom.error';
-import { logger } from '../utils/logger.utils';
-import PubSubValidator from '../utils/validate_requsts.utils';
+import {logger} from '../utils/logger.utils';
+import PubSubValidator from '../utils/validate_requests.utils';
 import IngridApiClient from '../client/ingrid/ingrid.client';
-import { readConfiguration } from '../utils/config.utils';
-import type { IngridCompleteSessionRequestPayload } from '../client/ingrid/types/ingrid.client.type';
+import {readConfiguration} from '../utils/config.utils';
+import type {IngridCompleteSessionRequestPayload} from '../client/ingrid/types/ingrid.client.type';
 
 /**
  * Exposed event POST endpoint.
@@ -16,53 +16,53 @@ import type { IngridCompleteSessionRequestPayload } from '../client/ingrid/types
  * @returns
  */
 export const post = async (request: Request, response: Response) => {
-  const body = PubSubValidator.validateRequestBody(request);
-  const message = PubSubValidator.validateMessageFormat(body);
-  const decodedData = PubSubValidator.decodeMessageData<{ orderId: string }>(
-    message
-  );
-  const orderId = decodedData?.orderId;
+    const body = PubSubValidator.validateRequestBody(request);
+    const message = PubSubValidator.validateMessageFormat(body);
+    const decodedData = PubSubValidator.decodeMessageData<{ orderId: string }>(
+        message
+    );
+    const orderId = decodedData?.orderId;
 
-  try {
-    const commercetoolsOrder = await createApiRoot()
-      .orders()
-      .withId({ ID: orderId })
-      .get({
-        queryArgs: {
-          expand: 'cart',
-        },
-      })
-      .execute()
-      .then((res) => res.body);
+    try {
+        const commercetoolsOrder = await createApiRoot()
+            .orders()
+            .withId({ID: orderId})
+            .get({
+                queryArgs: {
+                    expand: 'cart',
+                },
+            })
+            .execute()
+            .then((res) => res.body);
 
-    const ingridSessionId =
-      commercetoolsOrder.cart?.obj?.custom?.fields?.ingridSessionId;
+        const ingridSessionId =
+            commercetoolsOrder.cart?.obj?.custom?.fields?.ingridSessionId;
 
-    if (!ingridSessionId) {
-      throw new CustomError(400, 'Bad request: Ingrid session ID not found');
+        if (!ingridSessionId) {
+            throw new CustomError(400, 'Bad request: Ingrid session ID not found');
+        }
+
+        const apiSecret = readConfiguration().ingridApiKey;
+        const environment = readConfiguration().ingridEnvironment;
+
+        const ingridOpts = {
+            apiSecret,
+            environment,
+        };
+
+        const ingridClient = new IngridApiClient(ingridOpts);
+
+        const payLoad: IngridCompleteSessionRequestPayload = {
+            checkout_session_id: ingridSessionId,
+            external_id: orderId,
+        };
+
+        const ingridResponse = await ingridClient.completeCheckoutSession(payLoad);
+
+        logger.info(ingridResponse);
+        return response.status(204).send();
+    } catch (error) {
+        logger.error(error);
+        throw new CustomError(400, `Bad request: ${error}`);
     }
-
-    const apiSecret = readConfiguration().ingridApiKey;
-    const environment = readConfiguration().ingridEnvironment;
-
-    const ingridOpts = {
-      apiSecret,
-      environment,
-    };
-
-    const ingridClient = new IngridApiClient(ingridOpts);
-
-    const payLoad: IngridCompleteSessionRequestPayload = {
-      checkout_session_id: ingridSessionId,
-      external_id: orderId,
-    };
-
-    const ingridResponse = await ingridClient.completeCheckoutSession(payLoad);
-
-    logger.info(ingridResponse);
-    return response.status(204).send();
-  } catch (error) {
-    logger.error(error);
-    throw new CustomError(400, `Bad request: ${error}`);
-  }
 };
