@@ -1,4 +1,4 @@
-import { InitSessionResponseSchemaDTO, UpdateSessionResponseSchemaDTO } from '../../dtos/ingrid-shipping.dto';
+import type { InitSessionResponseSchemaDTO, UpdateSessionResponseSchemaDTO } from '../../dtos/ingrid-shipping.dto';
 
 export type InitSessionResponse = {
   data: InitSessionResponseSchemaDTO;

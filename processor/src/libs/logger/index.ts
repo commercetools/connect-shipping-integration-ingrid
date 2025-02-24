@@ -4,7 +4,7 @@ import { getConfig } from '../../config';
 import setIn from 'lodash/set';
 import { format } from 'logform';
 import cloneDeep from 'lodash/cloneDeep';
-import { DefaultFields } from './types/logger.type';
+import type { DefaultFields } from './types/logger.type';
 
 const defaultFieldsFormatter = (defaults: DefaultFields) => {
   return format((info) => {

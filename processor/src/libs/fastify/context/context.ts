@@ -1,9 +1,9 @@
 import { fastifyRequestContext, requestContext } from '@fastify/request-context';
 import { randomUUID } from 'crypto';
-import { FastifyInstance, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
-import { Authentication } from '../../auth/types';
 import * as contextHelper from './helper';
+import type { FastifyInstance, FastifyRequest } from 'fastify';
+import type { Authentication } from '../../auth/types';
 
 export type ContextData = {
   anonymousId?: string;
