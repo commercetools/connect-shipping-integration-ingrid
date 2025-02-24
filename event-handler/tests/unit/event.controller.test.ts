@@ -1,12 +1,12 @@
-import {Request, Response} from 'express';
-import {post} from '../../src/controllers/event.controller';
-import {createApiRoot} from '../../src/client/commercetools/create.client';
+import { Request, Response } from 'express';
+import { post } from '../../src/controllers/event.controller';
+import { createApiRoot } from '../../src/client/commercetools/create.client';
 import PubSubValidator from '../../src/utils/validate_requests.utils';
 import IngridApiClient from '../../src/client/ingrid/ingrid.client';
-import {readConfiguration} from '../../src/utils/config.utils';
-import {logger} from '../../src/utils/logger.utils';
+import { readConfiguration } from '../../src/utils/config.utils';
+import { logger } from '../../src/utils/logger.utils';
 
-// Mock dependencies
+
 jest.mock('../../src/client/commercetools/create.client');
 jest.mock('../../src/utils/validate_requests.utils');
 jest.mock('../../src/client/ingrid/ingrid.client');
@@ -18,7 +18,6 @@ describe('Event Controller', () => {
     let mockResponse: Partial<Response>;
 
     beforeEach(() => {
-        // Reset mocks before each test
         jest.clearAllMocks();
 
         mockRequest = {};
@@ -27,27 +26,21 @@ describe('Event Controller', () => {
             send: jest.fn(),
         };
 
-        // Mock configuration
         (readConfiguration as jest.Mock).mockReturnValue({
             ingridApiKey: 'test-api-key',
-            ingridEnvironment: 'test-environment'
+            ingridEnvironment: 'test-environment',
         });
 
-        // Mock logger
-        (logger.info as jest.Mock).mockImplementation(() => {
-        });
-        (logger.error as jest.Mock).mockImplementation(() => {
-        });
+        (logger.info as jest.Mock).mockImplementation(() => undefined);
+        (logger.error as jest.Mock).mockImplementation(() => undefined);
     });
 
     it('should successfully process a valid event', async () => {
-        // Mock PubSubValidator
         const mockOrderId = 'test-order-id';
         (PubSubValidator.validateRequestBody as jest.Mock).mockReturnValue({});
         (PubSubValidator.validateMessageFormat as jest.Mock).mockReturnValue({});
-        (PubSubValidator.decodeMessageData as jest.Mock).mockReturnValue({orderId: mockOrderId});
+        (PubSubValidator.decodeMessageData as jest.Mock).mockReturnValue({ orderId: mockOrderId });
 
-        // Mock commercetools response
         const mockIngridSessionId = 'test-session-id';
         const mockCommercetoolsExecute = jest.fn().mockResolvedValue({
             body: {
@@ -55,98 +48,102 @@ describe('Event Controller', () => {
                     obj: {
                         custom: {
                             fields: {
-                                ingridSessionId: mockIngridSessionId
-                            }
-                        }
-                    }
-                }
-            }
+                                ingridSessionId: mockIngridSessionId,
+                            },
+                        },
+                    },
+                },
+            },
         });
 
         const mockCommercetoolsGet = jest.fn().mockReturnValue({
-            execute: mockCommercetoolsExecute
+            execute: mockCommercetoolsExecute,
         });
 
         const mockCommercetoolsWithId = jest.fn().mockReturnValue({
-            get: mockCommercetoolsGet
+            get: mockCommercetoolsGet,
         });
 
         const mockCommercetoolsOrders = jest.fn().mockReturnValue({
-            withId: mockCommercetoolsWithId
+            withId: mockCommercetoolsWithId,
         });
 
         (createApiRoot as jest.Mock).mockReturnValue({
-            orders: mockCommercetoolsOrders
+            orders: mockCommercetoolsOrders,
         });
 
-        // Mock Ingrid client response
-        const mockIngridResponse = {success: true};
+        const mockIngridResponse = { success: true };
         (IngridApiClient.prototype.completeCheckoutSession as jest.Mock).mockResolvedValue(mockIngridResponse);
 
-        // Execute test
         await post(mockRequest as Request, mockResponse as Response);
 
-        // Assertions
+
         expect(mockResponse.status).toHaveBeenCalledWith(204);
         expect(mockResponse.send).toHaveBeenCalled();
         expect(IngridApiClient.prototype.completeCheckoutSession).toHaveBeenCalledWith({
             checkout_session_id: mockIngridSessionId,
-            external_id: mockOrderId
+            external_id: mockOrderId,
         });
         expect(logger.info).toHaveBeenCalledWith(mockIngridResponse);
     });
 
     it('should throw error when Ingrid session ID is not found', async () => {
-        // Mock PubSubValidator
         const mockOrderId = 'test-order-id';
         (PubSubValidator.validateRequestBody as jest.Mock).mockReturnValue({});
         (PubSubValidator.validateMessageFormat as jest.Mock).mockReturnValue({});
-        (PubSubValidator.decodeMessageData as jest.Mock).mockReturnValue({orderId: mockOrderId});
+        (PubSubValidator.decodeMessageData as jest.Mock).mockReturnValue({ orderId: mockOrderId });
 
-        // Mock commercetools response without ingridSessionId
         const mockCommercetoolsExecute = jest.fn().mockResolvedValue({
             body: {
                 cart: {
                     obj: {
                         custom: {
-                            fields: {}
-                        }
-                    }
-                }
-            }
+                            fields: {},
+                        },
+                    },
+                },
+            },
         });
 
         const mockCommercetoolsGet = jest.fn().mockReturnValue({
-            execute: mockCommercetoolsExecute
+            execute: mockCommercetoolsExecute,
         });
 
         const mockCommercetoolsWithId = jest.fn().mockReturnValue({
-            get: mockCommercetoolsGet
+            get: mockCommercetoolsGet,
         });
 
         const mockCommercetoolsOrders = jest.fn().mockReturnValue({
-            withId: mockCommercetoolsWithId
+            withId: mockCommercetoolsWithId,
         });
 
         (createApiRoot as jest.Mock).mockReturnValue({
-            orders: mockCommercetoolsOrders
+            orders: mockCommercetoolsOrders,
         });
 
-        // Execute test and expect error
         await expect(post(mockRequest as Request, mockResponse as Response))
             .rejects
-            .toThrow('Bad request: Ingrid session ID not found');
+            .toThrow(expect.objectContaining({
+                message: 'Request validation failed',
+                statusCode: 400,
+                cause: expect.any(Error),
+            }));
     });
 
     it('should throw error when PubSub validation fails', async () => {
-        // Mock PubSubValidator to throw error
+        const validationError = new Error('Invalid request body');
         (PubSubValidator.validateRequestBody as jest.Mock).mockImplementation(() => {
-            throw new Error('Bad request: Error: Invalid request body');
+            throw validationError;
         });
 
-        // Execute test and expect error
         await expect(post(mockRequest as Request, mockResponse as Response))
             .rejects
-            .toThrow('Bad request: Error: Invalid request body');
+            .toThrow(expect.objectContaining({
+                message: 'Request validation failed',
+                statusCode: 400,
+                cause: validationError,
+            }));
+
+        expect(logger.error).toHaveBeenCalledWith(validationError);
     });
 }); 
