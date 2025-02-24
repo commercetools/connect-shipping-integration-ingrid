@@ -1,80 +1,58 @@
 import * as dotenv from 'dotenv';
+import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
+import { type RequestContextData, getRequestContext, updateRequestContext } from '../libs/fastify/context';
+import { appLogger } from '../libs/logger';
+import { handleCustomTypeAction } from './actions';
 
 dotenv.config();
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function postDeploy(_properties: Map<string, unknown>) {
-  // TODO: as the TODO above the function. commented it out for now to pass the build process
-  //await checkIfIngridCustomTypeExists()
+  const client = new CommercetoolsApiClient({
+    clientId: _properties.get('CTP_CLIENT_ID') as string,
+    clientSecret: _properties.get('CTP_CLIENT_SECRET') as string,
+    authUrl: _properties.get('CTP_AUTH_URL') as string,
+    apiUrl: _properties.get('CTP_API_URL') as string,
+    projectKey: _properties.get('CTP_PROJECT_KEY') as string,
+    getContextFn: (): RequestContextData => {
+      const { correlationId, requestId, authentication } = getRequestContext();
+      return {
+        correlationId: correlationId || '',
+        requestId: requestId || '',
+        authentication,
+      };
+    },
+    updateContextFn: (context: Partial<RequestContextData>) => {
+      const requestContext = Object.assign(
+        {},
+        context.correlationId ? { correlationId: context.correlationId } : {},
+        context.requestId ? { requestId: context.requestId } : {},
+        context.authentication ? { authentication: context.authentication } : {},
+      );
+      updateRequestContext(requestContext);
+    },
+    logger: appLogger,
+  });
+
+  const ingridCustomTypeKey = _properties.get('INGRID_SESSION_CUSTOM_TYPE_KEY') as string; // default: ingrid-session
+  //const ingridTaxCategoryKey = _properties.get('INGRID_SPECIFIC_TAX_CATEGORY_KEY') as string; // default: ingrid-tax
+
+  await handleCustomTypeAction(client, ingridCustomTypeKey);
+  //await handleTaxCategoryAction(client, ingridTaxCategoryKey)
 }
 
 async function run() {
   try {
     const properties = new Map(Object.entries(process.env));
     await postDeploy(properties);
+    process.exit(0);
   } catch (error) {
+    console.error(error);
     if (error instanceof Error) {
       process.stderr.write(`Post-deploy failed: ${error.message}\n`);
     }
     process.exitCode = 1;
   }
 }
-/* 
-// TODO: this needs to be refactored, currently as of development, logic is inside service
-export async function checkIfIngridCustomTypeExists() {
-  const sdk = new CommercetoolsApiClient({
-    clientId: process.env.CT_CLIENT_ID!,
-    clientSecret: process.env.CT_CLIENT_SECRET!,
-    authUrl: process.env.CT_AUTH_URL!,
-    apiUrl: process.env.CT_API_URL!,
-    projectKey: process.env.CT_PROJECT_KEY!,
-    sessionUrl: process.env.CT_SESSION_URL!,
-    jwksUrl: process.env.CT_JWKS_URL!,
-    jwtIssuer: process.env.CT_JWT_ISSUER!,
-  });
-  const client = sdk.client.ctAPI.client;
-  try {
-    const response = await client.types().withKey({ key: 'ingrid-session-id' }).get().execute();
-
-    if (response.statusCode !== 200) {
-      console.info('Ingrid custom type does not exist, creating it');
-      try {
-        const res = await client
-          .types()
-          .post({
-            body: {
-              key: 'ingrid-session-id',
-              name: {
-                en: 'Ingrid Session ID',
-              },
-              resourceTypeIds: ['cart'],
-              fieldDefinitions: [
-                {
-                  name: 'ingridSessionId',
-                  label: {
-                    en: 'Ingrid Session ID',
-                  },
-                  type: {
-                    name: 'String',
-                  },
-                  required: false,
-                },
-              ],
-            },
-          })
-          .execute();
-        const curstomType = res.body;
-        console.log('Ingrid custom type created', curstomType);
-      } catch (error) {
-        console.error('Error creating Ingrid custom type', error);
-      }
-    }
-    const customType = response.body;
-    console.log('Ingrid custom type created', customType);
-  } catch (error) {
-    console.error('Error checking if Ingrid custom type exists', error);
-  }
-  return;
-} */
 
 run();

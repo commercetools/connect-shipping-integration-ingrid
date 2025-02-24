@@ -16,6 +16,7 @@ import {
 import { randomUUID } from 'crypto';
 import { RequestContextData } from '../../libs/fastify/context';
 import { appLogger } from '../../libs/logger';
+import { CustomError } from '../../libs/fastify/errors';
 
 /**
  * Client for interacting with the Commercetools API
@@ -170,10 +171,8 @@ export class CommercetoolsApiClient {
     return type;
   }
 
-  // Should only be called once and only if the custom type does not exist
-  // creates a custom type field definition for ingridSessionId
-  // returns the custom type
-  private async createCustomTypeFieldDefinitionForIngridSessionId(ingridSessionIdTypeKey: string): Promise<Type> {
+  // only called within post-deploy (if custom type does not exist -> will override merchants existing custom type)
+  public async createCustomTypeFieldDefinitionForIngridSessionId(ingridSessionIdTypeKey: string): Promise<Type> {
     const response = await this.client
       .types()
       .post({
@@ -202,9 +201,45 @@ export class CommercetoolsApiClient {
     return customType;
   }
 
-  private async checkIfCustomTypeExistsByKey(key: string): Promise<boolean> {
-    const response = await this.client.types().withKey({ key: key }).head().execute();
-    return response.statusCode === 200;
+  public async checkIfCustomTypeExistsByKey(key: string): Promise<boolean> {
+    try {
+      const response = await this.client.types().withKey({ key: key }).head().execute();
+      return response.statusCode === 200;
+    } catch (error: unknown) {
+      if (error instanceof CustomError && error.code === '404') {
+        return false;
+      }
+      throw error;
+    }
+  }
+
+  public async createIngridSessionIdFieldDefinitionOnType(type: Type): Promise<Type> {
+    const response = await this.client
+      .types()
+      .withKey({ key: type.key })
+      .post({
+        body: {
+          version: type.version,
+          actions: [
+            {
+              action: 'addFieldDefinition',
+              fieldDefinition: {
+                name: 'ingridSessionId',
+                label: {
+                  en: 'Ingrid Session ID',
+                },
+                type: {
+                  name: 'String',
+                },
+                required: false,
+              },
+            },
+          ],
+        },
+      })
+      .execute();
+    const customType = response.body;
+    return customType;
   }
 }
 
