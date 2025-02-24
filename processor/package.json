@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "shipping integration ingrid connector",
   "main": "dist/server.js",
+  "type": "module",
   "scripts": {
     "dev": "ts-node src/main.ts",
     "start": "node dist/main.js",
