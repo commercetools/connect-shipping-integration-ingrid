@@ -51,7 +51,7 @@ export async function deleteOrderCreateSubscription(
     .subscriptions()
     .get({
       queryArgs: {
-        where: `key = "${ORDER_CREATE_SUBSCRIPTION_KEY}"`,
+        where: `key="${ORDER_CREATE_SUBSCRIPTION_KEY}"`,
       },
     })
     .execute();

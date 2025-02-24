@@ -65,7 +65,7 @@ export const post = async (request: Request, response: Response) => {
   } catch (error) {
     logger.error(error);
     throw new CustomError(400, 'Request validation failed', {
-      cause: error instanceof Error ? error : new Error(String(error))
+      cause: error instanceof Error ? error : new Error(String(error)),
     });
   }
 };

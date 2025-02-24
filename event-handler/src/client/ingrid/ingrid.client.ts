@@ -6,7 +6,7 @@ import {
   IngridUrls,
 } from './types/ingrid.client.type';
 
-export default class IngridApiClient  {
+export default class IngridApiClient {
   public client: AxiosInstance;
 
   constructor(opts: {
