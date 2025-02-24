@@ -6,6 +6,7 @@ import {
   TaxCategoryResourceIdentifier,
   Cart,
   Type,
+  TaxCategory,
 } from '@commercetools/platform-sdk';
 import {
   AuthMiddlewareOptions,
@@ -16,7 +17,6 @@ import {
 import { randomUUID } from 'crypto';
 import { RequestContextData } from '../../libs/fastify/context';
 import { appLogger } from '../../libs/logger';
-import { CustomError } from '../../libs/fastify/errors';
 
 /**
  * Client for interacting with the Commercetools API
@@ -53,29 +53,6 @@ export class CommercetoolsApiClient {
     const response = await this.client.carts().withId({ ID: cartId }).get().execute();
     const cart = response.body;
     return cart;
-  }
-
-  /**
-   * Retrieves the ID of the Ingrid custom type
-   *
-   * @remarks
-   * First attempts to get an existing custom type with specified key.
-   * If it doesn't exist, creates a new custom type for storing Ingrid session IDs.
-   *
-   * @param keyOfIngridSessionIdCustomType - The key of the Ingrid custom type
-   *
-   * @returns {Promise<string>} The ID of the Ingrid custom type
-   */
-  public async getIngridCustomTypeId(keyOfIngridSessionIdCustomType: string): Promise<string> {
-    if (await this.checkIfCustomTypeExistsByKey(keyOfIngridSessionIdCustomType)) {
-      const { id } = await this.getCustomType(keyOfIngridSessionIdCustomType);
-      return id;
-    }
-    appLogger.info('[EXPECTED]: Ingrid custom type with key ingrid-session-id does not exist.');
-    appLogger.info('[CONTINUING]: Creating custom type with key ingrid-session-id');
-    const { id } = await this.createCustomTypeFieldDefinitionForIngridSessionId(keyOfIngridSessionIdCustomType);
-    appLogger.info(`[SUCCESS]: Ingrid custom type with key ingrid-session-id is created with id ${id}`);
-    return id;
   }
 
   /**
@@ -205,11 +182,8 @@ export class CommercetoolsApiClient {
     try {
       const response = await this.client.types().withKey({ key: key }).head().execute();
       return response.statusCode === 200;
-    } catch (error: unknown) {
-      if (error instanceof CustomError && error.code === '404') {
-        return false;
-      }
-      throw error;
+    } catch (error) {
+      return false;
     }
   }
 
@@ -240,6 +214,30 @@ export class CommercetoolsApiClient {
       .execute();
     const customType = response.body;
     return customType;
+  }
+
+  // TAX CATEGORY
+  public async checkIfTaxCategoryExistsByKey(key: string): Promise<boolean> {
+    try {
+      const response = await this.client.taxCategories().withKey({ key: key }).head().execute();
+      return response.statusCode === 200;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  public async createTaxCategoryWithNullRate(key: string): Promise<TaxCategory> {
+    const response = await this.client
+      .taxCategories()
+      .post({
+        body: {
+          key,
+          name: key + ' (created by Ingrid Connector)',
+        },
+      })
+      .execute();
+    const taxCategory = response.body;
+    return taxCategory;
   }
 }
 

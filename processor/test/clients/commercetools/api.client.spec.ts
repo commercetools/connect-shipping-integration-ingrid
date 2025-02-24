@@ -42,33 +42,4 @@ describe('commercetools api client', () => {
       expect(resp).toEqual(cart);
     });
   });
-
-  describe('getIngridCustomTypeId', () => {
-    test('should return ingrid custom type ID', async () => {
-      mockServer.use(
-        mockRequest('https://auth.test.de/', 'oauth/token', 200, mockAccessToken),
-        mockHead('https://api.test.de/', 'dummy-project-key/types/key=dummy-type-key', 200, { statusCode: 200 }),
-        mockGet('https://api.test.de/', 'dummy-project-key/types/key=dummy-type-key', 200, type),
-        mockPost('https://api.test.de/', 'dummy-project-key/types/key=dummy-type-key', 200, type),
-      );
-      const opt = {
-        clientId: 'dummy-client-id',
-        clientSecret: 'dummy-client-secret',
-        authUrl: 'https://auth.test.de',
-        apiUrl: 'https://api.test.de',
-        projectKey: 'dummy-project-key',
-        getContextFn: () => ({
-          correlationId: 'correlation-id',
-          requestId: 'request-id',
-        }),
-        updateContextFn: () => {},
-        logger: appLogger,
-      };
-      const apiClient = new CommercetoolsApiClient(opt);
-      const resp = await apiClient.getIngridCustomTypeId('dummy-type-key');
-
-      expect(resp).toBeDefined();
-      expect(resp).toEqual(type.id);
-    });
-  });
 });
