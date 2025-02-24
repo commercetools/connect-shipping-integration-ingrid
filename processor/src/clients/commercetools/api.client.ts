@@ -58,19 +58,21 @@ export class CommercetoolsApiClient {
    * Retrieves the ID of the Ingrid custom type
    *
    * @remarks
-   * First attempts to get an existing custom type with key 'ingrid-session-id'.
+   * First attempts to get an existing custom type with specified key.
    * If it doesn't exist, creates a new custom type for storing Ingrid session IDs.
+   *
+   * @param keyOfIngridSessionIdCustomType - The key of the Ingrid custom type
    *
    * @returns {Promise<string>} The ID of the Ingrid custom type
    */
-  public async getIngridCustomTypeId(): Promise<string> {
-    if (await this.checkIfCustomTypeExistsByKey('ingrid-session-id')) {
-      const { id } = await this.getCustomType('ingrid-session-id');
+  public async getIngridCustomTypeId(keyOfIngridSessionIdCustomType: string): Promise<string> {
+    if (await this.checkIfCustomTypeExistsByKey(keyOfIngridSessionIdCustomType)) {
+      const { id } = await this.getCustomType(keyOfIngridSessionIdCustomType);
       return id;
     }
     appLogger.info('[EXPECTED]: Ingrid custom type with key ingrid-session-id does not exist.');
     appLogger.info('[CONTINUING]: Creating custom type with key ingrid-session-id');
-    const { id } = await this.createCustomTypeFieldDefinitionForIngridSessionId();
+    const { id } = await this.createCustomTypeFieldDefinitionForIngridSessionId(keyOfIngridSessionIdCustomType);
     appLogger.info(`[SUCCESS]: Ingrid custom type with key ingrid-session-id is created with id ${id}`);
     return id;
   }
@@ -171,12 +173,12 @@ export class CommercetoolsApiClient {
   // Should only be called once and only if the custom type does not exist
   // creates a custom type field definition for ingridSessionId
   // returns the custom type
-  private async createCustomTypeFieldDefinitionForIngridSessionId(): Promise<Type> {
+  private async createCustomTypeFieldDefinitionForIngridSessionId(ingridSessionIdTypeKey: string): Promise<Type> {
     const response = await this.client
       .types()
       .post({
         body: {
-          key: 'ingrid-session-id',
+          key: ingridSessionIdTypeKey,
           name: {
             en: 'Ingrid Session ID',
           },
