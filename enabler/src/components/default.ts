@@ -7,6 +7,7 @@ import type {
 
 import type { BaseOptions } from "../shipping-enabler/shipping-enabler-ingrid";
 import { replaceScriptNode } from "../utils/html-node.util";
+
 export class DefaultComponentBuilder implements ShippingComponentBuilder {
   constructor(private baseOptions: BaseOptions) {}
 
@@ -21,6 +22,7 @@ export class DefaultComponent implements ShippingComponent {
   protected onInitCompleted: (result: ShippingInitResult) => void;
   protected onUpdateCompleted: (result: ShippingUpdateResult) => void;
   protected onError: (error?: unknown) => void;
+  private clientDOMElementId: string = "";
 
   constructor(baseOptions: BaseOptions) {
     this.processorUrl = baseOptions.processorUrl;
@@ -29,7 +31,6 @@ export class DefaultComponent implements ShippingComponent {
     this.onUpdateCompleted = baseOptions.onUpdateCompleted;
     this.onError = baseOptions.onError;
   }
-  private clientDOMElementId: string = "";
 
   mount(elementId: string) {
     this.clientDOMElementId = elementId;
@@ -62,6 +63,7 @@ export class DefaultComponent implements ShippingComponent {
           ingridHtml: data.ingridHtml,
           cartVersion: data.cartVersion,
         });
+
         clientElement.insertAdjacentHTML("afterbegin", data.ingridHtml);
         replaceScriptNode(clientElement);
       } else {
