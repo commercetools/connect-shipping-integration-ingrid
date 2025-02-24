@@ -35,7 +35,7 @@ const MountEnabler = memo(function MountEnabler() {
           onUpdateCompleted: (result: ShippingUpdateResult) => {
             console.log("onUpdateCompleted", { result });
           },
-          onError: (err) => {
+          onError: (err: unknown) => {
             console.error("onError", err);
           },
         });
