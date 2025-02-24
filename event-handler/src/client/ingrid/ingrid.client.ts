@@ -20,21 +20,11 @@ export default class IngridApiClient implements AbstractIngridClient {
   public async completeCheckoutSession(
     payload: IngridCompleteSessionRequestPayload
   ) {
-    try {
-      const response = await this.client.post(
-        IngridUrls.DELIVERY_CHECKOUT + '/session.complete',
-        payload
-      );
-      return response.data as IngridCompleteSessionResponse;
-    } catch (error) {
-      if (error instanceof axios.AxiosError) {
-        throw new Error(
-          error.response?.data || 'Error completing Ingrid session'
-        );
-      } else {
-        throw new Error('An unexpected error occurred');
-      }
-    }
+    const response = await this.client.post(
+      IngridUrls.DELIVERY_CHECKOUT + '/session.complete',
+      payload
+    );
+    return response.data as IngridCompleteSessionResponse;
   }
 }
 
