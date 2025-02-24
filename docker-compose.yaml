@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  enabler:
+  enabler-dev:
     image: node:20
     volumes:
       - ./enabler:/home/node/app
@@ -14,8 +14,24 @@ services:
       - ./enabler/.env
     environment:
       - VITE_PROCESSOR_URL=http://localhost:8080
+      - VITE_ENABLER_URL=http://localhost:8888/connector-enabler.es.js
     ports:
       - 3000:3000
+  enabler:
+    image: node:20
+    volumes:
+      - ./enabler:/home/node/app
+    restart: always
+    working_dir: /home/node/app
+    depends_on:
+      - processor
+    command:  /bin/sh -c 'npm install && npm run build && npm run start'
+    env_file:
+      - ./enabler/.env
+    environment:
+      - VITE_PROCESSOR_URL=http://localhost:8080
+    ports:
+      - 8888:8080
   processor:
     image: node:20
     volumes:
