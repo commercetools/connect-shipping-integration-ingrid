@@ -131,8 +131,6 @@ const calculateTotalLineItemsDiscount = (items: LineItem[]): number => {
  * @returns {number} line item discount
  */
 const calculateLineItemDiscount = (lineItem: LineItem): number => {
-  // TODO: when is price.discounted used and when is discountedPricePerQuantity used?
-
   // difference between normal price and discount, will be 0 if no discount is set
   const discount =
     lineItem.price.value.centAmount - (lineItem.price.discounted?.value.centAmount ?? lineItem.price.value.centAmount);
