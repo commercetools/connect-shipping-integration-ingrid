@@ -14,11 +14,4 @@ eventRouter.post('/', async (req, res, next) => {
   }
 });
 
-eventRouter.patch('/', async (req, res, next) => {
-  try {
-  } catch (error) {
-    next(error);
-  }
-});
-
 export default eventRouter;
