@@ -27,8 +27,8 @@ import { appLogger } from '../../libs/logger';
  * @param opts.authUrl - URL of the auth server
  * @param opts.apiUrl - URL of the Commercetools API
  * @param opts.projectKey - Project key in Commercetools
- * @param opts.getContextFn - Function to get the current request context
- * @param opts.updateContextFn - Function to update the request context
+ * @param [opts.getContextFn] - Function to get the current request context
+ * @param [opts.updateContextFn] - Function to update the request context
  * @param opts.logger - Logger instance to use
  *
  * @returns A configured Commercetools API client instance
@@ -42,8 +42,8 @@ export class CommercetoolsApiClient {
     authUrl: string;
     apiUrl: string;
     projectKey: string;
-    getContextFn: () => RequestContextData;
-    updateContextFn: (ctx: Partial<RequestContextData>) => void;
+    getContextFn?: () => RequestContextData;
+    updateContextFn?: (ctx: Partial<RequestContextData>) => void;
     logger: typeof appLogger;
   }) {
     this.client = createClient(opts);
@@ -249,8 +249,8 @@ const createClient = (opts: {
   authUrl: string;
   apiUrl: string;
   projectKey: string;
-  getContextFn: () => RequestContextData;
-  updateContextFn: (ctx: Partial<RequestContextData>) => void;
+  getContextFn?: () => RequestContextData;
+  updateContextFn?: (ctx: Partial<RequestContextData>) => void;
 }): ByProjectKeyRequestBuilder => {
   const authMiddlewareOptions: AuthMiddlewareOptions = {
     host: opts.authUrl,
@@ -267,20 +267,26 @@ const createClient = (opts: {
     enableRetry: true,
   };
 
-  const correlationIdMiddlewareOptions: CorrelationIdMiddlewareOptions = {
-    generate: () => {
-      const contextData = opts.getContextFn();
-      const correlationID =
-        contextData.correlationId && contextData.correlationId.length > 0 ? contextData.correlationId : randomUUID();
-      return correlationID;
-    },
-  };
-
-  const ctpClient = new ClientBuilder()
+  let ctpClient = new ClientBuilder()
     .withClientCredentialsFlow(authMiddlewareOptions)
-    .withCorrelationIdMiddleware(correlationIdMiddlewareOptions)
     .withHttpMiddleware(httpMiddlewareOptions)
     .build();
+
+  if (opts.getContextFn) {
+    const correlationIdMiddlewareOptions: CorrelationIdMiddlewareOptions = {
+      generate: () => {
+        const contextData = opts.getContextFn?.();
+        const correlationID =
+          contextData?.correlationId && contextData.correlationId.length > 0 ? contextData.correlationId : randomUUID();
+        return correlationID;
+      },
+    };
+    ctpClient = new ClientBuilder()
+      .withClientCredentialsFlow(authMiddlewareOptions)
+      .withHttpMiddleware(httpMiddlewareOptions)
+      .withCorrelationIdMiddleware(correlationIdMiddlewareOptions)
+      .build();
+  }
 
   return createApiBuilderFromCtpClient(ctpClient).withProjectKey({
     projectKey: opts.projectKey,

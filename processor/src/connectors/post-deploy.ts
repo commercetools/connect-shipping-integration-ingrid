@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
-import { type RequestContextData, getRequestContext, updateRequestContext } from '../libs/fastify/context';
 import { appLogger } from '../libs/logger';
 import { handleCustomTypeAction, handleTaxCategoryAction } from './actions';
 
@@ -34,23 +33,6 @@ async function postDeploy(_properties: Map<string, unknown>) {
     authUrl: _properties.get('CTP_AUTH_URL') as string,
     apiUrl: _properties.get('CTP_API_URL') as string,
     projectKey: _properties.get('CTP_PROJECT_KEY') as string,
-    getContextFn: (): RequestContextData => {
-      const { correlationId, requestId, authentication } = getRequestContext();
-      return {
-        correlationId: correlationId || '',
-        requestId: requestId || '',
-        authentication,
-      };
-    },
-    updateContextFn: (context: Partial<RequestContextData>) => {
-      const requestContext = Object.assign(
-        {},
-        context.correlationId ? { correlationId: context.correlationId } : {},
-        context.requestId ? { requestId: context.requestId } : {},
-        context.authentication ? { authentication: context.authentication } : {},
-      );
-      updateRequestContext(requestContext);
-    },
     logger: appLogger,
   });
 
