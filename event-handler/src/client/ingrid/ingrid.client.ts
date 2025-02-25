@@ -5,9 +5,8 @@ import {
   type IngridCompleteSessionResponse,
   IngridUrls,
 } from './types/ingrid.client.type';
-import { AbstractIngridClient } from './abstract-ingrid.client';
 
-export default class IngridApiClient implements AbstractIngridClient {
+export default class IngridApiClient {
   public client: AxiosInstance;
 
   constructor(opts: {

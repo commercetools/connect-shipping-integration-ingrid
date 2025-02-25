@@ -6,7 +6,7 @@ export const errorMiddleware: ErrorRequestHandler = (
   error: Error,
   _: Request,
   res: Response,
-  _next: NextFunction,
+  _next: NextFunction
 ) => {
   const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -27,6 +27,6 @@ export const errorMiddleware: ErrorRequestHandler = (
     .send(
       isDevelopment
         ? { messge: error.message }
-        : { message: 'Internal server error' },
+        : { message: 'Internal server error' }
     );
 };
