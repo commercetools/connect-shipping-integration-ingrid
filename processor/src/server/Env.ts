@@ -16,6 +16,7 @@ const schema = {
     'INGRID_ENVIRONMENT',
     'npm_package_version',
     'npm_package_name',
+    'keyOfIngridSessionCustomType',
   ],
   properties: {
     CTP_PROJECT_KEY: { type: 'string' },
@@ -29,6 +30,7 @@ const schema = {
     INGRID_ENVIRONMENT: { type: 'string', enum: ['STAGING', 'PRODUCTION'] },
     npm_package_version: { type: 'string' },
     npm_package_name: { type: 'string' },
+    keyOfIngridSessionCustomType: { type: 'string' },
   },
 };
 
@@ -48,6 +50,7 @@ const typeboxSchema = Type.Object({
   }),
   npm_package_version: Type.String(),
   npm_package_name: Type.String(),
+  keyOfIngridSessionCustomType: Type.String(),
 });
 
 export type Env = Static<typeof typeboxSchema>;
