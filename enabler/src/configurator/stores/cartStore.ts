@@ -49,7 +49,7 @@ const cartStore = new Store<Cart | undefined, ACTION>(
                         },
                         target: {
                           type: "lineItems",
-                          predicate: "1=1"
+                          predicate: "true"
                         }
                       }
                     ]
