@@ -29,7 +29,7 @@ describe('actions.ts', () => {
     jest.resetAllMocks();
   });
 
-  test('OK', async () => {
+  test('create subscription successfully', async () => {
     const configResult = {
       clientId: '12345678901234567890123456789012',
       clientSecret: '123456789012345678901234',
