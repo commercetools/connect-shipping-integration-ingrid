@@ -131,14 +131,16 @@ const calculateTotalLineItemsDiscount = (items: LineItem[]): number => {
  * @returns {number} line item discount
  */
 const calculateLineItemDiscount = (lineItem: LineItem): number => {
+  // TODO: when is price.discounted used and when is discountedPricePerQuantity used?
+
   // difference between normal price and discount, will be 0 if no discount is set
-  const productDiscountPerItem =
+  const discount =
     lineItem.price.value.centAmount - (lineItem.price.discounted?.value.centAmount ?? lineItem.price.value.centAmount);
-  const totalProductDiscount = productDiscountPerItem * lineItem.quantity;
+
   // on current items, discountedPricePerQuantity is empty
   const discountedPrice = lineItem.discountedPricePerQuantity.reduce((acc, item) => {
     return acc + item.discountedPrice.value.centAmount * item.quantity;
   }, 0);
 
-  return totalProductDiscount + (lineItem.price.value.centAmount * lineItem.quantity - discountedPrice);
+  return discount * lineItem.quantity + discountedPrice;
 };
