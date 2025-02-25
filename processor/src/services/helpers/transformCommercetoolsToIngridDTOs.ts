@@ -133,26 +133,22 @@ const calculateTotalLineItemsDiscount = (items: LineItem[]): number => {
 const calculateLineItemDiscount = (lineItem: LineItem): number => {
   const totalProductDiscount = getTotalProductDiscount(lineItem);
   const totalLineItemsDiscount = getTotalLineItemDiscount(lineItem);
-  return totalProductDiscount + totalLineItemsDiscount;
+  return totalProductDiscount + totalLineItemsDiscount
 };
 
-const getTotalProductDiscount = (lineItem: LineItem) => {
-  const productDiscountPerItem =
-    lineItem.price.value.centAmount - (lineItem.price.discounted?.value.centAmount ?? lineItem.price.value.centAmount);
+const getTotalProductDiscount= (lineItem: LineItem) => {
+  const productDiscountPerItem = lineItem.price.value.centAmount - (lineItem.price.discounted?.value.centAmount ?? lineItem.price.value.centAmount);
   const totalProductDiscount = productDiscountPerItem * lineItem.quantity;
-  return totalProductDiscount;
-};
+  return totalProductDiscount
+}
 
 function getTotalLineItemDiscount(lineItem: LineItem) {
-  if (lineItem.discountedPricePerQuantity && lineItem.discountedPricePerQuantity.length > 0) {
+  if (lineItem.discountedPricePerQuantity && lineItem.discountedPricePerQuantity.length>0) {
     const totalDiscountedPrice = lineItem.discountedPricePerQuantity.reduce((acc, item) => {
       return acc + item.discountedPrice.value.centAmount * item.quantity;
     }, 0);
     // The line item discount applies on the product-level discounted price, if it exists. Otherwise it applies on the line item original price.
-    return (
-      (lineItem.price.discounted?.value.centAmount ?? lineItem.price.value.centAmount) * lineItem.quantity -
-      totalDiscountedPrice
-    );
-  }
-  return 0;
+    return (lineItem.price.discounted?.value.centAmount ?? lineItem.price.value.centAmount)  * lineItem.quantity - totalDiscountedPrice
+  } 
+  return 0
 }
