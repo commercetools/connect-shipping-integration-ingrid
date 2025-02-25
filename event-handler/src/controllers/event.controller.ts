@@ -16,56 +16,50 @@ import type { IngridCompleteSessionRequestPayload } from '../client/ingrid/types
  * @returns
  */
 export const post = async (request: Request, response: Response) => {
-  try {
-    const body = PubSubValidator.validateRequestBody(request);
-    const message = PubSubValidator.validateMessageFormat(body);
-    const decodedData = PubSubValidator.decodeMessageData<{ orderId: string }>(
-      message
-    );
-    const orderId = decodedData?.orderId;
 
-    const commercetoolsOrder = await createApiRoot()
-      .orders()
-      .withId({ ID: orderId })
-      .get({
-        queryArgs: {
-          expand: 'cart',
-        },
-      })
-      .execute()
-      .then((res) => res.body);
+  const body = PubSubValidator.validateRequestBody(request);
+  const message = PubSubValidator.validateMessageFormat(body);
+  const decodedData = PubSubValidator.decodeMessageData<{ orderId: string }>(
+    message,
+  );
+  const orderId = decodedData?.orderId;
 
-    const ingridSessionId =
-      commercetoolsOrder.cart?.obj?.custom?.fields?.ingridSessionId;
+  const commercetoolsOrder = await createApiRoot()
+    .orders()
+    .withId({ ID: orderId })
+    .get({
+      queryArgs: {
+        expand: 'cart',
+      },
+    })
+    .execute()
+    .then((res) => res.body);
 
-    if (!ingridSessionId) {
-      const error = new Error('Ingrid session ID not found');
-      throw new CustomError(400, 'Bad request', { cause: error });
-    }
+  const ingridSessionId =
+    commercetoolsOrder.cart?.obj?.custom?.fields?.ingridSessionId;
 
-    const apiSecret = readConfiguration().ingridApiKey;
-    const environment = readConfiguration().ingridEnvironment;
-
-    const ingridOpts = {
-      apiSecret,
-      environment,
-    };
-
-    const ingridClient = new IngridApiClient(ingridOpts);
-
-    const payLoad: IngridCompleteSessionRequestPayload = {
-      checkout_session_id: ingridSessionId,
-      external_id: orderId,
-    };
-
-    const ingridResponse = await ingridClient.completeCheckoutSession(payLoad);
-
-    logger.info(ingridResponse);
-    return response.status(204).send();
-  } catch (error) {
-    logger.error(error);
-    throw new CustomError(400, 'Request validation failed', {
-      cause: error instanceof Error ? error : new Error(String(error)),
-    });
+  if (!ingridSessionId) {
+    throw new CustomError(400, 'Bad request. Ingrid session ID not found');
   }
+
+  const apiSecret = readConfiguration().ingridApiKey;
+  const environment = readConfiguration().ingridEnvironment;
+
+  const ingridOpts = {
+    apiSecret,
+    environment,
+  };
+
+  const ingridClient = new IngridApiClient(ingridOpts);
+
+  const payLoad: IngridCompleteSessionRequestPayload = {
+    checkout_session_id: ingridSessionId,
+    external_id: orderId,
+  };
+
+  const ingridResponse = await ingridClient.completeCheckoutSession(payLoad);
+
+  logger.info(ingridResponse);
+  return response.status(204).send();
+
 };

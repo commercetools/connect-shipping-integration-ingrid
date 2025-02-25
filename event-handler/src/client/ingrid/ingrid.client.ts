@@ -5,6 +5,7 @@ import {
   type IngridCompleteSessionResponse,
   IngridUrls,
 } from './types/ingrid.client.type';
+import CustomError from '../../errors/custom.error';
 
 export default class IngridApiClient {
   public client: AxiosInstance;
@@ -17,13 +18,20 @@ export default class IngridApiClient {
   }
 
   public async completeCheckoutSession(
-    payload: IngridCompleteSessionRequestPayload
+    payload: IngridCompleteSessionRequestPayload,
   ) {
-    const response = await this.client.post(
-      IngridUrls.DELIVERY_CHECKOUT + '/session.complete',
-      payload
-    );
-    return response.data as IngridCompleteSessionResponse;
+    try {
+      const response = await this.client.post(
+        IngridUrls.DELIVERY_CHECKOUT + '/session.complete',
+        payload,
+      );
+      return response.data as IngridCompleteSessionResponse;
+    } catch (error) {
+      throw new CustomError(400, 'Failed to complete session on Ingrid', {
+        cause: error instanceof Error ? error : new Error(String(error)),
+      });
+    }
+
   }
 }
 
