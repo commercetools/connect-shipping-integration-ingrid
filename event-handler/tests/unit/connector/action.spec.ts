@@ -41,13 +41,11 @@ describe('actions.ts', () => {
     };
     jest.spyOn(Config, 'readConfiguration').mockReturnValue(configResult);
     let apiRoot: ByProjectKeyRequestBuilder | undefined = undefined;
-    await import('../../../src/client/commercetools/create.client')
-      .then((module) => {
+    await import('../../../src/client/commercetools/create.client').then(
+      (module) => {
         apiRoot = module.createApiRoot();
-      })
-      .catch((e) => {
-        throw new Error('apiRoot is not defined');
-      });
+      }
+    );
     if (!apiRoot) {
       throw new Error('apiRoot is not defined');
     }
