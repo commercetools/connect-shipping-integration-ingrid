@@ -22,7 +22,7 @@ describe('Testing router', () => {
     });
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
-      message: 'Request validation failed',
+      message: 'Bad request: No message data found',
       errors: undefined,
       stack: undefined,
     });
@@ -31,7 +31,7 @@ describe('Testing router', () => {
     const response = await request(app).post('/event');
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
-      message: 'Request validation failed',
+      message: 'Bad request: Wrong No Pub/Sub message format',
       errors: undefined,
       stack: undefined,
     });
