@@ -52,7 +52,7 @@ const transformCommercetoolsCartToIngridCart = (ctCart: Cart): IngridCart => {
   const lineItems = transformCommercetoolsLineItemsToIngridCartItems(ctCart.lineItems, ctCart.locale!);
 
   return {
-    total_value: ctCart.taxedPrice ? ctCart.taxedPrice.totalGross.centAmount : ctCart.totalPrice.centAmount, // use "taxedPrice.totalGross" because Ingrid accepts tax inclusive price.
+    total_value: ctCart.taxedPrice?.totalGross.centAmount ?? ctCart.totalPrice.centAmount, // use "taxedPrice.totalGross" because Ingrid accepts tax inclusive price.
     total_discount: totalDiscount,
     items: lineItems,
     cart_id: ctCart.id,
@@ -89,7 +89,7 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
     discount: lineItemDiscount,
     image_url: imageUrl,
     name: item.name[locale]!,
-    price: item.taxedPrice ? item.taxedPrice.totalGross.centAmount : item.price.value.centAmount, // use "taxedPrice.totalGross" because Ingrid accepts tax inclusive price.
+    price: item.taxedPrice?.totalGross.centAmount ?? item.price.value.centAmount, // use "taxedPrice.totalGross" because Ingrid accepts tax inclusive price.
     quantity: item.quantity,
     sku: item.variant.sku!,
   };
