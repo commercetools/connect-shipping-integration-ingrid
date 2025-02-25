@@ -20,10 +20,24 @@ export const LineItems = memo(function LineItems({
     <div>
       <hr></hr>
       <p className="title-font">Items in Cart</p>
-      
-      {lineItems.map((item, index) => (
-        <div className="standard-font" key={index}>{item.name["en-US"]} x {item.quantity} : {item.taxedPrice?.totalGross.centAmount}</div>
-      ))}
+      <table style={{ border: "1px solid black" }}>
+        <thead>
+          <tr>
+            <th style={{width: 150}} align="left">Name</th>
+            <th style={{width: 100}} align="left">Quantity</th>
+            <th style={{width: 150}} align="left">Tax included price</th>
+            <th style={{width: 150}} align="left">Tax</th>
+          </tr>
+          {lineItems.map((item, index) => (
+            <tr className="standard-font" key={index}>
+              <td style={{width: 150}} align="left">{item.name["en-US"]}</td>
+              <td style={{width: 100}} align="left">{item.quantity}</td>
+              <td style={{width: 150}} align="left"> {item.taxedPrice?.totalGross.centAmount}</td>
+              <td style={{width: 150}} align="left"> {item.taxedPrice?.totalTax?.centAmount}</td>
+            </tr>
+          ))}
+        </thead>
+      </table>
     </div>
   );
 });

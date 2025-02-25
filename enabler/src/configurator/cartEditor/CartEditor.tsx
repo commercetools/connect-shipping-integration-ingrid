@@ -45,6 +45,28 @@ function CartEditor() {
             >
             Delete cart
             </button>
+            
+          )}
+          {cart && (
+            <div> 
+              <br/>
+              <button
+                disabled={loading}
+                onClick={() => {
+                  const percetage = parseInt((document.getElementById("direct-discount-input") as HTMLInputElement)?.value)
+                  console.log(percetage)
+                  cartStore.dispatch({
+                    type: "APPLY_DISCOUNT",
+                    percetage
+                  })
+                  }
+                }
+              >
+              Apply direct discount %
+              </button>
+              <input type="text" id="direct-discount-input" />
+              <br/><br/>
+            </div>
           )}
           <LocaleCountryCurrency cart={cart} />
           <ProductSearch />
