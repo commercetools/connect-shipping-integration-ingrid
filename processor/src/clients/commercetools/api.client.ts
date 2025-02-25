@@ -8,6 +8,7 @@ import {
   type TaxCategoryResourceIdentifier,
   type Cart,
   type Type,
+  type TaxCategory,
 } from '@commercetools/platform-sdk';
 import {
   ClientBuilder,
@@ -26,8 +27,8 @@ import type { RequestContextData } from '../../libs/fastify/context';
  * @param opts.authUrl - URL of the auth server
  * @param opts.apiUrl - URL of the Commercetools API
  * @param opts.projectKey - Project key in Commercetools
- * @param opts.getContextFn - Function to get the current request context
- * @param opts.updateContextFn - Function to update the request context
+ * @param [opts.getContextFn] - Function to get the current request context
+ * @param [opts.updateContextFn] - Function to update the request context
  * @param opts.logger - Logger instance to use
  *
  * @returns A configured Commercetools API client instance
@@ -41,8 +42,8 @@ export class CommercetoolsApiClient {
     authUrl: string;
     apiUrl: string;
     projectKey: string;
-    getContextFn: () => RequestContextData;
-    updateContextFn: (ctx: Partial<RequestContextData>) => void;
+    getContextFn?: () => RequestContextData;
+    updateContextFn?: (ctx: Partial<RequestContextData>) => void;
     logger: typeof appLogger;
   }) {
     this.client = createClient(opts);
@@ -52,29 +53,6 @@ export class CommercetoolsApiClient {
     const response = await this.client.carts().withId({ ID: cartId }).get().execute();
     const cart = response.body;
     return cart;
-  }
-
-  /**
-   * Retrieves the ID of the Ingrid custom type
-   *
-   * @remarks
-   * First attempts to get an existing custom type with specified key.
-   * If it doesn't exist, creates a new custom type for storing Ingrid session IDs.
-   *
-   * @param keyOfIngridSessionIdCustomType - The key of the Ingrid custom type
-   *
-   * @returns {Promise<string>} The ID of the Ingrid custom type
-   */
-  public async getIngridCustomTypeId(keyOfIngridSessionIdCustomType: string): Promise<string> {
-    if (await this.checkIfCustomTypeExistsByKey(keyOfIngridSessionIdCustomType)) {
-      const { id } = await this.getCustomType(keyOfIngridSessionIdCustomType);
-      return id;
-    }
-    appLogger.info('[EXPECTED]: Ingrid custom type with key ingrid-session-id does not exist.');
-    appLogger.info('[CONTINUING]: Creating custom type with key ingrid-session-id');
-    const { id } = await this.createCustomTypeFieldDefinitionForIngridSessionId(keyOfIngridSessionIdCustomType);
-    appLogger.info(`[SUCCESS]: Ingrid custom type with key ingrid-session-id is created with id ${id}`);
-    return id;
   }
 
   /**
@@ -170,10 +148,8 @@ export class CommercetoolsApiClient {
     return type;
   }
 
-  // Should only be called once and only if the custom type does not exist
-  // creates a custom type field definition for ingridSessionId
-  // returns the custom type
-  private async createCustomTypeFieldDefinitionForIngridSessionId(ingridSessionIdTypeKey: string): Promise<Type> {
+  // only called within post-deploy (if custom type does not exist -> will override merchants existing custom type)
+  public async createCustomTypeFieldDefinitionForIngridSessionId(ingridSessionIdTypeKey: string): Promise<Type> {
     const response = await this.client
       .types()
       .post({
@@ -202,9 +178,68 @@ export class CommercetoolsApiClient {
     return customType;
   }
 
-  private async checkIfCustomTypeExistsByKey(key: string): Promise<boolean> {
-    const response = await this.client.types().withKey({ key: key }).head().execute();
-    return response.statusCode === 200;
+  public async checkIfCustomTypeExistsByKey(key: string): Promise<boolean> {
+    try {
+      const response = await this.client.types().withKey({ key: key }).head().execute();
+      return response.statusCode === 200;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return false;
+    }
+  }
+
+  public async createIngridSessionIdFieldDefinitionOnType(type: Type): Promise<Type> {
+    const response = await this.client
+      .types()
+      .withKey({ key: type.key })
+      .post({
+        body: {
+          version: type.version,
+          actions: [
+            {
+              action: 'addFieldDefinition',
+              fieldDefinition: {
+                name: 'ingridSessionId',
+                label: {
+                  en: 'Ingrid Session ID',
+                },
+                type: {
+                  name: 'String',
+                },
+                required: false,
+              },
+            },
+          ],
+        },
+      })
+      .execute();
+    const customType = response.body;
+    return customType;
+  }
+
+  // TAX CATEGORY
+  public async checkIfTaxCategoryExistsByKey(key: string): Promise<boolean> {
+    try {
+      const response = await this.client.taxCategories().withKey({ key: key }).head().execute();
+      return response.statusCode === 200;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return false;
+    }
+  }
+
+  public async createTaxCategoryWithNullRate(key: string): Promise<TaxCategory> {
+    const response = await this.client
+      .taxCategories()
+      .post({
+        body: {
+          key,
+          name: key + ' (created by Ingrid Connector)',
+        },
+      })
+      .execute();
+    const taxCategory = response.body;
+    return taxCategory;
   }
 }
 
@@ -214,8 +249,8 @@ const createClient = (opts: {
   authUrl: string;
   apiUrl: string;
   projectKey: string;
-  getContextFn: () => RequestContextData;
-  updateContextFn: (ctx: Partial<RequestContextData>) => void;
+  getContextFn?: () => RequestContextData;
+  updateContextFn?: (ctx: Partial<RequestContextData>) => void;
 }): ByProjectKeyRequestBuilder => {
   const authMiddlewareOptions: AuthMiddlewareOptions = {
     host: opts.authUrl,
@@ -232,20 +267,26 @@ const createClient = (opts: {
     enableRetry: true,
   };
 
-  const correlationIdMiddlewareOptions: CorrelationIdMiddlewareOptions = {
-    generate: () => {
-      const contextData = opts.getContextFn();
-      const correlationID =
-        contextData.correlationId && contextData.correlationId.length > 0 ? contextData.correlationId : randomUUID();
-      return correlationID;
-    },
-  };
-
-  const ctpClient = new ClientBuilder()
+  let ctpClient = new ClientBuilder()
     .withClientCredentialsFlow(authMiddlewareOptions)
-    .withCorrelationIdMiddleware(correlationIdMiddlewareOptions)
     .withHttpMiddleware(httpMiddlewareOptions)
     .build();
+
+  if (opts.getContextFn) {
+    const correlationIdMiddlewareOptions: CorrelationIdMiddlewareOptions = {
+      generate: () => {
+        const contextData = opts.getContextFn?.();
+        const correlationID =
+          contextData?.correlationId && contextData.correlationId.length > 0 ? contextData.correlationId : randomUUID();
+        return correlationID;
+      },
+    };
+    ctpClient = new ClientBuilder()
+      .withClientCredentialsFlow(authMiddlewareOptions)
+      .withHttpMiddleware(httpMiddlewareOptions)
+      .withCorrelationIdMiddleware(correlationIdMiddlewareOptions)
+      .build();
+  }
 
   return createApiBuilderFromCtpClient(ctpClient).withProjectKey({
     projectKey: opts.projectKey,

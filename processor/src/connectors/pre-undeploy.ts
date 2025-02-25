@@ -1,6 +1,4 @@
-async function preUndeploy() {
-  // TODO: Implement pre undeploy scripts if any
-}
+async function preUndeploy() {}
 
 async function run() {
   try {
