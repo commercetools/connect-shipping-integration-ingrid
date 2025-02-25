@@ -5,7 +5,7 @@ import { IngridApiClient } from '../../clients/ingrid/ingrid.client';
 import { CommercetoolsApiClient } from '../../clients/commercetools/api.client';
 import { appLogger } from '../../libs/logger';
 import { RequestContextData, updateRequestContext, getRequestContext } from '../../libs/fastify/context';
-import { SessionHeaderAuthInitializer } from '../../libs/auth/';
+import { SessionHeaderAuthInitializer } from '../../libs/auth';
 import { IngridClientOptions } from '../../clients/ingrid/types/ingrid.client.type';
 
 export default async function (server: FastifyInstance) {

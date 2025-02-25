@@ -18,7 +18,6 @@ export class SessionHeaderAuthenticationManager implements AuthenticationManager
     const principal = authentication.getPrincipal();
     try {
       const session = await this.sessionService.verifySession(principal.authHeader);
-
       return new SessionAuthentication(principal.authHeader, {
         cartId: this.sessionService.getCartFromSession(session),
         processorUrl: this.sessionService.getProcessorUrlFromSession(session),

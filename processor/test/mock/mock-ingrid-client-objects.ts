@@ -9,6 +9,8 @@ export const mockCreateCheckoutSessionRequest = {
         sku: 'SKU12345',
         name: 'Saucony Shadow 6000',
         quantity: 1,
+        price: 10000,
+        discount: 0,
       },
     ],
     cart_id: 'UNIQUE_ID',
