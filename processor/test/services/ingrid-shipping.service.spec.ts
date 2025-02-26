@@ -8,6 +8,8 @@ import { IngridBasePath, IngridUrls, IngridEnvironment } from '../../src/clients
 import {
   mockCreateCheckoutSessionSuccessResponse,
   mockCreateCheckoutSessionAuthFailureResponse,
+  mockIngridCheckoutSessionWithAddresses,
+  mockIngridCheckoutSessionWithoutAddresses,
 } from '../mock/mock-ingrid-client-objects';
 import {
   cart,
@@ -114,6 +116,17 @@ describe('ingrid-shipping.service', () => {
     expect(typeof data.cartVersion).toBe('number');
   });
 
+  test('init session failed with no ingrid-session custom type', async () => {
+    // @ts-ignore
+    jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(null);
+
+    try {
+      await shippingService.init();
+    } catch (error) {
+      expect(error instanceof CustomError).toBe(true);
+    }
+  });
+
   test('init session OK when cart containing ingrid-session custom type', async () => {
     mockServer.use(
       mockRequest(
@@ -206,5 +219,118 @@ describe('ingrid-shipping.service', () => {
       const customError = error as CustomError;
       expect(customError.httpErrorStatus).toBe(401);
     }
+  });
+
+  describe('update', () => {
+    test('should update cart with addresses and shipping method from Ingrid session', async () => {
+      const deliveryGroup = mockIngridCheckoutSessionWithAddresses.session.delivery_groups[0];
+      if (!deliveryGroup?.addresses?.billing_address || !deliveryGroup?.addresses?.delivery_address) {
+        throw new Error('Mock data is missing required address information');
+      }
+
+      // Mock getting cart with ingrid session
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue({
+        ...cart,
+        custom: {
+          type: { typeId: 'type', id: 'type-id' },
+          fields: { ingridSessionId: 'mock-ingrid-session-id' },
+        },
+      });
+
+      // Mock getting Ingrid checkout session
+      jest
+        .spyOn(IngridApiClient.prototype, 'getCheckoutSession')
+        .mockResolvedValue(mockIngridCheckoutSessionWithAddresses);
+
+      // Mock updating cart with addresses and shipping method
+      jest.spyOn(CommercetoolsApiClient.prototype, 'updateCartWithAddressAndShippingMethod').mockResolvedValue(cart);
+
+      const result = await shippingService.update();
+
+      expect(result.data).toEqual({
+        success: true,
+        cartVersion: cart.version,
+        ingridSessionId: 'mock-ingrid-session-id',
+      });
+
+      expect(CommercetoolsApiClient.prototype.updateCartWithAddressAndShippingMethod).toHaveBeenCalledWith(
+        cart.id,
+        cart.version,
+        {
+          billingAddress: expect.objectContaining({
+            firstName: deliveryGroup.addresses.billing_address.first_name,
+            lastName: deliveryGroup.addresses.billing_address.last_name,
+          }),
+          shippingAddress: expect.objectContaining({
+            firstName: deliveryGroup.addresses.delivery_address.first_name,
+            lastName: deliveryGroup.addresses.delivery_address.last_name,
+          }),
+        },
+        expect.objectContaining({
+          shippingMethodName: expect.any(String),
+          shippingRate: expect.any(Object),
+          taxCategory: expect.any(Object),
+        }),
+      );
+    });
+
+    test('should throw error when addresses are missing in Ingrid session', async () => {
+      // Mock getting cart with ingrid session
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue({
+        ...cart,
+        custom: {
+          type: { typeId: 'type', id: 'type-id' },
+          fields: { ingridSessionId: 'mock-ingrid-session-id' },
+        },
+      });
+
+      // Mock getting Ingrid checkout session without addresses
+      jest
+        .spyOn(IngridApiClient.prototype, 'getCheckoutSession')
+        .mockResolvedValue(mockIngridCheckoutSessionWithoutAddresses);
+
+      await expect(shippingService.update()).rejects.toThrow(
+        new CustomError({
+          message:
+            "Failed to get billing and delivery addresses from ingrid checkout session. It seems like the addresses weren't provided by the customer.",
+          code: 'FAILED_TO_GET_BILLING_OR_DELIVERY_ADDRESSES_FROM_INGRID_CHECKOUT_SESSION',
+          httpErrorStatus: 400,
+        }),
+      );
+    });
+
+    test('should throw error when cart has no Ingrid session ID', async () => {
+      // Mock getting cart without ingrid session
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cartWithoutCustomType);
+
+      await expect(shippingService.update()).rejects.toThrow(CustomError);
+    });
+
+    test('should throw error when updating cart fails', async () => {
+      // Mock getting cart with ingrid session
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue({
+        ...cart,
+        custom: {
+          type: { typeId: 'type', id: 'type-id' },
+          fields: { ingridSessionId: 'mock-ingrid-session-id' },
+        },
+      });
+
+      // Mock getting Ingrid checkout session
+      jest
+        .spyOn(IngridApiClient.prototype, 'getCheckoutSession')
+        .mockResolvedValue(mockIngridCheckoutSessionWithAddresses);
+
+      // Mock update cart failure
+      jest.spyOn(CommercetoolsApiClient.prototype, 'updateCartWithAddressAndShippingMethod').mockRejectedValue(
+        new CustomError({
+          message: 'Failed to update cart',
+          code: 'CART_UPDATE_FAILED',
+          httpErrorStatus: 400,
+        }),
+      );
+
+      await expect(shippingService.update()).rejects.toThrow(CustomError);
+    });
   });
 });
