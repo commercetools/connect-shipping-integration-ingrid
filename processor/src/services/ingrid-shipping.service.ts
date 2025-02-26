@@ -83,7 +83,7 @@ export class IngridShippingService extends AbstractShippingService {
     if (!billing_address || !delivery_address) {
       throw new CustomError({
         message:
-          'Failed to get billing and delivery addresses from ingrid checkout session. It seems like the addresses weren\'t provided by the customer.',
+          "Failed to get billing and delivery addresses from ingrid checkout session. It seems like the addresses weren't provided by the customer.",
         code: 'FAILED_TO_GET_BILLING_OR_DELIVERY_ADDRESSES_FROM_INGRID_CHECKOUT_SESSION',
         httpErrorStatus: 400,
       });
