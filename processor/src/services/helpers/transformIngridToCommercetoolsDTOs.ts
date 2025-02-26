@@ -1,14 +1,14 @@
 import { CustomError } from '../../libs/fastify/errors';
 import type { ShippingRateDraft, BaseAddress } from '@commercetools/platform-sdk';
 import type {
-  IngridBillingAddress,
-  IngridDeliveryAddress,
-  IngridDeliveryGroup,
+	IngridBillingAddress,
+	IngridDeliveryAddress,
+	IngridDeliveryGroup,
 } from '../../clients/ingrid/types/ingrid.client.type';
 
 type CustomShippingMethod = {
-  shippingMethodName: string;
-  shippingRate: ShippingRateDraft;
+	shippingMethodName: string;
+	shippingRate: ShippingRateDraft;
 };
 
 /**
@@ -25,32 +25,32 @@ type CustomShippingMethod = {
  * @throws {CustomError} When multiple delivery groups are provided (not yet supported)
  */
 export const transformIngridDeliveryGroupsToCommercetoolsDataTypes = (
-  ingridDeliveryGroups: IngridDeliveryGroup[],
+	ingridDeliveryGroups: IngridDeliveryGroup[],
 ): {
-  billingAddress: BaseAddress;
-  deliveryAddress: BaseAddress;
-  customShippingMethod: CustomShippingMethod;
+	billingAddress: BaseAddress;
+	deliveryAddress: BaseAddress;
+	customShippingMethod: CustomShippingMethod;
 } => {
-  if (ingridDeliveryGroups.length === 0) {
-    throw new CustomError({
-      message: 'No delivery groups found',
-      code: 'NO_DELIVERY_GROUPS_FOUND',
-      httpErrorStatus: 500,
-    });
-  }
-  if (ingridDeliveryGroups.length > 1) {
-    throw new CustomError({
-      message: "We don't support multiple delivery groups yet",
-      code: 'MULTIPLE_DELIVERY_GROUPS_NOT_SUPPORTED',
-      httpErrorStatus: 500,
-    });
-  }
-  const ingridDeliveryGroup = ingridDeliveryGroups[0]!;
-  const billingAddress = transformIngridAddressToCommercetoolsAddress(ingridDeliveryGroup.addresses.billing_address);
-  const deliveryAddress = transformIngridAddressToCommercetoolsAddress(ingridDeliveryGroup.addresses.delivery_address);
-  const customShippingMethod = transformIngridDeliveryGroupToCustomShippingMethod(ingridDeliveryGroup);
+	if (ingridDeliveryGroups.length === 0) {
+		throw new CustomError({
+			message: 'No delivery groups found',
+			code: 'NO_DELIVERY_GROUPS_FOUND',
+			httpErrorStatus: 500,
+		});
+	}
+	if (ingridDeliveryGroups.length > 1) {
+		throw new CustomError({
+			message: "We don't support multiple delivery groups yet",
+			code: 'MULTIPLE_DELIVERY_GROUPS_NOT_SUPPORTED',
+			httpErrorStatus: 500,
+		});
+	}
+	const ingridDeliveryGroup = ingridDeliveryGroups[0]!;
+	const billingAddress = transformIngridAddressToCommercetoolsAddress(ingridDeliveryGroup.addresses.billing_address);
+	const deliveryAddress = transformIngridAddressToCommercetoolsAddress(ingridDeliveryGroup.addresses.delivery_address);
+	const customShippingMethod = transformIngridDeliveryGroupToCustomShippingMethod(ingridDeliveryGroup);
 
-  return { billingAddress, deliveryAddress, customShippingMethod };
+	return { billingAddress, deliveryAddress, customShippingMethod };
 };
 
 /**
@@ -61,19 +61,19 @@ export const transformIngridDeliveryGroupsToCommercetoolsDataTypes = (
  * @returns {BaseAddress}
  */
 const transformIngridAddressToCommercetoolsAddress = (
-  address: IngridBillingAddress | IngridDeliveryAddress,
+	address: IngridBillingAddress | IngridDeliveryAddress,
 ): BaseAddress => {
-  return {
-    firstName: address.first_name,
-    lastName: address.last_name,
-    streetName: address.street,
-    streetNumber: address.street_number,
-    postalCode: address.postal_code,
-    city: address.city,
-    country: address.country,
-    phone: address.phone,
-    email: address.email,
-  };
+	return {
+		firstName: address.first_name,
+		lastName: address.last_name,
+		streetName: address.street,
+		streetNumber: address.street_number,
+		postalCode: address.postal_code,
+		city: address.city,
+		country: address.country,
+		phone: address.phone,
+		email: address.email,
+	};
 };
 
 /**
@@ -84,16 +84,16 @@ const transformIngridAddressToCommercetoolsAddress = (
  * @returns {CustomShippingMethod}
  */
 const transformIngridDeliveryGroupToCustomShippingMethod = (
-  ingridDeliveryGroup: IngridDeliveryGroup,
+	ingridDeliveryGroup: IngridDeliveryGroup,
 ): CustomShippingMethod => {
-  const customShippingMethod = {
-    shippingMethodName: ingridDeliveryGroup.category.name,
-    shippingRate: {
-      price: {
-        currencyCode: ingridDeliveryGroup.pricing.currency,
-        centAmount: ingridDeliveryGroup.pricing.net_price ?? ingridDeliveryGroup.pricing.price,
-      },
-    },
-  };
-  return customShippingMethod;
+	const customShippingMethod = {
+		shippingMethodName: ingridDeliveryGroup.category.name,
+		shippingRate: {
+			price: {
+				currencyCode: ingridDeliveryGroup.pricing.currency,
+				centAmount: ingridDeliveryGroup.pricing.net_price ?? ingridDeliveryGroup.pricing.price,
+			},
+		},
+	};
+	return customShippingMethod;
 };

@@ -2,27 +2,27 @@ import { type Static, Type } from '@sinclair/typebox';
 
 /* Session Request Schemas */
 export const sessionRequestSchema = Type.Union([
-  Type.Object({
-    sessionId: Type.Optional(Type.String()),
-  }),
-  Type.Null(),
+	Type.Object({
+		sessionId: Type.Optional(Type.String()),
+	}),
+	Type.Null(),
 ]);
 
 /* Init Session Schemas */
 const InitSessionSuccessResponseSchema = Type.Object({
-  success: Type.Boolean(),
-  cartVersion: Type.Number(),
-  ingridHtml: Type.String(),
-  ingridSessionId: Type.String(),
+	success: Type.Boolean(),
+	cartVersion: Type.Number(),
+	ingridHtml: Type.String(),
+	ingridSessionId: Type.String(),
 });
 
 export const InitSessionResponseSchema = Type.Union([InitSessionSuccessResponseSchema]);
 
 /* Update Session Schemas */
 const UpdateSessionSuccessResponseSchema = Type.Object({
-  success: Type.Boolean(),
-  cartVersion: Type.Number(),
-  ingridSessionId: Type.String(),
+	success: Type.Boolean(),
+	cartVersion: Type.Number(),
+	ingridSessionId: Type.String(),
 });
 
 export const UpdateSessionResponseSchema = Type.Union([UpdateSessionSuccessResponseSchema]);

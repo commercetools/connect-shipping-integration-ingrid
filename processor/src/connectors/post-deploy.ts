@@ -27,34 +27,34 @@ dotenv.config();
  * @throws Will throw an error if either the custom type or tax category setup fails
  */
 async function postDeploy(_properties: Map<string, unknown>) {
-  const client = new CommercetoolsApiClient({
-    clientId: _properties.get('CTP_CLIENT_ID') as string,
-    clientSecret: _properties.get('CTP_CLIENT_SECRET') as string,
-    authUrl: _properties.get('CTP_AUTH_URL') as string,
-    apiUrl: _properties.get('CTP_API_URL') as string,
-    projectKey: _properties.get('CTP_PROJECT_KEY') as string,
-    logger: appLogger,
-  });
+	const client = new CommercetoolsApiClient({
+		clientId: _properties.get('CTP_CLIENT_ID') as string,
+		clientSecret: _properties.get('CTP_CLIENT_SECRET') as string,
+		authUrl: _properties.get('CTP_AUTH_URL') as string,
+		apiUrl: _properties.get('CTP_API_URL') as string,
+		projectKey: _properties.get('CTP_PROJECT_KEY') as string,
+		logger: appLogger,
+	});
 
-  const ingridCustomTypeKey = _properties.get('INGRID_SESSION_CUSTOM_TYPE_KEY') as string; // default: ingrid-session
-  const ingridTaxCategoryKey = _properties.get('INGRID_SPECIFIC_TAX_CATEGORY_KEY') as string; // default: ingrid-tax
+	const ingridCustomTypeKey = _properties.get('INGRID_SESSION_CUSTOM_TYPE_KEY') as string; // default: ingrid-session
+	const ingridTaxCategoryKey = _properties.get('INGRID_SPECIFIC_TAX_CATEGORY_KEY') as string; // default: ingrid-tax
 
-  await Promise.all([
-    handleCustomTypeAction(client, ingridCustomTypeKey),
-    handleTaxCategoryAction(client, ingridTaxCategoryKey),
-  ]);
+	await Promise.all([
+		handleCustomTypeAction(client, ingridCustomTypeKey),
+		handleTaxCategoryAction(client, ingridTaxCategoryKey),
+	]);
 }
 
 async function run() {
-  try {
-    const properties = new Map(Object.entries(process.env));
-    await postDeploy(properties);
-  } catch (error) {
-    if (error instanceof Error) {
-      process.stderr.write(`Post-deploy failed: ${error.message}\n`);
-    }
-    process.exitCode = 1;
-  }
+	try {
+		const properties = new Map(Object.entries(process.env));
+		await postDeploy(properties);
+	} catch (error) {
+		if (error instanceof Error) {
+			process.stderr.write(`Post-deploy failed: ${error.message}\n`);
+		}
+		process.exitCode = 1;
+	}
 }
 
 run();
