@@ -1,12 +1,16 @@
 import client from "../coco/index";
 
-import type { Cart } from "@commercetools/platform-sdk";
+import type { Cart, Address } from "@commercetools/platform-sdk";
 import { exhaustiveMatchingGuard } from "../lib";
 import countryCurrencyLanguageStore from "./countryCurrencyLanguageStore";
 import loadingStore from "./loadingStore";
 import Store from "./Store";
 
 type ACTION =
+ {
+  type: "SET_SHIPPING_ADDRESS",
+  address: Address;
+}
 | {
   type: "APPLY_DISCOUNT";
   percetage: number;
@@ -30,6 +34,32 @@ const initialState: Cart = cartJSON ? JSON.parse(cartJSON) : undefined;
 const cartStore = new Store<Cart | undefined, ACTION>(
   (action, state, setState) => {
     switch (action.type) {
+      case "SET_SHIPPING_ADDRESS":
+        if (state) {
+        client
+            .carts()
+            .withId({ ID: state.id })
+            .post({
+              body: {
+                version: state.version,
+                actions: [
+                  {
+                    action: "setShippingAddress",
+                    address: action.address
+                  },
+                ],
+              },
+            })
+            .execute()
+            .then((cart) => {
+              cartStore.dispatch({
+                type: "SET_CART",
+                cart: cart.body,
+              })
+            })
+            .finally(() => loadingStore.dispatch("DONE"));
+          }
+        break;
       case "APPLY_DISCOUNT":
         if (state) {
         client

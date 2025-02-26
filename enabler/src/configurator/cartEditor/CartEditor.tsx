@@ -6,6 +6,7 @@ import { LineItems } from "./LineItems";
 import { ProductSearch } from "./ProductSearch";
 import loadingStore from "../stores/loadingStore";
 import countryCurrencyLanguageStore from "../stores/countryCurrencyLanguageStore";
+import type { Address } from "@commercetools/platform-sdk";
 import '../css/CartEditor.scss';
 
 function CartEditor() {
@@ -64,6 +65,35 @@ function CartEditor() {
               Apply direct discount %
               </button>
               <input type="text" id="direct-discount-input" />
+              <br/><br/>
+            </div>
+          )}
+          {cart && (
+            <div> 
+              <br/>
+              <button
+                disabled={loading}
+                onClick={() => {
+                  const address: Address = {
+                    country: "DE",
+                    city: "Munich",
+                    streetName: "Adams-Lehmann-Straße",
+                    streetNumber: "44",
+                    postalCode: "80797",
+                    firstName: "King-Hin",
+                    lastName: "Leung"
+                  }
+                  cartStore.dispatch({
+                    type: "SET_SHIPPING_ADDRESS",
+                    address: address
+                    
+                  })
+                  }
+                }
+              >
+              Apply commercetools Munich office as shipping address
+              </button>
+              <input type="text" id="set-prefill-shipping-address" />
               <br/><br/>
             </div>
           )}

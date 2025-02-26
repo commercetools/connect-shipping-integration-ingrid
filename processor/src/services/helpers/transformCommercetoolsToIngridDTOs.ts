@@ -2,6 +2,7 @@ import { CustomError } from '../../libs/fastify/errors';
 import type { Cart, LineItem } from '@commercetools/platform-sdk';
 import type {
   IngridCreateSessionRequestPayload,
+  IngridAddress,
   IngridCart,
   IngridCartItem,
 } from '../../clients/ingrid/types/ingrid.client.type';
@@ -33,6 +34,23 @@ export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridC
     purchase_currency: ctCart.totalPrice.currencyCode,
   };
 
+  if (ctCart.shippingAddress) {
+    let deliveryAddress: IngridAddress = {
+      address_lines : [],
+      apartment_number : ctCart.shippingAddress.apartment ?? '',
+      city: ctCart.shippingAddress.city ?? '',
+      country: ctCart.shippingAddress.country ?? '',
+      name: ctCart.shippingAddress.firstName && ctCart.shippingAddress.lastName ? `${ctCart.shippingAddress.firstName} ' ' ${ctCart.shippingAddress.lastName}` : '',
+      street: ctCart.shippingAddress.streetName ?? '',
+      street_number: ctCart.shippingAddress.streetNumber ?? '',
+      postal_code: ctCart.shippingAddress.postalCode ?? '',
+      region: ctCart.shippingAddress.region ?? undefined,
+    };
+    
+    payload.prefill_delivery_address  = deliveryAddress
+  }
+  console.log("ingrid create session payload:")
+  console.log(JSON.stringify(payload))
   return payload;
 };
 
