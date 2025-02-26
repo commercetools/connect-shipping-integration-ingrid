@@ -117,7 +117,7 @@ describe('ingrid-shipping.service', () => {
   });
 
   test('init session failed with no ingrid-session custom type', async () => {
-    // @ts-ignore
+    // @ts-expect-error: should not be null but could happen if getCustomType() is not properly implemented
     jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(null);
 
     try {

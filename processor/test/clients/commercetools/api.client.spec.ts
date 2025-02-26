@@ -230,8 +230,8 @@ describe('commercetools api client', () => {
     test('should handle request timeout', async () => {
       mockServer.use(
         mockRequest('https://auth.test.de/', 'oauth/token', 200, mockAccessToken),
-        // @ts-ignore
-        (req, res, ctx) => {
+        // @ts-expect-error: msw types are not fully compatible with our usage
+        () => {
           return new Promise(() => {}); // Never resolves to simulate timeout
         },
       );

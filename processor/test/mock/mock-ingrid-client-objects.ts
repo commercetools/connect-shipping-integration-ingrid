@@ -433,7 +433,7 @@ export const mockIngridCheckoutSessionWithoutAddresses: IngridGetSessionResponse
     },
     delivery_groups: [
       {
-        // @ts-ignore
+        // @ts-expect-error: should not be empty but could happen if update() is not properly implemented
         addresses: {},
         category: {
           base_price: 1000,
