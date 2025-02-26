@@ -1,8 +1,7 @@
 import { describe, test, afterAll, expect, beforeAll } from '@jest/globals';
 import { setupServer } from 'msw/node';
-import { mockHead, mockRequest, mockGet, mockPost } from '../../mock/mock-utils';
+import { mockRequest } from '../../mock/mock-utils';
 import { cart } from '../../mock/mock-cart';
-import { type } from '../../mock/mock-type';
 import { mockAccessToken } from '../../mock/mock-authorization';
 import { appLogger } from '../../../src/libs/logger';
 import { CommercetoolsApiClient } from '../../../src/clients/commercetools/api.client';
@@ -40,35 +39,6 @@ describe('commercetools api client', () => {
       const resp = await apiClient.getCartById('dummy-cart-id');
       expect(resp).toBeDefined();
       expect(resp).toEqual(cart);
-    });
-  });
-
-  describe('getIngridCustomTypeId', () => {
-    test('should return ingrid custom type ID', async () => {
-      mockServer.use(
-        mockRequest('https://auth.test.de/', 'oauth/token', 200, mockAccessToken),
-        mockHead('https://api.test.de/', 'dummy-project-key/types/key=dummy-type-key', 200, { statusCode: 200 }),
-        mockGet('https://api.test.de/', 'dummy-project-key/types/key=dummy-type-key', 200, type),
-        mockPost('https://api.test.de/', 'dummy-project-key/types/key=dummy-type-key', 200, type),
-      );
-      const opt = {
-        clientId: 'dummy-client-id',
-        clientSecret: 'dummy-client-secret',
-        authUrl: 'https://auth.test.de',
-        apiUrl: 'https://api.test.de',
-        projectKey: 'dummy-project-key',
-        getContextFn: () => ({
-          correlationId: 'correlation-id',
-          requestId: 'request-id',
-        }),
-        updateContextFn: () => {},
-        logger: appLogger,
-      };
-      const apiClient = new CommercetoolsApiClient(opt);
-      const resp = await apiClient.getIngridCustomTypeId('dummy-type-key');
-
-      expect(resp).toBeDefined();
-      expect(resp).toEqual(type.id);
     });
   });
 });

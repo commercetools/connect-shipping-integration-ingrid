@@ -17,12 +17,11 @@ jobs:
   #       with:
   #         node-version: '20.x'
 
-
   #     - name: Validate
   #       run: |
   #         npm install -g @commercetools/cli
   #         commercetools connect validate --skip analysis
-          
+
   #     - name: Archive production artifacts
   #       uses: actions/upload-artifact@v4
   #       with:
@@ -43,18 +42,18 @@ jobs:
       - name: Use Node.js 20.x
         uses: actions/setup-node@v3
         with:
-          node-version: '20.x'
+          node-version: "20.x"
 
       - name: Install modules
         run: npm ci
-      
+
       - name: Perform lint check
         run: npm run check
 
       - name: Execute build
         run: npm run build
 
-      - name: Execute test case 
+      - name: Execute test case
         run: npm run test
 
   build-processor:
@@ -70,16 +69,43 @@ jobs:
       - name: Use Node.js 20.x
         uses: actions/setup-node@v3
         with:
-          node-version: '20.x'
+          node-version: "20.x"
 
       - name: Install modules
         run: npm ci
 
       - name: Perform lint check
         run: npm run lint
-      
+
       - name: Execute build
         run: npm run build
 
-      - name: Execute test case 
+      - name: Execute test case
+        run: npm run test
+
+  build-event-handler:
+    name: Build the application for event handler
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: event-handler
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20.x"
+
+      - name: Install modules
+        run: npm ci
+
+      - name: Perform lint check
+        run: npm run lint
+
+      - name: Execute build
+        run: npm run build
+
+      - name: Execute test case
         run: npm run test
