@@ -1,4 +1,4 @@
-import { IncomingHttpHeaders } from 'node:http';
+import type { IncomingHttpHeaders } from 'node:http';
 
 export interface AuthenticationHook {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

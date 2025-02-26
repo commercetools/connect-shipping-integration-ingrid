@@ -1,4 +1,4 @@
-import { Authentication } from '../../auth/types';
+import type { Authentication } from '../../auth/types';
 
 /**
  * Context provider interface
