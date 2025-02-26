@@ -8,8 +8,8 @@ import {
   transformCommercetoolsCartToIngridPayload,
   transformIngridDeliveryGroupsToCommercetoolsDataTypes,
 } from './helpers';
-import { Cart } from '@commercetools/platform-sdk';
-import { InitSessionResponse, UpdateSessionResponse } from './types/ingrid-shipping.type';
+import type { Cart } from '@commercetools/platform-sdk';
+import type { InitSessionResponse, UpdateSessionResponse } from './types/ingrid-shipping.type';
 
 export class IngridShippingService extends AbstractShippingService {
   constructor(commercetoolsClient: CommercetoolsApiClient, ingridClient: IngridApiClient) {

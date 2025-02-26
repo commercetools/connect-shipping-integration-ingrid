@@ -1,4 +1,4 @@
-import { RequestContextProvider, ContextProvider, RequestContextData } from '../fastify/context';
+import { RequestContextProvider, type ContextProvider, type RequestContextData } from '../fastify/context';
 import { appLogger } from '../logger';
 import { SessionHeaderAuthenticationHook } from './hooks';
 import { DefaultAuthorizationService, DefaultSessionService } from './services';

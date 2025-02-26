@@ -1,10 +1,10 @@
-import { Cart, LineItem } from '@commercetools/platform-sdk';
-import {
+import { CustomError } from '../../libs/fastify/errors';
+import type { Cart, LineItem } from '@commercetools/platform-sdk';
+import type {
   IngridCreateSessionRequestPayload,
   IngridCart,
   IngridCartItem,
 } from '../../clients/ingrid/types/ingrid.client.type';
-import { CustomError } from '../../libs/fastify/errors';
 
 /**
  * Transform commercetools cart to ingrid cart
