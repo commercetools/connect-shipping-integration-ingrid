@@ -1,9 +1,9 @@
 export type HeaderPrincipal = {
-  authHeader: string;
+	authHeader: string;
 };
 
 export type SessionPrincipal = {
-  cartId: string;
-  processorUrl: string;
-  correlationId?: string;
+	cartId: string;
+	processorUrl: string;
+	correlationId?: string;
 };

@@ -8,17 +8,17 @@ import type { CustomErrorAdditionalOpts } from './dtos/error.dto';
  * The client application should validate the input according to the constraints described in the error message before sending the request.
  */
 export class ErrorInvalidJsonInput extends CustomError {
-  constructor(detailedErrorMessage?: string, additionalOpts?: CustomErrorAdditionalOpts) {
-    const { fields, ...rest } = additionalOpts || {};
-    super({
-      code: 'InvalidJsonInput',
-      httpErrorStatus: 400,
-      message: 'Request body does not contain valid JSON.',
-      fields: {
-        ...fields,
-        detailedErrorMessage,
-      },
-      ...rest,
-    });
-  }
+	constructor(detailedErrorMessage?: string, additionalOpts?: CustomErrorAdditionalOpts) {
+		const { fields, ...rest } = additionalOpts || {};
+		super({
+			code: 'InvalidJsonInput',
+			httpErrorStatus: 400,
+			message: 'Request body does not contain valid JSON.',
+			fields: {
+				...fields,
+				detailedErrorMessage,
+			},
+			...rest,
+		});
+	}
 }

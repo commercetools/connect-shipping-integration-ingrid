@@ -17,12 +17,12 @@ import type { CustomErrorAdditionalOpts } from './dtos/error.dto';
  * }
  */
 export class ErrorAuthErrorResponse extends CustomError {
-  constructor(message?: string, additionalOpts?: CustomErrorAdditionalOpts, code?: string) {
-    super({
-      code: code || 'invalid_token',
-      httpErrorStatus: 401,
-      message: message || 'Authentication error.',
-      ...additionalOpts,
-    });
-  }
+	constructor(message?: string, additionalOpts?: CustomErrorAdditionalOpts, code?: string) {
+		super({
+			code: code || 'invalid_token',
+			httpErrorStatus: 401,
+			message: message || 'Authentication error.',
+			...additionalOpts,
+		});
+	}
 }

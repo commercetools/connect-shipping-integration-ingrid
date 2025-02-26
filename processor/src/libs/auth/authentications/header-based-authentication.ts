@@ -1,35 +1,35 @@
 import type { HeaderPrincipal, Authentication } from '../types';
 
 export class HeaderBasedAuthentication implements Authentication<HeaderPrincipal, string> {
-  private authHeader: string;
+	private authHeader: string;
 
-  constructor(authHeader: string) {
-    this.authHeader = authHeader;
-  }
+	constructor(authHeader: string) {
+		this.authHeader = authHeader;
+	}
 
-  hasPrincipal(): boolean {
-    return !!this.getPrincipal();
-  }
+	hasPrincipal(): boolean {
+		return !!this.getPrincipal();
+	}
 
-  getAuthorities(): string[] {
-    return [];
-  }
+	getAuthorities(): string[] {
+		return [];
+	}
 
-  hasCredentials(): boolean {
-    return !!this.getCredentials();
-  }
+	hasCredentials(): boolean {
+		return !!this.getCredentials();
+	}
 
-  getCredentials(): string {
-    return this.authHeader;
-  }
+	getCredentials(): string {
+		return this.authHeader;
+	}
 
-  getPrincipal(): HeaderPrincipal {
-    return {
-      authHeader: this.authHeader,
-    };
-  }
+	getPrincipal(): HeaderPrincipal {
+		return {
+			authHeader: this.authHeader,
+		};
+	}
 
-  isAuthenticated(): boolean {
-    return false;
-  }
+	isAuthenticated(): boolean {
+		return false;
+	}
 }

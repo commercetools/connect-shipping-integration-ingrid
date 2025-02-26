@@ -18,27 +18,27 @@ import { CustomError } from '../libs/fastify/errors';
  *   - false if the tax category could not be found or created
  */
 export const handleTaxCategoryAction = async (client: CommercetoolsApiClient, key: string): Promise<boolean> => {
-  const taxCategoryExists = await client.checkIfTaxCategoryExistsByKey(key);
+	const taxCategoryExists = await client.checkIfTaxCategoryExistsByKey(key);
 
-  if (!taxCategoryExists) {
-    const taxCategory = await client.createTaxCategoryWithNullRate(key);
-    appLogger.info(
-      `[TAX-CATEGORY SUCCESS]: Tax category version ${taxCategory!.version} with key ${taxCategory!.key} exists.`,
-    );
+	if (!taxCategoryExists) {
+		const taxCategory = await client.createTaxCategoryWithNullRate(key);
+		appLogger.info(
+			`[TAX-CATEGORY SUCCESS]: Tax category version ${taxCategory!.version} with key ${taxCategory!.key} exists.`,
+		);
 
-    if (!taxCategory) {
-      throw new CustomError({
-        message: `[TAX-CATEGORY ERROR]: Tax category with key ${key} is not created`,
-        code: 'TAX_CATEGORY_NOT_CREATED',
-        httpErrorStatus: 500,
-      });
-    }
+		if (!taxCategory) {
+			throw new CustomError({
+				message: `[TAX-CATEGORY ERROR]: Tax category with key ${key} is not created`,
+				code: 'TAX_CATEGORY_NOT_CREATED',
+				httpErrorStatus: 500,
+			});
+		}
 
-    return !!taxCategory;
-  }
+		return !!taxCategory;
+	}
 
-  appLogger.info(`[TAX-CATEGORY SUCCESS]: Tax category with key ${key} exists.`);
-  return taxCategoryExists;
+	appLogger.info(`[TAX-CATEGORY SUCCESS]: Tax category with key ${key} exists.`);
+	return taxCategoryExists;
 };
 
 /**
@@ -59,63 +59,63 @@ export const handleTaxCategoryAction = async (client: CommercetoolsApiClient, ke
  * @throws {CustomError} If creation of the custom type fails
  */
 export const handleCustomTypeAction = async (
-  client: CommercetoolsApiClient,
-  key: string,
+	client: CommercetoolsApiClient,
+	key: string,
 ): Promise<Type | undefined> => {
-  const ingridCustomTypeExists = await client.checkIfCustomTypeExistsByKey(key);
-  let type: Type | undefined;
+	const ingridCustomTypeExists = await client.checkIfCustomTypeExistsByKey(key);
+	let type: Type | undefined;
 
-  if (ingridCustomTypeExists) {
-    appLogger.info(`[CUSTOM-TYPE VALIDATING]: Custom type with key ${key}`);
-    type = await updateType(client, key);
-  } else {
-    appLogger.info(`[CUSTOM-TYPE CONTINUING]: Custom Type not found, creating with key ${key}`);
-    type = await createType(client, key);
-  }
+	if (ingridCustomTypeExists) {
+		appLogger.info(`[CUSTOM-TYPE VALIDATING]: Custom type with key ${key}`);
+		type = await updateType(client, key);
+	} else {
+		appLogger.info(`[CUSTOM-TYPE CONTINUING]: Custom Type not found, creating with key ${key}`);
+		type = await createType(client, key);
+	}
 
-  appLogger.info(
-    `[CUSTOM-TYPE SUCCESS]: Custom type version ${type!.version} with key ${type!.key} exists and has ingridSessionId field set up.`,
-  );
-  return type;
+	appLogger.info(
+		`[CUSTOM-TYPE SUCCESS]: Custom type version ${type!.version} with key ${type!.key} exists and has ingridSessionId field set up.`,
+	);
+	return type;
 };
 
 async function updateType(client: CommercetoolsApiClient, key: string): Promise<Type> {
-  let customType = await client.getCustomType(key);
-  const ingridSessionId = customType.fieldDefinitions.find(({ name }) => name === 'ingridSessionId');
+	let customType = await client.getCustomType(key);
+	const ingridSessionId = customType.fieldDefinitions.find(({ name }) => name === 'ingridSessionId');
 
-  if (!ingridSessionId) {
-    appLogger.info(`[CUSTOM-TYPE NOT FOUND]: Custom type with key ${key} does not have ingridSessionId field`);
-    customType = await createFieldDefinitionOnType(client, customType);
-  }
+	if (!ingridSessionId) {
+		appLogger.info(`[CUSTOM-TYPE NOT FOUND]: Custom type with key ${key} does not have ingridSessionId field`);
+		customType = await createFieldDefinitionOnType(client, customType);
+	}
 
-  return customType;
+	return customType;
 }
 
 async function createType(client: CommercetoolsApiClient, key: string): Promise<Type> {
-  const customType = await client.createCustomTypeFieldDefinitionForIngridSessionId(key);
+	const customType = await client.createCustomTypeFieldDefinitionForIngridSessionId(key);
 
-  if (!customType) {
-    throw new CustomError({
-      message: `[CUSTOM-TYPE ERROR]: Custom type with key ${key} is not created`,
-      code: 'CUSTOM_TYPE_NOT_CREATED',
-      httpErrorStatus: 500,
-    });
-  }
+	if (!customType) {
+		throw new CustomError({
+			message: `[CUSTOM-TYPE ERROR]: Custom type with key ${key} is not created`,
+			code: 'CUSTOM_TYPE_NOT_CREATED',
+			httpErrorStatus: 500,
+		});
+	}
 
-  return customType;
+	return customType;
 }
 
 async function createFieldDefinitionOnType(client: CommercetoolsApiClient, customType: Type): Promise<Type> {
-  appLogger.info(`[CUSTOM-TYPE CONTINUING]: Creating ingridSessionId field on custom type with key ${customType.key}`);
-  const updatedCustomType = await client.createIngridSessionIdFieldDefinitionOnType(customType);
+	appLogger.info(`[CUSTOM-TYPE CONTINUING]: Creating ingridSessionId field on custom type with key ${customType.key}`);
+	const updatedCustomType = await client.createIngridSessionIdFieldDefinitionOnType(customType);
 
-  if (!updatedCustomType) {
-    throw new CustomError({
-      message: `[CUSTOM-TYPE ERROR]: Custom type with key ${customType.key} is not updated`,
-      code: 'CUSTOM_TYPE_NOT_UPDATED',
-      httpErrorStatus: 500,
-    });
-  }
+	if (!updatedCustomType) {
+		throw new CustomError({
+			message: `[CUSTOM-TYPE ERROR]: Custom type with key ${customType.key} is not updated`,
+			code: 'CUSTOM_TYPE_NOT_UPDATED',
+			httpErrorStatus: 500,
+		});
+	}
 
-  return updatedCustomType;
+	return updatedCustomType;
 }
