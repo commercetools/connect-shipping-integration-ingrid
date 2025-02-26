@@ -152,7 +152,7 @@ const createClient = (opts: { apiSecret: string; environment: keyof typeof Ingri
     (response) => response,
     (error) => {
       throw new CustomError({
-        message: error?.response?.data.error,
+        message: error?.message,
         code: error.code || '',
         httpErrorStatus: error.status || 500,
         cause: error,

@@ -35,6 +35,10 @@ deployAs:
           description: Key of CustomType to store ingrid session inside cart
           required: false
           default: ingrid-session
+        - key: INGRID_SPECIFIC_TAX_CATEGORY_KEY
+          description: Key of TaxCategory to be used for shipping tax calculation
+          required: false
+          default: ingrid-tax
       securedConfiguration:
         - key: INGRID_API_KEY
           description: the key used to connect to the Ingrid instance
