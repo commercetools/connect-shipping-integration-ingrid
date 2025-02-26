@@ -62,7 +62,6 @@ const MountEnabler = memo(function MountEnabler() {
   useEffect(() => {
     if (showEnabler && session) {
       const mountComponent = async () => {
-        console.log(import.meta.env.VITE_ENABLER_URL)
         const componentResult = await initEnabler();
         if (componentResult) {
           setComponent(componentResult);

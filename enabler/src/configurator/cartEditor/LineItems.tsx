@@ -12,7 +12,6 @@ function getTotalProductDiscount(lineItem: LineItem) {
   return totalProductDiscount
 }
 function getTotalLineItemDiscount(lineItem: LineItem) {
-  console.log(lineItem.discountedPricePerQuantity)
   if (lineItem.discountedPricePerQuantity && lineItem.discountedPricePerQuantity.length>0) {
     const totalDiscountedPrice = lineItem.discountedPricePerQuantity.reduce((acc, item) => {
       return acc + item.discountedPrice.value.centAmount * item.quantity;

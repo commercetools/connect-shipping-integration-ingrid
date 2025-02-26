@@ -46,7 +46,6 @@ const unsubscribe = cocoProjectSettingsStore.subscribe(() => {
       !project?.languages[0]
     ) {
       console.error("Project is missing counry, currency or language:");
-      console.log("project is:", project);
       throw new Error("Project is not set");
     }
     countryCurrencyLanguageStore.dispatch({

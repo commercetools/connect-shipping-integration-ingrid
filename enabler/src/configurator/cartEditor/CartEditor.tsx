@@ -54,7 +54,6 @@ function CartEditor() {
                 disabled={loading}
                 onClick={() => {
                   const percetage = parseInt((document.getElementById("direct-discount-input") as HTMLInputElement)?.value)
-                  console.log(percetage)
                   cartStore.dispatch({
                     type: "APPLY_DISCOUNT",
                     percetage

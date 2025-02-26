@@ -172,7 +172,6 @@ describe('ingrid-shipping.service', () => {
     } catch (error) {
       expect(error instanceof CustomError).toBe(true);
       const customError = error as CustomError;
-      console.log(customError);
       expect(customError.httpErrorStatus).toBe(400);
     }
   });
