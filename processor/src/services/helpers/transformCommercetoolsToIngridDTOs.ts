@@ -1,10 +1,10 @@
-import { Cart, LineItem } from '@commercetools/platform-sdk';
-import {
+import { CustomError } from '../../libs/fastify/errors';
+import type { Cart, LineItem } from '@commercetools/platform-sdk';
+import type {
   IngridCreateSessionRequestPayload,
   IngridCart,
   IngridCartItem,
 } from '../../clients/ingrid/types/ingrid.client.type';
-import { CustomError } from '../../libs/fastify/errors';
 
 /**
  * Transform commercetools cart to ingrid cart
@@ -52,7 +52,7 @@ const transformCommercetoolsCartToIngridCart = (ctCart: Cart): IngridCart => {
   const lineItems = transformCommercetoolsLineItemsToIngridCartItems(ctCart.lineItems, ctCart.locale!);
 
   return {
-    total_value: ctCart.totalPrice.centAmount,
+    total_value: ctCart.taxedPrice?.totalGross.centAmount ?? ctCart.totalPrice.centAmount, // use "taxedPrice.totalGross" because Ingrid accepts tax inclusive price.
     total_discount: totalDiscount,
     items: lineItems,
     cart_id: ctCart.id,
@@ -89,7 +89,7 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
     discount: lineItemDiscount,
     image_url: imageUrl,
     name: item.name[locale]!,
-    price: item.price.value.centAmount,
+    price: item.taxedPrice?.totalGross.centAmount ?? item.price.value.centAmount, // use "taxedPrice.totalGross" because Ingrid accepts tax inclusive price.
     quantity: item.quantity,
     sku: item.variant.sku!,
   };
@@ -132,13 +132,20 @@ const calculateTotalLineItemsDiscount = (items: LineItem[]): number => {
  */
 const calculateLineItemDiscount = (lineItem: LineItem): number => {
   // difference between normal price and discount, will be 0 if no discount is set
-  const discount =
-    lineItem.price.value.centAmount - (lineItem.price.discounted?.value.centAmount ?? lineItem.price.value.centAmount);
+  const totalDiscountOnProduct =
+    (lineItem.price.value.centAmount -
+      (lineItem.price.discounted?.value.centAmount ?? lineItem.price.value.centAmount)) *
+    lineItem.quantity;
 
-  // on current items, discountedPricePerQuantity is empty
-  const discountedPrice = lineItem.discountedPricePerQuantity.reduce((acc, item) => {
-    return acc + item.discountedPrice.value.centAmount * item.quantity;
-  }, 0);
+  let totalDiscountOnLineItem = 0;
+  if (lineItem.discountedPricePerQuantity && lineItem.discountedPricePerQuantity.length > 0) {
+    const totalDiscountedPrice = lineItem.discountedPricePerQuantity.reduce((acc, item) => {
+      return acc + item.discountedPrice.value.centAmount * item.quantity;
+    }, 0);
+    totalDiscountOnLineItem =
+      (lineItem.price.discounted?.value.centAmount ?? lineItem.price.value.centAmount) * lineItem.quantity -
+      totalDiscountedPrice;
+  }
 
-  return discount * lineItem.quantity + discountedPrice;
+  return totalDiscountOnProduct + totalDiscountOnLineItem;
 };

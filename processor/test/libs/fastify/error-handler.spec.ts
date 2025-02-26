@@ -3,7 +3,7 @@ import Fastify, { type FastifyInstance, FastifyError } from 'fastify';
 import { errorHandler } from '../../../src/libs/fastify/error-handler';
 import { CustomErrorAdditionalOpts } from '../../../src/libs/fastify/errors/dtos/error.dto';
 import { requestContextPlugin } from '../../../src/libs/fastify/context';
-import { FastifySchemaValidationError } from 'fastify/types/schema';
+import type { FastifySchemaValidationError } from 'fastify/types/schema';
 import { CustomError, ErrorAuthErrorResponse } from '../../../src/libs/fastify/errors';
 
 describe('error-handler', () => {

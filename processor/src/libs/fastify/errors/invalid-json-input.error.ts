@@ -1,5 +1,5 @@
 import { CustomError } from './custom.error';
-import { CustomErrorAdditionalOpts } from './dtos/error.dto';
+import type { CustomErrorAdditionalOpts } from './dtos/error.dto';
 
 /**
  * InvalidJsonInput (https://docs.commercetools.com/api/errors#invalidjsoninput)
