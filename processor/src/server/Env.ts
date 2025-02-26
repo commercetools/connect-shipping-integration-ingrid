@@ -1,6 +1,6 @@
-import { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import fastifyEnv from '@fastify/env';
-import { Static, Type } from '@sinclair/typebox';
+import { type Static, Type } from '@sinclair/typebox';
 
 const schema = {
   type: 'object',
@@ -69,10 +69,4 @@ const options = {
 export async function configureEnvironmentVariables(server: FastifyInstance): Promise<Env> {
   await server.register(fastifyEnv, options);
   return server.environmentVariables as Env;
-}
-
-declare module 'fastify' {
-  interface FastifyInstance {
-    environmentVariables: Env;
-  }
 }

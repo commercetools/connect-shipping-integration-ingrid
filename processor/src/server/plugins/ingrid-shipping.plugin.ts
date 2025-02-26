@@ -4,9 +4,9 @@ import { IngridShippingService } from '../../services/ingrid-shipping.service';
 import { IngridApiClient } from '../../clients/ingrid/ingrid.client';
 import { CommercetoolsApiClient } from '../../clients/commercetools/api.client';
 import { appLogger } from '../../libs/logger';
-import { type RequestContextData, updateRequestContext, getRequestContext } from '../../libs/fastify/context';
+import { getRequestContext, type RequestContextData, updateRequestContext } from '../../libs/fastify/context';
 import { SessionHeaderAuthInitializer } from '../../libs/auth';
-import { IngridClientOptions } from '../../clients/ingrid/types/ingrid.client.type';
+import type { IngridClientOptions } from '../../clients/ingrid/types/ingrid.client.type';
 
 export default async function (server: FastifyInstance) {
   const opts = {
