@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  enabler-dev:
+  checkout-page:
     image: node:20
     volumes:
       - ./enabler:/home/node/app
