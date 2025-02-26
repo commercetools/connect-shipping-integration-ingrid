@@ -6,7 +6,7 @@ import { LineItems } from "./LineItems";
 import { ProductSearch } from "./ProductSearch";
 import loadingStore from "../stores/loadingStore";
 import countryCurrencyLanguageStore from "../stores/countryCurrencyLanguageStore";
-import '../css/CartEditor.css';
+import '../css/CartEditor.scss';
 
 function CartEditor() {
   const cart = useSyncExternalStore(cartStore.subscribe, cartStore.getSnapshot);

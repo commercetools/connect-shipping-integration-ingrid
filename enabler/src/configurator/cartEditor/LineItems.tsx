@@ -1,6 +1,6 @@
 import { memo } from "react";
 
-import '../css/CartEditor.css';
+import '../css/CartEditor.scss';
 import type { Cart, LineItem } from "@commercetools/platform-sdk";
 
 type LineItemsProp = { cart: Cart | undefined};
