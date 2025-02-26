@@ -21,6 +21,11 @@ export enum IngridUrls {
   DELIVERY_CHECKOUT = '/v1/delivery_checkout',
 }
 
+export interface IngridClientOptions {
+  apiSecret: string;
+  environment: IngridEnvironment;
+}
+
 /**
  * Response type for getting an Ingrid session
  * @see {@link https://developer.ingrid.com/delivery_checkout/reference/#GetSessionResponse}
