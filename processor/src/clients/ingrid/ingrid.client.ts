@@ -137,8 +137,8 @@ export class IngridApiClient implements AbstractIngridClient {
   }
 }
 
-const createClient = (opts: IngridClientOptions): AxiosInstance => {
-  return axios.create({
+const createClient = (opts: { apiSecret: string; environment: keyof typeof IngridBasePath }): AxiosInstance => {
+  const instance = axios.create({
     baseURL: IngridBasePath[opts.environment],
     timeout: 10000,
     headers: {

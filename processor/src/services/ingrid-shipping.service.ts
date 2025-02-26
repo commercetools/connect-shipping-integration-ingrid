@@ -10,7 +10,6 @@ import {
 } from './helpers';
 import { Cart } from '@commercetools/platform-sdk';
 import { InitSessionResponse, UpdateSessionResponse } from './types/ingrid-shipping.type';
-import { getConfig } from '../config';
 
 export class IngridShippingService extends AbstractShippingService {
   constructor(commercetoolsClient: CommercetoolsApiClient, ingridClient: IngridApiClient) {
@@ -26,7 +25,7 @@ export class IngridShippingService extends AbstractShippingService {
    * @returns {Promise<InitSessionResponse>} Returns the commercetools cart id, ingrid session id and ingrid checkout session html snippet
    */
   public async init(): Promise<InitSessionResponse> {
-    const ingridSessionCustomTypeKey = getConfig().keyOfIngridSessionCustomType;
+    const ingridSessionCustomTypeKey = process.env.INGRID_SESSION_CUSTOM_TYPE_KEY || 'ingrid-session';
     const customType = await this.commercetoolsClient.getCustomType(ingridSessionCustomTypeKey);
 
     if (!customType) {
@@ -84,7 +83,7 @@ export class IngridShippingService extends AbstractShippingService {
     if (!billing_address || !delivery_address) {
       throw new CustomError({
         message:
-          "Failed to get billing and delivery addresses from ingrid checkout session. It seems like the addresses weren't provided by the customer.",
+          'Failed to get billing and delivery addresses from ingrid checkout session. It seems like the addresses weren\'t provided by the customer.',
         code: 'FAILED_TO_GET_BILLING_OR_DELIVERY_ADDRESSES_FROM_INGRID_CHECKOUT_SESSION',
         httpErrorStatus: 400,
       });
