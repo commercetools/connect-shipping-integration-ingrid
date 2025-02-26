@@ -1,4 +1,4 @@
-import type { ContextProvider, RequestContextData } from './types';
+import { ContextProvider, RequestContextData } from './types';
 
 /**
  * ContextProvider is a class that provides a way to access and update the context data.

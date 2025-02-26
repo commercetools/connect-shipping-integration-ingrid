@@ -1,22 +1,22 @@
-import { randomUUID } from 'crypto';
-import { appLogger } from '../../libs/logger';
 import {
   createApiBuilderFromCtpClient,
   ByProjectKeyRequestBuilder,
-  type ShippingRateDraft,
-  type BaseAddress,
-  type TaxCategoryResourceIdentifier,
-  type Cart,
-  type Type,
-  type TaxCategory,
+  ShippingRateDraft,
+  BaseAddress,
+  TaxCategoryResourceIdentifier,
+  Cart,
+  Type,
+  TaxCategory,
 } from '@commercetools/platform-sdk';
 import {
+  AuthMiddlewareOptions,
   ClientBuilder,
-  type AuthMiddlewareOptions,
-  type CorrelationIdMiddlewareOptions,
-  type HttpMiddlewareOptions,
+  CorrelationIdMiddlewareOptions,
+  HttpMiddlewareOptions,
 } from '@commercetools/ts-client';
-import type { RequestContextData } from '../../libs/fastify/context';
+import { randomUUID } from 'crypto';
+import { RequestContextData } from '../../libs/fastify/context';
+import { appLogger } from '../../libs/logger';
 
 /**
  * Client for interacting with the Commercetools API

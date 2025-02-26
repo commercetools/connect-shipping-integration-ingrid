@@ -1,4 +1,4 @@
-import type { Authentication, SessionPrincipal } from '../types';
+import { Authentication, SessionPrincipal } from '../types';
 
 export class SessionAuthentication implements Authentication<SessionPrincipal, string> {
   private principal: SessionPrincipal;

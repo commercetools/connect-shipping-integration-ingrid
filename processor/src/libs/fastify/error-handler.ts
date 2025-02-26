@@ -1,9 +1,9 @@
-import type { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyError, type FastifyReply, type FastifyRequest } from 'fastify';
 
-import type { FastifySchemaValidationError } from 'fastify/types/schema';
+import { FastifySchemaValidationError } from 'fastify/types/schema';
 import { appLogger } from '../logger';
 
-import type { TAuthErrorResponse, TErrorObject, TErrorResponse } from './errors/dtos/error.dto';
+import { TAuthErrorResponse, TErrorObject, TErrorResponse } from './errors/dtos/error.dto';
 import {
   GeneralError,
   CustomError,

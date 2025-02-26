@@ -1,4 +1,4 @@
-import type { CustomErrorOpts } from './dtos/error.dto';
+import { CustomErrorOpts } from './dtos/error.dto';
 /**
  * CutsomError is a custom error class that extends the native Error class.
  */

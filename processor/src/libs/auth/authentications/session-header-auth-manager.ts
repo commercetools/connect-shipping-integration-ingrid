@@ -1,4 +1,4 @@
-import type { AuthenticationManager } from '../types';
+import { AuthenticationManager } from '../types';
 import { HeaderBasedAuthentication, SessionAuthentication } from '.';
 import { DefaultSessionService } from '../services';
 import { ErrorAuthErrorResponse } from '../../fastify/errors';

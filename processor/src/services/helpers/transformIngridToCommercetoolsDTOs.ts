@@ -1,10 +1,10 @@
-import { CustomError } from '../../libs/fastify/errors';
-import type { ShippingRateDraft, BaseAddress } from '@commercetools/platform-sdk';
-import type {
+import { ShippingRateDraft, BaseAddress } from '@commercetools/platform-sdk';
+import {
   IngridBillingAddress,
   IngridDeliveryAddress,
   IngridDeliveryGroup,
 } from '../../clients/ingrid/types/ingrid.client.type';
+import { CustomError } from '../../libs/fastify/errors';
 
 type CustomShippingMethod = {
   shippingMethodName: string;

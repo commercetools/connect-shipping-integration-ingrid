@@ -1,12 +1,13 @@
-import type {
+import {
   IngridCompleteSessionRequestPayload,
   IngridCompleteSessionResponse,
   IngridCreateSessionResponse,
-  IngridCreateSessionRequestPayload,
   IngridGetSessionResponse,
   IngridUpdateSessionRequestPayload,
   IngridUpdateSessionResponse,
 } from './types/ingrid.client.type';
+
+import { IngridCreateSessionRequestPayload } from './types/ingrid.client.type';
 
 export abstract class AbstractIngridClient {
   public abstract createCheckoutSession(

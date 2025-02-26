@@ -1,5 +1,5 @@
 import { CustomError } from './custom.error';
-import type { CustomErrorAdditionalOpts } from './dtos/error.dto';
+import { CustomErrorAdditionalOpts } from './dtos/error.dto';
 
 /**
  * AuthErrorResponse (https://docs.commercetools.com/api/errors#autherrorresponse)

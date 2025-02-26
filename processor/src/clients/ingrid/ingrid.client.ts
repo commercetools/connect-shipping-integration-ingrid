@@ -1,8 +1,8 @@
-import axios, { type AxiosInstance } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import {
   IngridBasePath,
+  IngridGetSessionResponse,
   IngridUrls,
-  type IngridGetSessionResponse,
   type IngridCompleteSessionRequestPayload,
   type IngridCompleteSessionResponse,
   type IngridCreateSessionRequestPayload,
