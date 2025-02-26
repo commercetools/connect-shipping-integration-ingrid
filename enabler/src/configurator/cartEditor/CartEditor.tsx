@@ -1,10 +1,12 @@
-import { memo, useSyncExternalStore } from "react";
+import { memo, useSyncExternalStore, useState, useEffect} from "react";
 import cartStore from "../stores/cartStore";
 import cocoSessionStore from "../stores/cocoSessionStore";
 import { LocaleCountryCurrency } from "./LocaleCountryCurrency";
+import { LineItems } from "./LineItems";
 import { ProductSearch } from "./ProductSearch";
 import loadingStore from "../stores/loadingStore";
 import countryCurrencyLanguageStore from "../stores/countryCurrencyLanguageStore";
+import '../css/CartEditor.scss';
 
 function CartEditor() {
   const cart = useSyncExternalStore(cartStore.subscribe, cartStore.getSnapshot);
@@ -20,25 +22,63 @@ function CartEditor() {
     loadingStore.subscribe,
     loadingStore.getSnapshot
   );
+  const [textareaValue, setTextareaValue] = useState(JSON.stringify(cart, undefined, 2));
+
+  useEffect(() => {
+    setTextareaValue(JSON.stringify(cart, undefined, 2));
+  }, [cart]);
 
   return ccl.country && ccl.currency && ccl.language ? (
-    <div>
-      {session ? <p>SessionId: {session.id}</p> : ""}
-      {cart && (
-        <button
-          disabled={loading}
-          onClick={() =>
-            cartStore.dispatch({
-              type: "DELETE_CART",
-            })
-          }
-        >
-          Delete cart
-        </button>
-      )}
-      <LocaleCountryCurrency cart={cart} />
-      <ProductSearch />
-      <pre>{JSON.stringify(cart, undefined, 2)}</pre>
+    <div className="cart-editor">
+      <div className="cart-editor_column standard-font">
+          {session ? <p>SessionId: {session.id}</p> : ""}
+          {cart && (
+            <button
+              disabled={loading}
+              onClick={() => {
+                  setTextareaValue('');
+                  cartStore.dispatch({
+                    type: "DELETE_CART",
+                  })
+                }
+              }
+            >
+            Delete cart
+            </button>
+            
+          )}
+          {cart && (
+            <div> 
+              <br/>
+              <button
+                disabled={loading}
+                onClick={() => {
+                  const percetage = parseInt((document.getElementById("direct-discount-input") as HTMLInputElement)?.value)
+                  cartStore.dispatch({
+                    type: "APPLY_DISCOUNT",
+                    percetage
+                  })
+                  }
+                }
+              >
+              Apply direct discount %
+              </button>
+              <input type="text" id="direct-discount-input" />
+              <br/><br/>
+            </div>
+          )}
+          <LocaleCountryCurrency cart={cart} />
+          <ProductSearch />
+          <LineItems cart={cart} />
+          <div className="standard-font" >
+            <br/>
+            Total : {cart?.taxedPrice?.totalGross.centAmount}
+          </div>
+        </div>
+        <div className="cart-editor_column">
+          <p className="title-font">Cart Object</p>
+          <textarea id="cart-editor_textarea-id" className="cart-editor_textarea"  cols={70} rows={40} value={textareaValue} />
+        </div>
     </div>
   ) : undefined;
 }

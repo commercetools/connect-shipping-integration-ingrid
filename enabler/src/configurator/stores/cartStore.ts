@@ -7,6 +7,10 @@ import loadingStore from "./loadingStore";
 import Store from "./Store";
 
 type ACTION =
+| {
+  type: "APPLY_DISCOUNT";
+  percetage: number;
+}
   | {
       type: "SET_CART";
       cart: Cart;
@@ -26,6 +30,44 @@ const initialState: Cart = cartJSON ? JSON.parse(cartJSON) : undefined;
 const cartStore = new Store<Cart | undefined, ACTION>(
   (action, state, setState) => {
     switch (action.type) {
+      case "APPLY_DISCOUNT":
+        if (state) {
+        client
+            .carts()
+            .withId({ ID: state.id })
+            .post({
+              body: {
+                version: state.version,
+                actions: [
+                  {
+                    action: "setDirectDiscounts",
+                    discounts: [
+                      {
+                        value: {
+                          type: "relative",
+                          permyriad: action.percetage
+                        },
+                        target: {
+                          type: "lineItems",
+                          predicate: "true"
+                        }
+                      }
+                    ]
+                  },
+                ],
+              },
+            })
+            .execute()
+            .then((cart) => {
+              cartStore.dispatch({
+                type: "SET_CART",
+                cart: cart.body,
+              })
+            })
+            .finally(() => loadingStore.dispatch("DONE"));
+          }
+        break;
+        
       case "SET_CART":
         localStorage.setItem("cart", JSON.stringify(action.cart));
         setState(action.cart);
@@ -41,6 +83,7 @@ const cartStore = new Store<Cart | undefined, ACTION>(
                 currency: countryCurrencyLanguageStore.getSnapshot().currency,
                 country: countryCurrencyLanguageStore.getSnapshot().country,
                 locale: countryCurrencyLanguageStore.getSnapshot().language,
+                shippingAddress: { country: countryCurrencyLanguageStore.getSnapshot().country },
               },
             })
             .execute()

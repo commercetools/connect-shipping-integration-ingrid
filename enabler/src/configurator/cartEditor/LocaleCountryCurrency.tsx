@@ -39,7 +39,7 @@ export const LocaleCountryCurrency = memo(function LocaleCountryCurrency({
   }
 
   return (
-    <div>
+    <div className="standard-font">
       <label>
         country
         <select

@@ -1,0 +1,23 @@
+$common-font-family: 'Arial', sans-serif; /* Change this to your desired font */
+
+.cart-editor {
+    display: flex;
+    gap: 20px; /* Optional: Adds space between columns */
+  }
+  
+  .cart-editor_column {
+    flex: 1; /* Each column takes up equal space */
+  }
+  .cart-editor_textarea {
+    resize: none; /* Disable resizing */
+ }
+ .title-font {
+  font-family: $common-font-family;
+  font-size: 16px; /* Adjust the font size as needed */
+  font-weight: bold; /* Optional: Make the text bold */
+}
+
+.standard-font {
+  font-family: $common-font-family;
+  font-size: 14px; /* Adjust the font size as needed */
+}

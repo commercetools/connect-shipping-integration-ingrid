@@ -20,7 +20,7 @@ export const ProductList = memo(function ProductList({
     loadingStore.getSnapshot
   );
   return (
-    <ul>
+    <ul className="standard-font">
       {products.map((product) => (
         <li key={product.id}>
           {product.name[language]}{" "}

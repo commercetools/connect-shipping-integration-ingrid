@@ -12,7 +12,7 @@ export const ProductSearch = memo(function ProductSearch() {
   const [search, setSearch] = useState<string>("");
   const products = useProductsSearch(search, country, currency, language);
   return (
-    <div>
+    <div className="standard-font">
       <label>
         search:
         <input

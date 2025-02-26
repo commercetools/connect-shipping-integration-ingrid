@@ -82,10 +82,7 @@ export class DefaultComponent implements ShippingComponent {
           "X-Session-Id": this.sessionId,
         },
       });
-
       const data = await response.json();
-      console.log(data);
-
       if (!data.success) {
         this.onError(data);
       }

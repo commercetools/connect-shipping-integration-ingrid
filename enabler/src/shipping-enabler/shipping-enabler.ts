@@ -13,15 +13,15 @@
  *      },
  *    });
  *
- *    enabler.createComponentBuilder('card')
- *      .then(builder => {
- *          const shippiongElement = builder.build({
- *            showInitButton: false,
- *            showSubmitButton: false
- *          });
- *          paymentElement.mount('#card-component')
- *      })
- *
+ *    const enablerBuilder = await enabler.createComponentBuilder();
+ *    const enablerComponent = enablerBuilder.build();
+ *    
+ * Parse the pre-defined DOM element ID to mount the Ingrid Component to checkout page: 
+ *    componentResult.mount(#ingridElementId);
+ * 
+ * Parse the commercetools sesion ID to initiate Ingrid session:
+ *    componentResult.init(session.id);
+ *    
  *
  */
 export interface ShippingEnabler {
