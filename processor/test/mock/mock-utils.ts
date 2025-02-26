@@ -7,7 +7,7 @@ function createMockResponse(respCode: number, data?: any): HttpResponse {
       error: 'invalid_client',
       error_description: 'Client Authentication failed',
     };
-    return new Response(objectToReadableStream(errorData), {
+    return HttpResponse.json(objectToReadableStream(errorData), {
       status: respCode,
     });
   }
@@ -18,7 +18,7 @@ function createMockResponse(respCode: number, data?: any): HttpResponse {
       message: 'an error occurred in ingrid',
       debug_id: '12345678',
     };
-    return new Response(objectToReadableStream(errorData), {
+    return HttpResponse.json(objectToReadableStream(errorData), {
       status: respCode,
     });
   }
