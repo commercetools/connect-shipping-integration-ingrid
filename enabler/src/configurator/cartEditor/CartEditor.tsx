@@ -81,7 +81,10 @@ function CartEditor() {
                     streetNumber: "44",
                     postalCode: "80797",
                     firstName: "King-Hin",
-                    lastName: "Leung"
+                    lastName: "Leung",
+                    company: "Commercetools GmbH",
+                    phone: "+49012345678901",
+                    email: "kinghin.leung@test.de"
                   }
                   cartStore.dispatch({
                     type: "SET_SHIPPING_ADDRESS",
@@ -93,7 +96,6 @@ function CartEditor() {
               >
               Apply commercetools Munich office as shipping address
               </button>
-              <input type="text" id="set-prefill-shipping-address" />
               <br/><br/>
             </div>
           )}

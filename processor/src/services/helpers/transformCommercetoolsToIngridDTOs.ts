@@ -2,7 +2,7 @@ import { CustomError } from '../../libs/fastify/errors';
 import type { Cart, LineItem } from '@commercetools/platform-sdk';
 import type {
   IngridCreateSessionRequestPayload,
-  IngridAddress,
+  IngridDeliveryAddress,
   IngridCart,
   IngridCartItem,
 } from '../../clients/ingrid/types/ingrid.client.type';
@@ -35,22 +35,27 @@ export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridC
   };
 
   if (ctCart.shippingAddress) {
-    let deliveryAddress: IngridAddress = {
-      address_lines : [],
-      apartment_number : ctCart.shippingAddress.apartment ?? '',
+    const deliveryAddress: IngridDeliveryAddress = {
+      external_id: ctCart.shippingAddress.id ?? '',
+      address_lines: [`${ctCart.shippingAddress.streetName ?? ''} ${ctCart.shippingAddress.streetNumber ?? ''} `],
+      apartment_number: ctCart.shippingAddress.apartment ?? '',
       city: ctCart.shippingAddress.city ?? '',
       country: ctCart.shippingAddress.country ?? '',
-      name: ctCart.shippingAddress.firstName && ctCart.shippingAddress.lastName ? `${ctCart.shippingAddress.firstName} ' ' ${ctCart.shippingAddress.lastName}` : '',
+      first_name: ctCart.shippingAddress.firstName ?? '',
+      last_name: ctCart.shippingAddress.lastName ?? '',
       street: ctCart.shippingAddress.streetName ?? '',
       street_number: ctCart.shippingAddress.streetNumber ?? '',
       postal_code: ctCart.shippingAddress.postalCode ?? '',
       region: ctCart.shippingAddress.region ?? undefined,
+      phone: ctCart.shippingAddress.phone ?? '',
+      email: ctCart.shippingAddress.email ?? '',
+      company_name: ctCart.shippingAddress.company,
     };
-    
-    payload.prefill_delivery_address  = deliveryAddress
+
+    payload.prefill_delivery_address = deliveryAddress;
   }
-  console.log("ingrid create session payload:")
-  console.log(JSON.stringify(payload))
+  console.log('ingrid create session payload:');
+  console.log(JSON.stringify(payload));
   return payload;
 };
 
