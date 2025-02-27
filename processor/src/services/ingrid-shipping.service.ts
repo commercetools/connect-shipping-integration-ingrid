@@ -76,6 +76,14 @@ export class IngridShippingService extends AbstractShippingService {
     // get ingrid session id
     const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
 
+    if (!ingridSessionId) {
+      throw new CustomError({
+        message: 'No ingrid session id found on cart',
+        code: 'NO_INGRID_SESSION_ID_FOUND',
+        httpErrorStatus: 400,
+      });
+    }
+
     // get ingrid checkout session
     const ingridCheckoutSession = await this.ingridClient.getCheckoutSession(ingridSessionId);
 
@@ -104,7 +112,7 @@ export class IngridShippingService extends AbstractShippingService {
       {
         shippingMethodName: customShippingMethod.shippingMethodName,
         shippingRate: customShippingMethod.shippingRate,
-        taxCategory: { key: 'standard-tax', typeId: 'tax-category' },
+        taxCategory: { key: getConfig().taxCategoryKey, typeId: 'tax-category' },
       },
     );
 

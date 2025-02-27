@@ -123,4 +123,154 @@ describe('Ingrid Client', () => {
       }
     });
   });
+
+  describe('update Ingrid checkout session', () => {
+    test('should update session successfully', async () => {
+      const mockUpdateSessionResponse = {
+        session: {
+          checkout_session_id: 'mock-session-id',
+          cart: {
+            cart_id: 'mock-cart-id',
+            total_value: 1000,
+            total_discount: 0,
+            items: [],
+          },
+          delivery_groups: [],
+          purchase_country: 'SE',
+          status: 'ACTIVE',
+          updated_at: '2024-03-14T12:00:00Z',
+        },
+        html_snippet: '<div>Updated checkout</div>',
+      };
+
+      mockServer.use(
+        mockRequest(
+          IngridBasePath.STAGING,
+          IngridUrls.DELIVERY_CHECKOUT + '/session.update',
+          200,
+          mockUpdateSessionResponse,
+        ),
+      );
+
+      const client = new IngridApiClient(opts);
+      const updatePayload = {
+        checkout_session_id: 'mock-session-id',
+        cart: {
+          cart_id: 'mock-cart-id',
+          total_value: 1000,
+          total_discount: 0,
+          items: [],
+        },
+        purchase_country: 'SE',
+        purchase_currency: 'SEK',
+      };
+
+      const response = await client.updateCheckoutSession(updatePayload);
+
+      expect(response.session.checkout_session_id).toBe('mock-session-id');
+      expect(response.html_snippet).toBe('<div>Updated checkout</div>');
+      expect(response.session.status).toBe('ACTIVE');
+    });
+
+    test('should handle update session failure', async () => {
+      mockServer.use(
+        mockRequest(IngridBasePath.STAGING, IngridUrls.DELIVERY_CHECKOUT + '/session.update', 400, {
+          error: 'Invalid session ID',
+        }),
+      );
+
+      const client = new IngridApiClient(opts);
+      const updatePayload = {
+        checkout_session_id: 'invalid-session-id',
+        cart: {
+          cart_id: 'mock-cart-id',
+          total_value: 1000,
+          total_discount: 0,
+          items: [],
+        },
+        purchase_country: 'SE',
+        purchase_currency: 'SEK',
+      };
+
+      await expect(client.updateCheckoutSession(updatePayload)).rejects.toThrow(CustomError);
+    });
+  });
+
+  describe('complete Ingrid checkout session', () => {
+    test('should complete session successfully', async () => {
+      const mockCompleteSessionResponse = {
+        session: {
+          checkout_session_id: 'mock-session-id',
+          cart: {
+            cart_id: 'mock-cart-id',
+            total_value: 1000,
+            total_discount: 0,
+            items: [],
+          },
+          delivery_groups: [],
+          purchase_country: 'SE',
+          status: 'COMPLETED',
+          updated_at: '2024-03-14T12:00:00Z',
+        },
+      };
+
+      mockServer.use(
+        mockRequest(
+          IngridBasePath.STAGING,
+          IngridUrls.DELIVERY_CHECKOUT + '/session.complete',
+          200,
+          mockCompleteSessionResponse,
+        ),
+      );
+
+      const client = new IngridApiClient(opts);
+      const completePayload = {
+        checkout_session_id: 'mock-session-id',
+        customer: {
+          name: 'John Doe',
+          email: 'john@example.com',
+          phone: '1234567890',
+          address_lines: ['123 Main St'],
+          street: 'Main St',
+          street_number: '123',
+          apartment_number: '4B',
+          city: 'Stockholm',
+          postal_code: '12345',
+          country: 'SE',
+        },
+      };
+
+      const response = await client.completeCheckoutSession(completePayload);
+
+      expect(response.session.checkout_session_id).toBe('mock-session-id');
+      expect(response.session.status).toBe('COMPLETED');
+    });
+
+    test('should handle complete session failure', async () => {
+      mockServer.use(
+        mockRequest(IngridBasePath.STAGING, IngridUrls.DELIVERY_CHECKOUT + '/session.complete', 400, {
+          error: 'Invalid session state',
+        }),
+      );
+
+      const client = new IngridApiClient(opts);
+      const completePayload = {
+        checkout_session_id: 'invalid-session-id',
+        customer: {
+          name: 'John Doe',
+          email: 'john@example.com',
+          phone: '1234567890',
+          address_lines: ['123 Main St'],
+          street: 'Main St',
+          street_number: '123',
+          apartment_number: '4B',
+          city: 'Stockholm',
+          postal_code: '12345',
+          country: 'SE',
+        },
+      };
+
+      await expect(client.completeCheckoutSession(completePayload)).rejects.toThrow(CustomError);
+    });
+  });
 });

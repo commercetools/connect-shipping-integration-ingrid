@@ -22,9 +22,6 @@ export const handleTaxCategoryAction = async (client: CommercetoolsApiClient, ke
 
   if (!taxCategoryExists) {
     const taxCategory = await client.createTaxCategoryWithNullRate(key);
-    appLogger.info(
-      `[TAX-CATEGORY SUCCESS]: Tax category version ${taxCategory!.version} with key ${taxCategory!.key} exists.`,
-    );
 
     if (!taxCategory) {
       throw new CustomError({
@@ -33,6 +30,10 @@ export const handleTaxCategoryAction = async (client: CommercetoolsApiClient, ke
         httpErrorStatus: 500,
       });
     }
+
+    appLogger.info(
+      `[TAX-CATEGORY SUCCESS]: Tax category version ${taxCategory!.version} with key ${taxCategory!.key} exists.`,
+    );
 
     return !!taxCategory;
   }
