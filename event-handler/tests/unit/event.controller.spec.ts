@@ -59,10 +59,25 @@ describe('Event Controller', () => {
     const mockOrderId = 'test-order-id';
     (PubSubValidator.validateRequestBody as MockFn).mockReturnValue({});
     (PubSubValidator.validateMessageFormat as MockFn).mockReturnValue({});
+    // (PubSubValidator.decodeMessageData as MockFn).mockReturnValue({
+    //   orderId: mockOrderId,
+    // });
     (PubSubValidator.decodeMessageData as MockFn).mockReturnValue({
-      orderId: mockOrderId,
+      notificationType: 'Message',
+      projectKey: 'dummy-project-key',
+      id: 'dummy-message-id',
+      version: 1,
+      sequenceNumber: 1,
+      resource: { typeId: 'order', id: mockOrderId },
+      resourceVersion: 1,
+      type: 'OrderCreated',
+      order: {
+        id: mockOrderId,
+      },
     });
-
+    (PubSubValidator.validateDecodedMessage as MockFn).mockReturnValue(
+      mockOrderId
+    );
     const mockIngridSessionId = 'test-session-id';
     const mockCommercetoolsExecute = jest
       .fn<() => Promise<MockOrderResponse>>()
@@ -96,7 +111,14 @@ describe('Event Controller', () => {
       orders: mockCommercetoolsOrders,
     });
 
-    const mockIngridResponse = { success: true };
+    // const mockIngridResponse = { success: true };
+    const mockIngridResponse = {
+      session: {
+        checkout_session_id: mockIngridSessionId,
+        status: 'COMPLETE',
+      },
+    };
+
     (
       IngridApiClient.prototype.completeCheckoutSession as MockFn
     ).mockResolvedValue(mockIngridResponse);
@@ -111,7 +133,17 @@ describe('Event Controller', () => {
       checkout_session_id: mockIngridSessionId,
       external_id: mockOrderId,
     });
-    expect(logger.info).toHaveBeenCalledWith(mockIngridResponse);
+    const responseObj = {
+      ingridSessionId: mockIngridResponse.session.checkout_session_id,
+      status: mockIngridResponse.session.status,
+    };
+
+    expect(logger.info).toHaveBeenCalledWith(
+      'processing shipping session completion for order ID : test-order-id'
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      'complete ingrid session successfully : {"ingridSessionId":"test-session-id","status":"COMPLETE"}'
+    );
   });
 
   it('should throw error when Ingrid session ID is not found', async () => {
