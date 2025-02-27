@@ -20,11 +20,15 @@ export const post = async (request: Request, response: Response) => {
   logger.info(`body : ${JSON.stringify(body)}`);
   const message = PubSubValidator.validateMessageFormat(body);
   logger.info(`message : ${JSON.stringify(message)}`);
-  const decodedData = PubSubValidator.decodeMessageData<{ orderId: string }>(
-    message
-  );
+  const decodedData = PubSubValidator.decodeMessageData<{
+    notificationType?: string;
+    orderId: string;
+  }>(message);
   logger.info(`decodedData : ${JSON.stringify(decodedData)}`);
-  
+  logger.info(`notification${decodedData?.notificationType}`)
+  if (decodedData?.notificationType === 'ResourceCreated')
+    return response.status(204).send();
+
   const orderId = decodedData?.orderId;
 
   const commercetoolsOrder = await createApiRoot()
