@@ -25,9 +25,12 @@ export const post = async (request: Request, response: Response) => {
     orderId: string;
   }>(message);
   logger.info(`decodedData : ${JSON.stringify(decodedData)}`);
-  logger.info(`notification${decodedData?.notificationType}`)
-  if (decodedData?.notificationType === 'ResourceCreated')
-    return response.status(204).send();
+  logger.info(`notification : ${decodedData?.notificationType}`)
+  if (decodedData?.notificationType === 'ResourceCreated') {
+    const loggingMessage = 'Message for subscription created. Skip processing message.'
+    logger.info(loggingMessage)
+    return response.status(204).send(loggingMessage);
+  }
 
   const orderId = decodedData?.orderId;
 
