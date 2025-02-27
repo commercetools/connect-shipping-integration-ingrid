@@ -84,15 +84,24 @@ describe('actions', () => {
       );
     });
 
+    test('should throw error when updating existing custom type fails', async () => {
+      const typeWithoutFieldDefinition = { ...type, fieldDefinitions: [] };
+
+      jest.spyOn(mockClient, 'checkIfCustomTypeExistsByKey').mockResolvedValue(true);
+      jest.spyOn(mockClient, 'getCustomType').mockResolvedValue(typeWithoutFieldDefinition);
+      // @ts-expect-error: mockResolvedValue is not a valid parameter
+      jest.spyOn(mockClient, 'createIngridSessionIdFieldDefinitionOnType').mockResolvedValue(null);
+
+      await expect(handleCustomTypeAction(mockClient, 'ingrid-session-type-key')).rejects.toThrow(CustomError);
+      await expect(handleCustomTypeAction(mockClient, 'ingrid-session-type-key')).rejects.toThrow(
+        '[CUSTOM-TYPE ERROR]: Custom type with key ingrid-session-type-key is not updated',
+      );
+    });
+
     test('should throw error when custom type creation fails', async () => {
       jest.spyOn(mockClient, 'checkIfCustomTypeExistsByKey').mockResolvedValue(false);
-      jest.spyOn(mockClient, 'createCustomTypeFieldDefinitionForIngridSessionId').mockImplementation(() => {
-        throw new CustomError({
-          message: '[CUSTOM-TYPE ERROR]: Custom type with key ingrid-session is not created',
-          code: 'CUSTOM_TYPE_NOT_CREATED',
-          httpErrorStatus: 500,
-        });
-      });
+      // @ts-expect-error: mockResolvedValue is not a valid parameter
+      jest.spyOn(mockClient, 'createCustomTypeFieldDefinitionForIngridSessionId').mockResolvedValue(null);
 
       await expect(handleCustomTypeAction(mockClient, 'ingrid-session')).rejects.toThrow(CustomError);
       await expect(handleCustomTypeAction(mockClient, 'ingrid-session')).rejects.toThrow(
@@ -140,6 +149,17 @@ describe('actions', () => {
           httpErrorStatus: 500,
         });
       });
+
+      await expect(handleTaxCategoryAction(mockClient, 'ingrid-tax')).rejects.toThrow(CustomError);
+      await expect(handleTaxCategoryAction(mockClient, 'ingrid-tax')).rejects.toThrow(
+        '[TAX-CATEGORY ERROR]: Tax category with key ingrid-tax is not created',
+      );
+    });
+
+    test('should throw error when creating tax category fails', async () => {
+      jest.spyOn(mockClient, 'checkIfTaxCategoryExistsByKey').mockResolvedValue(false);
+      // @ts-expect-error: mockResolvedValue is not a valid parameter
+      jest.spyOn(mockClient, 'createTaxCategoryWithNullRate').mockResolvedValue(null);
 
       await expect(handleTaxCategoryAction(mockClient, 'ingrid-tax')).rejects.toThrow(CustomError);
       await expect(handleTaxCategoryAction(mockClient, 'ingrid-tax')).rejects.toThrow(
