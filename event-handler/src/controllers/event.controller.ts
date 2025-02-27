@@ -16,17 +16,15 @@ import type { IngridCompleteSessionRequestPayload } from '../client/ingrid/types
  * @returns
  */
 export const post = async (request: Request, response: Response) => {
-  logger.info("=== body ===");
+  logger.info(`request : ${JSON.stringify(request)}`);
   const body = PubSubValidator.validateRequestBody(request);
-  logger.info(body);
+  logger.info(`body : ${JSON.stringify(body)}`);
   const message = PubSubValidator.validateMessageFormat(body);
-  logger.info("=== message ===");
-  logger.info(message);
+  logger.info(`message : ${JSON.stringify(message)}`);
   const decodedData = PubSubValidator.decodeMessageData<{ orderId: string }>(
     message,
   );
-  logger.info("=== decodedData ===");
-  logger.info(decodedData);
+  logger.info(`decodedData : ${JSON.stringify(decodedData)}`);
   const orderId = decodedData?.orderId;
 
   const commercetoolsOrder = await createApiRoot()
