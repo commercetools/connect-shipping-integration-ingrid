@@ -4,7 +4,6 @@ import {
   transformIngridDeliveryGroupsToCommercetoolsDataTypes,
 } from '../../src/services/helpers';
 import { CustomError } from '../../src/libs/fastify/errors';
-import type { Cart, LineItem } from '@commercetools/platform-sdk';
 import type { IngridDeliveryGroup } from '../../src/clients/ingrid/types/ingrid.client.type';
 
 describe('Helper Functions', () => {
@@ -15,9 +14,11 @@ describe('Helper Functions', () => {
         locale: 'en',
         country: 'US',
         totalPrice: { currencyCode: 'USD', centAmount: 0 },
-      } as unknown as Cart;
+      };
 
+      // @ts-expect-error: emptyCart is not a valid parameter
       expect(() => transformCommercetoolsCartToIngridPayload(emptyCart)).toThrow(CustomError);
+      // @ts-expect-error: emptyCart is not a valid parameter
       expect(() => transformCommercetoolsCartToIngridPayload(emptyCart)).toThrow('Cart is empty');
     });
 
@@ -34,13 +35,14 @@ describe('Helper Functions', () => {
             price: { value: { centAmount: 1000, currencyCode: 'USD' } },
             quantity: 1,
           },
-        ] as unknown as LineItem[],
+        ],
         locale: 'en',
         country: 'US',
         totalPrice: { currencyCode: 'USD', centAmount: 1000 },
         id: 'cart-id',
-      } as Cart;
+      };
 
+      // @ts-expect-error: cartWithNoImages is not a valid parameter
       const result = transformCommercetoolsCartToIngridPayload(cartWithNoImages);
       expect(result.cart.items[0]?.image_url).toBe('');
     });
@@ -65,13 +67,14 @@ describe('Helper Functions', () => {
             ],
             quantity: 1,
           },
-        ] as unknown as LineItem[],
+        ],
         locale: 'en',
         country: 'US',
         totalPrice: { currencyCode: 'USD', centAmount: 700 },
         id: 'cart-id',
-      } as Cart;
+      };
 
+      // @ts-expect-error: cartWithDiscounts is not a valid parameter
       const result = transformCommercetoolsCartToIngridPayload(cartWithDiscounts);
       expect(result.cart.items[0]?.discount).toBe(300); // 1000 - 700
     });

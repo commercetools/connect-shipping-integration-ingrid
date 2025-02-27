@@ -109,7 +109,7 @@ describe('ingrid-shipping.service', () => {
 
     expect(typeof result.data).toBe('object');
 
-    const data = result.data as unknown as InitSessionSuccessResponseSchemaDTO;
+    const data: InitSessionSuccessResponseSchemaDTO = result.data;
     expect(typeof data.ingridHtml).toBe('string');
     expect(typeof data.ingridSessionId).toBe('string');
     expect(typeof data.success).toBe('boolean');
@@ -152,7 +152,7 @@ describe('ingrid-shipping.service', () => {
 
     expect(typeof result.data).toBe('object');
 
-    const data = result.data as unknown as InitSessionSuccessResponseSchemaDTO;
+    const data: InitSessionSuccessResponseSchemaDTO = result.data;
     expect(typeof data.ingridHtml).toBe('string');
     expect(typeof data.ingridSessionId).toBe('string');
     expect(typeof data.success).toBe('boolean');

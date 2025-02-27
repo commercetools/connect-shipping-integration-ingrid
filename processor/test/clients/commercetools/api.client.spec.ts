@@ -52,10 +52,11 @@ describe('commercetools api client', () => {
         shippingAddress: { firstName: 'John', lastName: 'Doe', country: 'DE' },
         billingAddress: { firstName: 'Jane', lastName: 'Doe', country: 'DE' },
       };
+      const taxCategory: TaxCategoryResourceIdentifier = { typeId: 'tax-category', key: 'standard' };
       const shippingMethodPayload = {
         shippingMethodName: 'Express',
         shippingRate: { price: { centAmount: 1000, currencyCode: 'USD' } },
-        taxCategory: { typeId: 'tax-category', key: 'standard' } as TaxCategoryResourceIdentifier,
+        taxCategory,
       };
 
       mockServer.use(

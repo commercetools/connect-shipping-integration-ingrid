@@ -11,14 +11,15 @@ describe('SessionHeaderAuthenticationHook', () => {
   let hook: SessionHeaderAuthenticationHook;
 
   beforeEach(() => {
+    // @ts-expect-error: mockAuthentication is not a valid parameter
     mockAuthentication = {
       getPrincipal: jest.fn().mockReturnValue({ correlationId: 'test-correlation-id' }),
-    } as unknown as Authentication;
+    };
 
     mockAuthManager = {
       // @ts-expect-error: mockAuthentication is not a valid parameter
       authenticate: jest.fn().mockResolvedValue(mockAuthentication),
-    } as unknown as jest.Mocked<SessionHeaderAuthenticationManager>;
+    };
 
     mockContextProvider = {
       updateContextData: jest.fn(),

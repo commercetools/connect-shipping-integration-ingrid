@@ -1,9 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from '@jest/globals';
-
 import { appLogger } from '../../../src/libs/logger';
-import { RequestContextData } from '../../../src/libs/fastify/context';
-import { SessionHeaderAuthInitializer } from '../../../src/libs/auth';
-import { SessionHeaderAuthenticationHook } from '../../../src/libs/auth/hooks/session-header-auth.hook';
+import { SessionHeaderAuthInitializer, SessionHeaderAuthenticationHook } from '../../../src/libs/auth';
 
 describe('session-header-auth-initializer', () => {
   beforeEach(async () => {});
@@ -18,11 +15,12 @@ describe('session-header-auth-initializer', () => {
       projectKey: 'dummy-project-key',
       sessionUrl: 'dummy-session-url',
       getContextFn: () => {
-        return null as unknown as RequestContextData;
+        return null;
       },
       updateContextFn: () => {},
       logger: appLogger,
     };
+    // @ts-expect-error: getContextFn is not a valid parameter
     const sessionHeaderAuthInitializer = new SessionHeaderAuthInitializer(opt);
     const sessionHeaderAuthHookFn = sessionHeaderAuthInitializer.getSessionHeaderAuthHookFn();
     expect(sessionHeaderAuthHookFn).toBeDefined();

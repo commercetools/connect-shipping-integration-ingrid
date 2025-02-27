@@ -1,8 +1,4 @@
-import type {
-  IngridAddress,
-  IngridGetSessionResponse,
-  IngridPickupLocation,
-} from '../../src/clients/ingrid/types/ingrid.client.type';
+import type { IngridGetSessionResponse } from '../../src/clients/ingrid/types/ingrid.client.type';
 
 export const mockCreateCheckoutSessionRequest = {
   purchase_country: 'SE',
@@ -375,7 +371,8 @@ export const mockIngridCheckoutSessionWithAddresses: IngridGetSessionResponse = 
             external_id: '1234567890',
             address_lines: ['123 Main St'],
           },
-          location: {} as IngridPickupLocation,
+          // @ts-expect-error: should not be empty but could happen if update() is not properly implemented
+          location: {},
           search_address: {
             address_lines: ['123 Main St'],
             apartment_number: '1',
@@ -489,7 +486,8 @@ export const mockIngridCheckoutSessionWithoutAddresses: IngridGetSessionResponse
             search: false,
           },
           warehouse: {
-            address: {} as IngridAddress,
+            // @ts-expect-error: should not be empty but could happen if update() is not properly implemented
+            address: {},
           },
         },
         tos_id: 'tos-1',
