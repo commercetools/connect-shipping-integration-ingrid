@@ -66,9 +66,12 @@ export const post = async (request: Request, response: Response) => {
   };
 
   const ingridResponse = await ingridClient.completeCheckoutSession(payLoad);
-
+  const responseObj = {
+    ingridSessionId: ingridResponse.session.checkout_session_id ,
+    status: ingridResponse.session.status
+  };
   logger.info(
-    `complete ingrid session successfully : ${ingridResponse.session.checkout_session_id} - ${ingridResponse.session.status}`
+    `complete ingrid session successfully : ${JSON.stringify(responseObj)}`
   );
-  return response.status(204).send();
+  return response.status(204).send(responseObj);
 };
