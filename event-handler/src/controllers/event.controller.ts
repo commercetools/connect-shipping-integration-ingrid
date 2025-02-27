@@ -18,9 +18,7 @@ import { DecodedMessageType } from '../types/index.types';
  */
 export const post = async (request: Request, response: Response) => {
   const body = PubSubValidator.validateRequestBody(request);
-  logger.info(`body : ${JSON.stringify(body)}`);
   const message = PubSubValidator.validateMessageFormat(body);
-  logger.info(`message : ${JSON.stringify(message)}`);
   const decodedData =
     PubSubValidator.decodeMessageData<DecodedMessageType>(message);
   const orderId = PubSubValidator.validateDecodedMessage(decodedData);
@@ -69,6 +67,8 @@ export const post = async (request: Request, response: Response) => {
 
   const ingridResponse = await ingridClient.completeCheckoutSession(payLoad);
 
-  logger.info(`complete ingrid session successfully : ${ingridResponse}`);
+  logger.info(
+    `complete ingrid session successfully : ${ingridResponse.session.checkout_session_id} - ${ingridResponse.session.status}`
+  );
   return response.status(204).send();
 };
