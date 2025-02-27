@@ -8,7 +8,6 @@ import {
   transformCommercetoolsCartToIngridPayload,
   transformIngridDeliveryGroupsToCommercetoolsDataTypes,
 } from './helpers';
-import { getConfig } from '../config';
 import type { Cart } from '@commercetools/platform-sdk';
 import type { InitSessionResponse, UpdateSessionResponse } from './types/ingrid-shipping.type';
 
@@ -26,7 +25,7 @@ export class IngridShippingService extends AbstractShippingService {
    * @returns {Promise<InitSessionResponse>} Returns the commercetools cart id, ingrid session id and ingrid checkout session html snippet
    */
   public async init(): Promise<InitSessionResponse> {
-    const ingridSessionCustomTypeKey = getConfig().keyOfIngridSessionCustomType;
+    const ingridSessionCustomTypeKey = process.env.INGRID_SESSION_CUSTOM_TYPE_KEY || 'ingrid-session';
     const customType = await this.commercetoolsClient.getCustomType(ingridSessionCustomTypeKey);
 
     if (!customType) {

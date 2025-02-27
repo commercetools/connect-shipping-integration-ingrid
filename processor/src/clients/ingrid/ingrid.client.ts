@@ -2,6 +2,7 @@ import axios, { type AxiosInstance } from 'axios';
 import {
   IngridBasePath,
   IngridUrls,
+  type IngridClientOptions,
   type IngridGetSessionResponse,
   type IngridCompleteSessionRequestPayload,
   type IngridCompleteSessionResponse,
@@ -34,7 +35,7 @@ import { CustomError } from '../../libs/fastify/errors';
 export class IngridApiClient implements AbstractIngridClient {
   private client: AxiosInstance;
 
-  constructor(opts: { apiSecret: string; environment: keyof typeof IngridBasePath }) {
+  constructor(opts: IngridClientOptions) {
     this.client = createClient(opts);
   }
 

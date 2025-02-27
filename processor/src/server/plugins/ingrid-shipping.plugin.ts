@@ -2,20 +2,20 @@ import type { FastifyInstance } from 'fastify';
 import { shippingRoutes } from '../../routes/ingrid-shipping.route';
 import { IngridShippingService } from '../../services/ingrid-shipping.service';
 import { IngridApiClient } from '../../clients/ingrid/ingrid.client';
-import { getConfig } from '../../config';
 import { CommercetoolsApiClient } from '../../clients/commercetools/api.client';
 import { appLogger } from '../../libs/logger';
-import { type RequestContextData, updateRequestContext, getRequestContext } from '../../libs/fastify/context';
+import { getRequestContext, type RequestContextData, updateRequestContext } from '../../libs/fastify/context';
 import { SessionHeaderAuthInitializer } from '../../libs/auth';
+import type { IngridClientOptions } from '../../clients/ingrid/types/ingrid.client.type';
 
 export default async function (server: FastifyInstance) {
   const opts = {
-    clientId: getConfig().clientId,
-    clientSecret: getConfig().clientSecret,
-    authUrl: getConfig().authUrl,
-    apiUrl: getConfig().apiUrl,
-    projectKey: getConfig().projectKey,
-    sessionUrl: getConfig().sessionUrl,
+    clientId: server.environmentVariables.CTP_CLIENT_ID,
+    clientSecret: server.environmentVariables.CTP_CLIENT_SECRET,
+    authUrl: server.environmentVariables.CTP_AUTH_URL,
+    apiUrl: server.environmentVariables.CTP_API_URL,
+    projectKey: server.environmentVariables.CTP_PROJECT_KEY,
+    sessionUrl: server.environmentVariables.CTP_SESSION_URL,
     logger: appLogger,
     getContextFn: (): RequestContextData => {
       const { correlationId, requestId, authentication } = getRequestContext();
@@ -36,9 +36,9 @@ export default async function (server: FastifyInstance) {
     },
   };
 
-  const ingridOpts = {
-    apiSecret: getConfig().ingridApiKey,
-    environment: getConfig().ingridEnvironment as 'STAGING' | 'PRODUCTION',
+  const ingridOpts: IngridClientOptions = {
+    apiSecret: server.environmentVariables.INGRID_API_KEY,
+    environment: server.environmentVariables.INGRID_ENVIRONMENT,
   };
 
   const commercetoolsApiClient: CommercetoolsApiClient = new CommercetoolsApiClient(opts);
