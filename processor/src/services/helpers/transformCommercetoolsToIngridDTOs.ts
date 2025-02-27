@@ -37,7 +37,7 @@ export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridC
   if (ctCart.shippingAddress) {
     const deliveryAddress: IngridDeliveryAddress = {
       external_id: ctCart.shippingAddress.id ?? '',
-      address_lines: [`${ctCart.shippingAddress.streetName ?? ''} ${ctCart.shippingAddress.streetNumber ?? ''} `],
+      address_lines: [`${ctCart.shippingAddress.streetName ?? ''} ${ctCart.shippingAddress.streetNumber ?? ''}`],
       apartment_number: ctCart.shippingAddress.apartment ?? '',
       city: ctCart.shippingAddress.city ?? '',
       country: ctCart.shippingAddress.country ?? '',
@@ -54,8 +54,6 @@ export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridC
 
     payload.prefill_delivery_address = deliveryAddress;
   }
-  console.log('ingrid create session payload:');
-  console.log(JSON.stringify(payload));
   return payload;
 };
 
