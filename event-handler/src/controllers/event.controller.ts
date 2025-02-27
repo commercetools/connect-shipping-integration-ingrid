@@ -16,13 +16,12 @@ import type { IngridCompleteSessionRequestPayload } from '../client/ingrid/types
  * @returns
  */
 export const post = async (request: Request, response: Response) => {
-  logger.info(`request : ${JSON.stringify(request)}`);
   const body = PubSubValidator.validateRequestBody(request);
   logger.info(`body : ${JSON.stringify(body)}`);
   const message = PubSubValidator.validateMessageFormat(body);
   logger.info(`message : ${JSON.stringify(message)}`);
   const decodedData = PubSubValidator.decodeMessageData<{ orderId: string }>(
-    message,
+    message
   );
   logger.info(`decodedData : ${JSON.stringify(decodedData)}`);
   const orderId = decodedData?.orderId;
@@ -64,5 +63,4 @@ export const post = async (request: Request, response: Response) => {
 
   logger.info(ingridResponse);
   return response.status(204).send();
-
 };

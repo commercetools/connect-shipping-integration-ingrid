@@ -25,7 +25,7 @@ class PubSubValidator {
       logger.error('Missing request body.');
       throw new CustomError(
         400,
-        'Bad request: No Pub/Sub message was received',
+        'Bad request: No Pub/Sub message was received'
       );
     }
     return request.body;
@@ -42,7 +42,7 @@ class PubSubValidator {
       logger.error('Missing body message');
       throw new CustomError(
         400,
-        'Bad request: Wrong No Pub/Sub message format',
+        'Bad request: Wrong No Pub/Sub message format'
       );
     }
     return requestBody.message;

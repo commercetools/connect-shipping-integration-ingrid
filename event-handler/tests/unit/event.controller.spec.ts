@@ -64,19 +64,21 @@ describe('Event Controller', () => {
     });
 
     const mockIngridSessionId = 'test-session-id';
-    const mockCommercetoolsExecute = jest.fn<() => Promise<MockOrderResponse>>().mockResolvedValue({
-      body: {
-        cart: {
-          obj: {
-            custom: {
-              fields: {
-                ingridSessionId: mockIngridSessionId,
+    const mockCommercetoolsExecute = jest
+      .fn<() => Promise<MockOrderResponse>>()
+      .mockResolvedValue({
+        body: {
+          cart: {
+            obj: {
+              custom: {
+                fields: {
+                  ingridSessionId: mockIngridSessionId,
+                },
               },
             },
           },
         },
-      },
-    });
+      });
 
     const mockCommercetoolsGet = jest.fn().mockReturnValue({
       execute: mockCommercetoolsExecute,
@@ -104,7 +106,7 @@ describe('Event Controller', () => {
     expect(mockResponse.status).toHaveBeenCalledWith(204);
     expect(mockResponse.send).toHaveBeenCalled();
     expect(
-      IngridApiClient.prototype.completeCheckoutSession,
+      IngridApiClient.prototype.completeCheckoutSession
     ).toHaveBeenCalledWith({
       checkout_session_id: mockIngridSessionId,
       external_id: mockOrderId,
@@ -120,17 +122,19 @@ describe('Event Controller', () => {
       orderId: mockOrderId,
     });
 
-    const mockCommercetoolsExecute = jest.fn<() => Promise<MockOrderResponse>>().mockResolvedValue({
-      body: {
-        cart: {
-          obj: {
-            custom: {
-              fields: {},
+    const mockCommercetoolsExecute = jest
+      .fn<() => Promise<MockOrderResponse>>()
+      .mockResolvedValue({
+        body: {
+          cart: {
+            obj: {
+              custom: {
+                fields: {},
+              },
             },
           },
         },
-      },
-    });
+      });
 
     const mockCommercetoolsGet = jest.fn().mockReturnValue({
       execute: mockCommercetoolsExecute,
@@ -155,11 +159,9 @@ describe('Event Controller', () => {
 
   it('should throw error when PubSub validation fails', async () => {
     const validationError = new Error('Invalid request body');
-    (PubSubValidator.validateRequestBody as MockFn).mockImplementation(
-      () => {
-        throw validationError;
-      },
-    );
+    (PubSubValidator.validateRequestBody as MockFn).mockImplementation(() => {
+      throw validationError;
+    });
 
     await expect(
       post(mockRequest as Request, mockResponse as Response)
