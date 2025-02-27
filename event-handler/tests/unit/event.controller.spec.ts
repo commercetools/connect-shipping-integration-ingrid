@@ -133,11 +133,7 @@ describe('Event Controller', () => {
       checkout_session_id: mockIngridSessionId,
       external_id: mockOrderId,
     });
-    const responseObj = {
-      ingridSessionId: mockIngridResponse.session.checkout_session_id,
-      status: mockIngridResponse.session.status,
-    };
-
+  
     expect(logger.info).toHaveBeenCalledWith(
       'processing shipping session completion for order ID : test-order-id'
     );
