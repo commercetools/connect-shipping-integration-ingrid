@@ -23,10 +23,16 @@ export const post = async (request: Request, response: Response) => {
   logger.info(`message : ${JSON.stringify(message)}`);
   const decodedData =
     PubSubValidator.decodeMessageData<DecodedMessageType>(message);
-  const orderId = PubSubValidator.validateDecodedMessage(decodedData, response);
-
-  logger.info(`decodedData : ${JSON.stringify(decodedData)}`);
-  logger.info(`notification : ${decodedData?.notificationType}`);
+  const orderId = PubSubValidator.validateDecodedMessage(decodedData);
+  if (orderId === 'RESOURCE_CREATED_MESSAGE') {
+    const loggingMessage =
+      'Message for subscription created. Skip processing message.';
+    logger.info(loggingMessage);
+    return response.status(204).send(loggingMessage);
+  }
+  logger.info(
+    `processing shipping session completion for order ID : ${orderId}`
+  );
 
   const commercetoolsOrder = await createApiRoot()
     .orders()
@@ -63,6 +69,6 @@ export const post = async (request: Request, response: Response) => {
 
   const ingridResponse = await ingridClient.completeCheckoutSession(payLoad);
 
-  logger.info(ingridResponse);
+  logger.info(`complete ingrid session successfully : ${ingridResponse}`);
   return response.status(204).send();
 };

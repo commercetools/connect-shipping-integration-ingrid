@@ -1,7 +1,6 @@
 import CustomError from '../errors/custom.error';
 import { logger } from './logger.utils';
 import { DecodedMessageType } from '../types/index.types';
-import { Response } from 'express';
 
 interface PubSubRequest {
   body?: PubSubBody;
@@ -76,15 +75,9 @@ class PubSubValidator {
       throw new CustomError(400, 'Bad request: Invalid message data format');
     }
   }
-  static validateDecodedMessage(
-    decodedData: DecodedMessageType,
-    response: Response
-  ): string {
+  static validateDecodedMessage(decodedData: DecodedMessageType): string {
     if (decodedData?.notificationType === 'ResourceCreated') {
-      const loggingMessage =
-        'Message for subscription created. Skip processing message.';
-      logger.info(loggingMessage);
-      response.status(204).send(loggingMessage);
+      return 'RESOURCE_CREATED_MESSAGE';
     }
     if (decodedData.type !== 'OrderCreated') {
       throw new CustomError(
