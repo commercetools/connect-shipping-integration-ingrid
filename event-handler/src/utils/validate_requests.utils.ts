@@ -1,5 +1,7 @@
 import CustomError from '../errors/custom.error';
 import { logger } from './logger.utils';
+import { DecodedMessageType } from '../types/index.types';
+import { Response } from 'express';
 
 interface PubSubRequest {
   body?: PubSubBody;
@@ -73,6 +75,30 @@ class PubSubValidator {
       logger.error('Failed to decode or parse message data:', error);
       throw new CustomError(400, 'Bad request: Invalid message data format');
     }
+  }
+  static validateDecodedMessage(
+    decodedData: DecodedMessageType,
+    response: Response
+  ): string {
+    if (decodedData?.notificationType === 'ResourceCreated') {
+      const loggingMessage =
+        'Message for subscription created. Skip processing message.';
+      logger.info(loggingMessage);
+      response.status(204).send(loggingMessage);
+    }
+    if (decodedData.type !== 'OrderCreated') {
+      throw new CustomError(
+        400,
+        'Bad request. The message is not for OrderCreated event.'
+      );
+    }
+    if (!decodedData.order?.id) {
+      throw new CustomError(
+        400,
+        'Bad request. The order ID cannot be found in message.'
+      );
+    }
+    return decodedData.order?.id;
   }
 }
 

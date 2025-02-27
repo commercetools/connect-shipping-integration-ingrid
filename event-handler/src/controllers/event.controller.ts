@@ -6,6 +6,7 @@ import PubSubValidator from '../utils/validate_requests.utils';
 import IngridApiClient from '../client/ingrid/ingrid.client';
 import { readConfiguration } from '../utils/config.utils';
 import type { IngridCompleteSessionRequestPayload } from '../client/ingrid/types/ingrid.client.type';
+import { DecodedMessageType } from '../types/index.types';
 
 /**
  * Exposed event POST endpoint.
@@ -20,19 +21,12 @@ export const post = async (request: Request, response: Response) => {
   logger.info(`body : ${JSON.stringify(body)}`);
   const message = PubSubValidator.validateMessageFormat(body);
   logger.info(`message : ${JSON.stringify(message)}`);
-  const decodedData = PubSubValidator.decodeMessageData<{
-    notificationType?: string;
-    orderId: string;
-  }>(message);
-  logger.info(`decodedData : ${JSON.stringify(decodedData)}`);
-  logger.info(`notification : ${decodedData?.notificationType}`)
-  if (decodedData?.notificationType === 'ResourceCreated') {
-    const loggingMessage = 'Message for subscription created. Skip processing message.'
-    logger.info(loggingMessage)
-    return response.status(204).send(loggingMessage);
-  }
+  const decodedData =
+    PubSubValidator.decodeMessageData<DecodedMessageType>(message);
+  const orderId = PubSubValidator.validateDecodedMessage(decodedData, response);
 
-  const orderId = decodedData?.orderId;
+  logger.info(`decodedData : ${JSON.stringify(decodedData)}`);
+  logger.info(`notification : ${decodedData?.notificationType}`);
 
   const commercetoolsOrder = await createApiRoot()
     .orders()
