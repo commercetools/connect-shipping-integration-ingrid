@@ -4,6 +4,14 @@ export type Message = {
   referencedBy: string;
 };
 
+export type DecodedMessageType = {
+  notificationType: string;
+  order?: {
+    id: string;
+  };
+  type?: string;
+};
+
 export type ValidatorCreator = (
   path: string[],
   message: Message,
