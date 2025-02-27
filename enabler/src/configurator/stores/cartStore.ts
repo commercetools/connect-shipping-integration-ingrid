@@ -36,7 +36,8 @@ const cartStore = new Store<Cart | undefined, ACTION>(
     switch (action.type) {
       case "SET_SHIPPING_ADDRESS":
         if (state) {
-        client
+          loadingStore.dispatch("START_LOADING");
+          client
             .carts()
             .withId({ ID: state.id })
             .post({
@@ -61,8 +62,10 @@ const cartStore = new Store<Cart | undefined, ACTION>(
           }
         break;
       case "APPLY_DISCOUNT":
+       
         if (state) {
-        client
+          loadingStore.dispatch("START_LOADING");
+          client
             .carts()
             .withId({ ID: state.id })
             .post({
