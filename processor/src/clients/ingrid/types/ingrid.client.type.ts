@@ -40,7 +40,7 @@ export type IngridCreateSessionRequestPayload = {
   external_id?: string;
   locales: string[];
   meta?: Record<string, unknown>;
-  prefill_delivery_address?: IngridAddress;
+  prefill_delivery_address?: IngridDeliveryAddress;
   purchase_country: string;
   purchase_currency: string;
   search_address?: IngridAddress;
