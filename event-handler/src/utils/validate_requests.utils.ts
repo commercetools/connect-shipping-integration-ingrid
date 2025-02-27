@@ -68,11 +68,6 @@ class PubSubValidator {
       if (!decodedData) {
         throw new CustomError(400, 'Decoded data is empty');
       }
-      if (JSON.parse(decodedData)?.notificationType === 'ResourceCreated')
-        throw new CustomError(
-          200,
-          'Message for subscription created. Skip processing message.'
-        );
       return JSON.parse(decodedData) as T;
     } catch (error) {
       logger.error('Failed to decode or parse message data:', error);

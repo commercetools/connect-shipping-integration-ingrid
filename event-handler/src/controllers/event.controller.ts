@@ -24,6 +24,7 @@ export const post = async (request: Request, response: Response) => {
     message
   );
   logger.info(`decodedData : ${JSON.stringify(decodedData)}`);
+  
   const orderId = decodedData?.orderId;
 
   const commercetoolsOrder = await createApiRoot()
