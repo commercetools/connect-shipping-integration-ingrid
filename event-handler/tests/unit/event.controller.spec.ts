@@ -133,7 +133,7 @@ describe('Event Controller', () => {
       checkout_session_id: mockIngridSessionId,
       external_id: mockOrderId,
     });
-  
+
     expect(logger.info).toHaveBeenCalledWith(
       'processing shipping session completion for order ID : test-order-id'
     );
