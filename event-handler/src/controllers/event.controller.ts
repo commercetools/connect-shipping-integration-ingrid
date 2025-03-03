@@ -91,7 +91,7 @@ export const post = async (request: Request, response: Response) => {
       `complete ingrid session successfully : ${JSON.stringify(responseObj)}`
     );
     logger.info(
-      `Update commercetools cart shipment state as ready. (orderId: ${updateOrderResult.body.id})`
+      `Update commercetools cart shipment state as ready. (orderId: ${updateOrderResult.id})`
     );
   } else {
     const updateOrderResult = await changeShipmentState(
@@ -103,7 +103,7 @@ export const post = async (request: Request, response: Response) => {
       `complete ingrid session failed : ${JSON.stringify(responseObj)}`
     );
     logger.info(
-      `Update commercetools cart shipment state as canceled. (orderId: ${updateOrderResult.body.id})`
+      `Update commercetools cart shipment state as canceled. (orderId: ${updateOrderResult.id})`
     );
   }
   return response.status(204).send(responseObj);

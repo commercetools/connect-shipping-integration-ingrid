@@ -1,13 +1,19 @@
 import { Request, Response } from 'express';
 import { post } from '../../src/controllers/event.controller';
 import { createApiRoot } from '../../src/client/commercetools/create.client';
+import * as updateClient from '../../src/client/commercetools/update.client';
 import PubSubValidator from '../../src/utils/validate_requests.utils';
 import IngridApiClient from '../../src/client/ingrid/ingrid.client';
 import { readConfiguration } from '../../src/utils/config.utils';
 import { logger } from '../../src/utils/logger.utils';
+import { Order } from '@commercetools/platform-sdk';
 
 // Add Jest imports
 import { jest, describe, beforeEach, it, expect } from '@jest/globals';
+import {
+  orderWithReadyShipmentState,
+  orderWithCancelShipmentState,
+} from '../unit/mock/mock-order';
 
 // Define types for mocks
 type MockFn = jest.MockedFunction<any>;
@@ -19,7 +25,7 @@ jest.mock('../../src/utils/config.utils');
 jest.mock('../../src/utils/logger.utils');
 
 // Define interfaces for type safety
-interface MockOrderResponse {
+interface MockGetOrderResponse {
   body: {
     cart: {
       obj: {
@@ -30,6 +36,12 @@ interface MockOrderResponse {
         };
       };
     };
+  };
+}
+
+interface MockUpdateOrderResponse {
+  body: {
+    shipmentState: string;
   };
 }
 
@@ -79,8 +91,8 @@ describe('Event Controller', () => {
       mockOrderId
     );
     const mockIngridSessionId = 'test-session-id';
-    const mockCommercetoolsExecute = jest
-      .fn<() => Promise<MockOrderResponse>>()
+    const mockCommercetoolsGetOrderExecute = jest
+      .fn<() => Promise<MockGetOrderResponse>>()
       .mockResolvedValue({
         body: {
           cart: {
@@ -95,23 +107,38 @@ describe('Event Controller', () => {
         },
       });
 
-    const mockCommercetoolsGet = jest.fn().mockReturnValue({
-      execute: mockCommercetoolsExecute,
+    const mockCommercetoolsGetOrder = jest.fn().mockReturnValue({
+      execute: mockCommercetoolsGetOrderExecute,
     });
 
-    const mockCommercetoolsWithId = jest.fn().mockReturnValue({
-      get: mockCommercetoolsGet,
+    const mockCommercetoolsGetOrderWithId = jest.fn().mockReturnValue({
+      get: mockCommercetoolsGetOrder,
     });
 
-    const mockCommercetoolsOrders = jest.fn().mockReturnValue({
-      withId: mockCommercetoolsWithId,
+    const mockCommercetoolsGetOrders = jest.fn().mockReturnValue({
+      withId: mockCommercetoolsGetOrderWithId,
     });
+
+    // const mockCommercetoolsUpdateOrder = jest.fn().mockReturnValue({
+    //   execute: mockCommercetoolsUpdateOrderExecute,
+    // });
+
+    // const mockCommercetoolsUpdateOrderWithId = jest.fn().mockReturnValue({
+    //   get: mockCommercetoolsUpdateOrder,
+    // });
+
+    // const mockCommercetoolUpdateOrders = jest.fn().mockReturnValue({
+    //   withId: mockCommercetoolsUpdateOrderWithId,
+    // });
 
     (createApiRoot as MockFn).mockReturnValue({
-      orders: mockCommercetoolsOrders,
+      orders: mockCommercetoolsGetOrders,
     });
 
-    // const mockIngridResponse = { success: true };
+    jest
+      .spyOn(updateClient, 'changeShipmentState')
+      .mockResolvedValue(orderWithReadyShipmentState);
+
     const mockIngridResponse = {
       session: {
         checkout_session_id: mockIngridSessionId,
@@ -150,8 +177,8 @@ describe('Event Controller', () => {
       orderId: mockOrderId,
     });
 
-    const mockCommercetoolsExecute = jest
-      .fn<() => Promise<MockOrderResponse>>()
+    const mockCommercetoolsGetOrderExecute = jest
+      .fn<() => Promise<MockGetOrderResponse>>()
       .mockResolvedValue({
         body: {
           cart: {
@@ -164,21 +191,24 @@ describe('Event Controller', () => {
         },
       });
 
-    const mockCommercetoolsGet = jest.fn().mockReturnValue({
-      execute: mockCommercetoolsExecute,
+    const mockCommercetoolsGetOrder = jest.fn().mockReturnValue({
+      execute: mockCommercetoolsGetOrderExecute,
     });
 
-    const mockCommercetoolsWithId = jest.fn().mockReturnValue({
-      get: mockCommercetoolsGet,
+    const mockCommercetoolsGetOrderWithId = jest.fn().mockReturnValue({
+      get: mockCommercetoolsGetOrder,
     });
 
-    const mockCommercetoolsOrders = jest.fn().mockReturnValue({
-      withId: mockCommercetoolsWithId,
+    const mockCommercetoolsGetOrders = jest.fn().mockReturnValue({
+      withId: mockCommercetoolsGetOrderWithId,
     });
-
     (createApiRoot as MockFn).mockReturnValue({
-      orders: mockCommercetoolsOrders,
+      orders: mockCommercetoolsGetOrders,
     });
+
+    jest
+      .spyOn(updateClient, 'changeShipmentState')
+      .mockResolvedValue(orderWithCancelShipmentState);
 
     await expect(
       post(mockRequest as Request, mockResponse as Response)
