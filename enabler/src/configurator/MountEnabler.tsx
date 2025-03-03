@@ -34,6 +34,9 @@ const MountEnabler = memo(function MountEnabler() {
           },
           onUpdateCompleted: (result: ShippingUpdateResult) => {
             console.log("onUpdateCompleted", { result });
+            const updateShippingOptionsResultMessageEle = document.getElementById("update-shipping-options-result-message")
+            if (updateShippingOptionsResultMessageEle)
+              updateShippingOptionsResultMessageEle.innerHTML = `shipping options updated : ${result.isSuccess?"success":"failed"}`
           },
           onError: (err: unknown) => {
             console.error("onError", err);
@@ -88,6 +91,7 @@ const MountEnabler = memo(function MountEnabler() {
         >
           Confirm Shipping Option
         </button>
+        <p className="standard-font" id="update-shipping-options-result-message"></p>
         </div>
       )}
     </div>
