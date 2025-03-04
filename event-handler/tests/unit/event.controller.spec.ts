@@ -6,7 +6,6 @@ import PubSubValidator from '../../src/utils/validate_requests.utils';
 import IngridApiClient from '../../src/client/ingrid/ingrid.client';
 import { readConfiguration } from '../../src/utils/config.utils';
 import { logger } from '../../src/utils/logger.utils';
-import { Order } from '@commercetools/platform-sdk';
 
 // Add Jest imports
 import { jest, describe, beforeEach, it, expect } from '@jest/globals';
@@ -36,12 +35,6 @@ interface MockGetOrderResponse {
         };
       };
     };
-  };
-}
-
-interface MockUpdateOrderResponse {
-  body: {
-    shipmentState: string;
   };
 }
 
