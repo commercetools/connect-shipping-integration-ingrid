@@ -11,6 +11,7 @@ import {
 import { getConfig } from '../config';
 import type { Cart } from '@commercetools/platform-sdk';
 import type { InitSessionResponse, UpdateSessionResponse } from './types/ingrid-shipping.type';
+import { IngridUpdateSessionRequestPayload } from '../clients/ingrid/types/ingrid.client.type';
 
 export class IngridShippingService extends AbstractShippingService {
   constructor(commercetoolsClient: CommercetoolsApiClient, ingridClient: IngridApiClient) {
@@ -70,14 +71,17 @@ export class IngridShippingService extends AbstractShippingService {
    * @returns {Promise<UpdateSessionResponse>} Returns the commercetools cart id and ingrid session id
    */
   public async update(): Promise<UpdateSessionResponse> {
+    const ingridTaxCategoryKey = getConfig().taxCategoryKey;
+
     // get commercetools cart
     const ctCart = await this.commercetoolsClient.getCartById(getCartIdFromContext());
 
     // get ingrid session id
-    const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
+    let ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
 
     // get ingrid checkout session
     const ingridCheckoutSession = await this.ingridClient.getCheckoutSession(ingridSessionId);
+    ingridSessionId = ingridCheckoutSession.session.checkout_session_id;
 
     // check for presence of billing and delivery addresses
     const { billing_address, delivery_address } = ingridCheckoutSession.session.delivery_groups[0]?.addresses ?? {};
@@ -104,9 +108,38 @@ export class IngridShippingService extends AbstractShippingService {
       {
         shippingMethodName: customShippingMethod.shippingMethodName,
         shippingRate: customShippingMethod.shippingRate,
-        taxCategory: { key: 'standard-tax', typeId: 'tax-category' },
+        taxCategory: { key: ingridTaxCategoryKey, typeId: 'tax-category' },
       },
     );
+
+    if (!updatedCart.taxedPrice?.totalGross) {
+      throw new CustomError({
+        message:
+          'Failed to get taxed price from commercetools cart. It seems like there is no shipping address set on commercetools cart.',
+        code: 'FAILED_TO_GET_TAXED_PRICE_FROM_COMMERCETOOLS_CART',
+        httpErrorStatus: 400,
+      });
+    }
+
+    // check if price on ingrid is same as total gross on commercetools cart
+    // ingrid uses the same format for prices as commercetools
+    // example: 10000 = 100.00 [Currency Code]
+    const { total_value: ingridTotalValue } = ingridCheckoutSession.session.cart;
+    const { centAmount: commercetoolsTotalTaxedValue } = updatedCart.taxedPrice.totalGross;
+
+    // if prices are not the same, update ingrid checkout session
+    if (ingridTotalValue !== commercetoolsTotalTaxedValue) {
+      // we assume that the updated cart now has taxed prices
+      const updatedIngridCheckoutSessionPayload: IngridUpdateSessionRequestPayload = {
+        ...transformCommercetoolsCartToIngridPayload(updatedCart),
+        checkout_session_id: ingridSessionId,
+      };
+
+      const updatedIngridCheckoutSession = await this.ingridClient.updateCheckoutSession(
+        updatedIngridCheckoutSessionPayload,
+      );
+      ingridSessionId = updatedIngridCheckoutSession.session.checkout_session_id;
+    }
 
     return {
       data: {
