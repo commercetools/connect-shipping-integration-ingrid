@@ -80,6 +80,7 @@ export const post = async (request: Request, response: Response) => {
     );
     if (error instanceof CustomError)
       error.message += `Update commercetools cart shipment state as canceled. (orderId: ${orderId})`;
+    throw error
   }
   if (responseObj?.status === 'COMPLETE') {
     const updateOrderResult = await changeShipmentState(
