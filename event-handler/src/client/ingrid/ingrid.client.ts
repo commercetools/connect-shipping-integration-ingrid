@@ -18,12 +18,12 @@ export default class IngridApiClient {
   }
 
   public async completeCheckoutSession(
-    payload: IngridCompleteSessionRequestPayload,
+    payload: IngridCompleteSessionRequestPayload
   ) {
     try {
       const response = await this.client.post(
         IngridUrls.DELIVERY_CHECKOUT + '/session.complete',
-        payload,
+        payload
       );
       return response.data as IngridCompleteSessionResponse;
     } catch (error) {
@@ -31,7 +31,6 @@ export default class IngridApiClient {
         cause: error instanceof Error ? error : new Error(String(error)),
       });
     }
-
   }
 }
 

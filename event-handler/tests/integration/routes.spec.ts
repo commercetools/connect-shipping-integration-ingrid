@@ -17,7 +17,7 @@ describe('Testing router', () => {
     });
   });
   test('Post invalid body', async () => {
-    const response = await request(app).post('/event').send({
+    const response = await request(app).post('/').send({
       message: 'hello world',
     });
     expect(response.status).toBe(400);
@@ -28,7 +28,7 @@ describe('Testing router', () => {
     });
   });
   test('Post empty body', async () => {
-    const response = await request(app).post('/event');
+    const response = await request(app).post('/');
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       message: 'Bad request: Wrong No Pub/Sub message format',
@@ -54,7 +54,7 @@ describe('unexpected error', () => {
   });
   test('should handle unexpected errors', async () => {
     // Call the route handler
-    const response = await request(app).post('/event');
+    const response = await request(app).post('/');
     expect(response.status).toBe(500);
     expect(response.body).toEqual({
       message: 'Internal server error',

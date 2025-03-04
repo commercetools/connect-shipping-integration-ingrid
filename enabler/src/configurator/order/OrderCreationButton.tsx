@@ -2,6 +2,7 @@ import { memo, useEffect, useState, useSyncExternalStore } from 'react';
 import cocoSessionStore from '../stores/cocoSessionStore';
 import client from '../coco';
 import type { Cart } from '@commercetools/platform-sdk';
+import '../css/CartEditor.scss';
 
 const OrderCreationButton = memo(function OrderCreationButton() {
   const [orderCreation, setOrderCreation] = useState(false);
@@ -24,37 +25,41 @@ const OrderCreationButton = memo(function OrderCreationButton() {
           .get()
           .execute()
           .then((result) => {
-            console.log('Cart feteched', result);
             cartVersion = result?.body.version as number;
             return cartVersion;
-          }).then((cartVersion) => {
-          console.log('Create order from cart');
-          client
-            .orders()
-            .post({
-              body: {
-                'cart': {
-                  'id': cartId,
-                  'typeId': 'cart',
+          })
+          .then((cartVersion) => {
+            const order = client
+              .orders()
+              .post({
+                body: {
+                  'cart': {
+                    'id': cartId,
+                    'typeId': 'cart',
+                  },
+                  'version': cartVersion,
                 },
-                'version': cartVersion,
-              },
-            })
-            .execute();
-        }).then((result) => {
-          console.log('Order created', result);
-        })
+              })
+              .execute();
+              return order
+          })
+          .then((result) => {
+            console.log('Order created', result);
+            const orderCreationResultMessageEle = document.getElementById("order-creation-result-message")
+            if (orderCreationResultMessageEle)
+              orderCreationResultMessageEle.innerHTML = `Order created : ${result.body.id}`
+          })
           .catch((e) => console.error('something went wrong:', e));
       }, 500);
-
     }
   }, [orderCreation]);
 
   return session ? (
     <div>
       <button onClick={() => setOrderCreation((e) => !e)}>
-        Create Order from Cart
+        Proceed Payment
       </button>
+      <p className="standard-font" id="order-creation-result-message"></p>
     </div>
   ) : null;
 });

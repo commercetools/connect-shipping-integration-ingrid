@@ -1,5 +1,6 @@
 import CustomError from '../errors/custom.error';
 import { logger } from './logger.utils';
+import { DecodedMessageType } from '../types/index.types';
 
 interface PubSubRequest {
   body?: PubSubBody;
@@ -25,7 +26,7 @@ class PubSubValidator {
       logger.error('Missing request body.');
       throw new CustomError(
         400,
-        'Bad request: No Pub/Sub message was received',
+        'Bad request: No Pub/Sub message was received'
       );
     }
     return request.body;
@@ -42,7 +43,7 @@ class PubSubValidator {
       logger.error('Missing body message');
       throw new CustomError(
         400,
-        'Bad request: Wrong No Pub/Sub message format',
+        'Bad request: Wrong No Pub/Sub message format'
       );
     }
     return requestBody.message;
@@ -68,12 +69,29 @@ class PubSubValidator {
       if (!decodedData) {
         throw new CustomError(400, 'Decoded data is empty');
       }
-
       return JSON.parse(decodedData) as T;
     } catch (error) {
       logger.error('Failed to decode or parse message data:', error);
       throw new CustomError(400, 'Bad request: Invalid message data format');
     }
+  }
+  static validateDecodedMessage(decodedData: DecodedMessageType): string {
+    if (decodedData?.notificationType === 'ResourceCreated') {
+      return 'RESOURCE_CREATED_MESSAGE';
+    }
+    if (decodedData.type !== 'OrderCreated') {
+      throw new CustomError(
+        400,
+        'Bad request. The message is not for OrderCreated event.'
+      );
+    }
+    if (!decodedData.order?.id) {
+      throw new CustomError(
+        400,
+        'Bad request. The order ID cannot be found in message.'
+      );
+    }
+    return decodedData.order?.id;
   }
 }
 

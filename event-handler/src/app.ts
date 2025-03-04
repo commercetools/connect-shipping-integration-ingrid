@@ -23,7 +23,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Define routes
-app.use('/event', EventRoutes);
+app.use('/', EventRoutes);
 app.use('*', () => {
   throw new CustomError(404, 'Path not found.');
 });

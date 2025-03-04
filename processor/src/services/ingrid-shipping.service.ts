@@ -79,6 +79,14 @@ export class IngridShippingService extends AbstractShippingService {
     // get ingrid session id
     let ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
 
+    if (!ingridSessionId) {
+      throw new CustomError({
+        message: 'No ingrid session id found on cart',
+        code: 'NO_INGRID_SESSION_ID_FOUND',
+        httpErrorStatus: 400,
+      });
+    }
+
     // get ingrid checkout session
     const ingridCheckoutSession = await this.ingridClient.getCheckoutSession(ingridSessionId);
     ingridSessionId = ingridCheckoutSession.session.checkout_session_id;
