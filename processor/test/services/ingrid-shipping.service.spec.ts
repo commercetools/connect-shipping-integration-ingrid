@@ -16,6 +16,7 @@ import {
   cartWithoutCustomType,
   cartWithAdditionalCustomType,
   setCustomFieldFailureResponse,
+  cartWithShippingAddress,
 } from '../mock/mock-cart';
 import { type } from '../mock/mock-type';
 import { mockRequest } from '../mock/mock-utils';
@@ -242,7 +243,9 @@ describe('ingrid-shipping.service', () => {
         .mockResolvedValue(mockIngridCheckoutSessionWithAddresses);
 
       // Mock updating cart with addresses and shipping method
-      jest.spyOn(CommercetoolsApiClient.prototype, 'updateCartWithAddressAndShippingMethod').mockResolvedValue(cart);
+      jest
+        .spyOn(CommercetoolsApiClient.prototype, 'updateCartWithAddressAndShippingMethod')
+        .mockResolvedValue(cartWithShippingAddress);
 
       const result = await shippingService.update();
 
