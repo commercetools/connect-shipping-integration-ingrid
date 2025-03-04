@@ -13,6 +13,7 @@
     "watch-ts": "tsc --watch",
     "check": "tsc --noEmit && npm run lint",
     "test": "jest --detectOpenHandles",
+    "test:coverage": "jest --coverage --collectCoverageFrom='src/**/*.ts’",
     "test:watch": "jest --watch --detectOpenHandles",
     "connector:post-deploy": "node dist/connectors/post-deploy.js",
     "connector:pre-undeploy": "node dist/connectors/pre-undeploy.js"
