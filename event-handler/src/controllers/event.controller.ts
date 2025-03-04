@@ -7,7 +7,8 @@ import IngridApiClient from '../client/ingrid/ingrid.client';
 import { readConfiguration } from '../utils/config.utils';
 import type { IngridCompleteSessionRequestPayload } from '../client/ingrid/types/ingrid.client.type';
 import { DecodedMessageType } from '../types/index.types';
-
+import { changeShipmentState } from '../client/commercetools/update.client';
+import { SHIPMENT_STATE } from '../client/commercetools/types/commercetools.client.type';
 /**
  * Exposed event POST endpoint.
  * Receives the Pub/Sub message and works with it
@@ -64,15 +65,47 @@ export const post = async (request: Request, response: Response) => {
     checkout_session_id: ingridSessionId,
     external_id: orderId,
   };
-
-  const ingridResponse = await ingridClient.completeCheckoutSession(payLoad);
-  const responseObj = {
-    ingridSessionId: ingridResponse.session.checkout_session_id,
-    status: ingridResponse.session.status,
-  };
-
-  logger.info(
-    `complete ingrid session successfully : ${JSON.stringify(responseObj)}`
-  );
+  let responseObj = { ingridSessionId: '', status: '' };
+  try {
+    const ingridResponse = await ingridClient.completeCheckoutSession(payLoad);
+    responseObj = {
+      ingridSessionId: ingridResponse.session.checkout_session_id,
+      status: ingridResponse.session.status,
+    };
+  } catch (error) {
+    await changeShipmentState(
+      orderId,
+      commercetoolsOrder.version,
+      SHIPMENT_STATE.CANCELED
+    );
+    if (error instanceof CustomError)
+      error.message += `Update commercetools cart shipment state as canceled. (orderId: ${orderId})`;
+    throw error
+  }
+  if (responseObj?.status === 'COMPLETE') {
+    const updateOrderResult = await changeShipmentState(
+      orderId,
+      commercetoolsOrder.version,
+      SHIPMENT_STATE.READY
+    );
+    logger.info(
+      `complete ingrid session successfully : ${JSON.stringify(responseObj)}`
+    );
+    logger.info(
+      `Update commercetools cart shipment state as ready. (orderId: ${updateOrderResult.id})`
+    );
+  } else {
+    const updateOrderResult = await changeShipmentState(
+      orderId,
+      commercetoolsOrder.version,
+      SHIPMENT_STATE.CANCELED
+    );
+    logger.info(
+      `complete ingrid session failed : ${JSON.stringify(responseObj)}`
+    );
+    logger.info(
+      `Update commercetools cart shipment state as canceled. (orderId: ${updateOrderResult.id})`
+    );
+  }
   return response.status(204).send(responseObj);
 };

@@ -27,7 +27,7 @@ export default class IngridApiClient {
       );
       return response.data as IngridCompleteSessionResponse;
     } catch (error) {
-      throw new CustomError(400, 'Failed to complete session on Ingrid', {
+      throw new CustomError(400, 'Failed to complete session on Ingrid.', {
         cause: error instanceof Error ? error : new Error(String(error)),
       });
     }

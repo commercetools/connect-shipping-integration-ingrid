@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import * as ReactDOM from "react-dom/client";
 import CartEditor from "./cartEditor";
 import MountEnabler from "./MountEnabler";
-import OrderCreationButton from "./order/OrderCreationButton";
 
 const rootId = "root";
 
@@ -31,7 +30,7 @@ function MyComponent() {
         <CartEditor />
         <MountEnabler />
       </div>
-      <OrderCreationButton/>
+      
     </div>
   );
 }
