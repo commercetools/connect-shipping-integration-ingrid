@@ -5,8 +5,8 @@ import type {
   ShippingInitResult,
   ShippingUpdateResult,
 } from "../shipping-enabler/shipping-enabler";
-
-
+import type { Cart } from '@commercetools/platform-sdk';
+import client from './coco';
 const ingridElementId = "enablerContainer";
 const MountEnabler = memo(function MountEnabler() {
   const [showEnabler, setShowEnabler] = useState(false);
@@ -17,7 +17,61 @@ const MountEnabler = memo(function MountEnabler() {
   );
 
   const [component, setComponent] = useState<ShippingComponent | null>(null);
+  const showMessage = (message: string) => {
+    const resultMessageEle = document.getElementById("result-message")
+    if (resultMessageEle)
+      resultMessageEle.innerHTML = message + '<br>'
+  }
+  const appendMessage = (message: string) => {
+    const resultMessageEle = document.getElementById("result-message")
+    if (resultMessageEle)
+      resultMessageEle.innerHTML += message + '<br>'
+  }
 
+  const createOrder = async() => {
+    const cartString = localStorage.getItem('cart');
+    const cart = cartString ? JSON.parse(cartString) as Cart : undefined;
+    if (cart) {
+
+      const cartId = cart.id;
+      let cartVersion = cart.version;
+      
+      setTimeout(() => {
+      
+        client
+          .carts().withId({ ID: cartId })
+          .get()
+          .execute()
+          .then((updatedCartResponse) => {
+            cartVersion = updatedCartResponse?.body.version as number;
+            return cartVersion;
+          })
+          .then((cartVersion) => {
+            const order = client
+              .orders()
+              .post({
+                body: {
+                  'cart': {
+                    'id': cartId,
+                    'typeId': 'cart',
+                  },
+                  'version': cartVersion,
+                },
+              })
+              .execute();
+              return order
+          })
+          .then((result) => {
+            console.log('Order created', result);
+            appendMessage(`Order created : ${result.body.id}`)
+          })
+          .catch((e) => {
+            console.error('something went wrong:', e)
+            appendMessage(`Something went wrong: ${e.message}`)
+          });
+      }, 500);
+    }
+  }
   const initEnabler = async () => {
  
     const enabler = await import(import.meta.env.VITE_ENABLER_URL)
@@ -32,14 +86,15 @@ const MountEnabler = memo(function MountEnabler() {
               localStorage.setItem("ingrid-session-id", result.ingridSessionId);
             }
           },
-          onUpdateCompleted: (result: ShippingUpdateResult) => {
+          onUpdateCompleted: async (result: ShippingUpdateResult) => {
             console.log("onUpdateCompleted", { result });
-            const updateShippingOptionsResultMessageEle = document.getElementById("update-shipping-options-result-message")
-            if (updateShippingOptionsResultMessageEle)
-              updateShippingOptionsResultMessageEle.innerHTML = `shipping options updated : ${result.isSuccess?"success":"failed"}`
+            showMessage(`shipping options updated : ${result.isSuccess?"success":"failed"}`)
+            if (result.isSuccess)
+              await createOrder();
           },
-          onError: (err: unknown) => {
-            console.error("onError", err);
+          onError: (err: Error) => {           
+            console.error("onError", err.message);
+            showMessage(`Something went wrong: ${err.message} `)
           },
         });
         return enabler
@@ -52,8 +107,6 @@ const MountEnabler = memo(function MountEnabler() {
       const builder = await enabler.createComponentBuilder();
       const component = builder.build();
       return component;
-    
-  
   };
 
   useEffect(() => {
@@ -89,11 +142,12 @@ const MountEnabler = memo(function MountEnabler() {
           disabled={!showEnabler}
           onClick={() => setUpdateEndpoint((e) => !e)}
         >
-          Confirm Shipping Option
+          Proceed Payment
         </button>
-        <p className="standard-font" id="update-shipping-options-result-message"></p>
+        
         </div>
       )}
+      <p className="standard-font" id="result-message"></p>
     </div>
   ) : null;
 });
