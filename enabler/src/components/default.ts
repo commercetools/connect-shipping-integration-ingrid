@@ -36,8 +36,6 @@ export class DefaultComponent implements ShippingComponent {
   }
 
   async init() {
-    // here we would call the SDK to submit the payment
-    // this.sdk.init({ environment: this.environment });
     try {
       const response = await fetch(this.processorUrl + "/sessions/init", {
         method: "POST",
@@ -48,7 +46,7 @@ export class DefaultComponent implements ShippingComponent {
 
       const data = await response.json();
       if (!data.success) {
-        this.onError(data);
+        throw new Error(data.message)
       }
 
       const clientElement = document.querySelector(
@@ -84,7 +82,7 @@ export class DefaultComponent implements ShippingComponent {
       });
       const data = await response.json();
       if (!data.success) {
-        this.onError(data);
+        throw new Error(data.message)
       }
       this.onUpdateCompleted({
         isSuccess: data.success,
@@ -95,28 +93,4 @@ export class DefaultComponent implements ShippingComponent {
       this.onError(error);
     }
   }
-
-  // async submit() {
-  //   this.sdk.init({ environment: this.environment });
-  //   try {
-  //     const requestData = {} // TODO: implement request body
-  //     const response = await fetch(this.processorUrl + "/sessions/submit", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         "X-Session-Id": this.sessionId,
-  //       },
-  //       body: JSON.stringify(requestData),
-  //     });
-  //     const data = await response.json();
-  //     if (data) {
-
-  //         this.onSubmissionCompleted();
-  //     } else {
-  //       this.onError("Some error occurred. Please try again.");
-  //     }
-  //   } catch (e) {
-  //     this.onError("Some error occurred. Please try again.");
-  //   }
-  // }
 }
