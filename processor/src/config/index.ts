@@ -7,6 +7,7 @@ const config = {
   apiUrl: process.env.CTP_API_URL || 'https://api.europe-west1.gcp.commercetools.com',
   sessionUrl: process.env.CTP_SESSION_URL || 'https://session.europe-west1.gcp.commercetools.com/',
   keyOfIngridSessionCustomType: process.env.INGRID_SESSION_CUSTOM_TYPE_KEY || 'ingrid-session',
+  taxCategoryKey: process.env.INGRID_SPECIFIC_TAX_CATEGORY_KEY || 'ingrid-tax',
   // Required by logger
   loggerLevel: process.env.LOGGER_LEVEL || 'info',
 
