@@ -7,14 +7,14 @@ import loadingStore from "./loadingStore";
 import Store from "./Store";
 
 type ACTION =
- {
-  type: "SET_SHIPPING_ADDRESS",
-  address: Address;
-}
-| {
-  type: "APPLY_DISCOUNT";
-  percetage: number;
-}
+  {
+    type: "SET_SHIPPING_ADDRESS",
+    address: Address;
+  }
+  | {
+    type: "APPLY_DISCOUNT";
+    percetage: number;
+  }
   | {
       type: "SET_CART";
       cart: Cart;
@@ -25,6 +25,9 @@ type ACTION =
     }
   | {
       type: "DELETE_CART";
+    }
+  | {
+      type: "FETCH_CART";
     };
 
 const cartJSON = localStorage.getItem("cart");
@@ -34,6 +37,27 @@ const initialState: Cart = cartJSON ? JSON.parse(cartJSON) : undefined;
 const cartStore = new Store<Cart | undefined, ACTION>(
   (action, state, setState) => {
     switch (action.type) {
+      case "FETCH_CART": 
+        if (!state) return;
+      
+        loadingStore.dispatch("START_LOADING");
+        client
+          .carts()
+          .withId({ ID: state.id })
+          .get()
+          .execute()
+          .then((cart) =>
+            cartStore.dispatch({
+              type: "SET_CART",
+              cart: cart.body,
+            })
+          )
+          .catch((e) => console.error(e))
+          .finally(() => {
+            loadingStore.dispatch("DONE");
+   
+          });
+        break;
       case "SET_SHIPPING_ADDRESS":
         if (state) {
           loadingStore.dispatch("START_LOADING");
