@@ -32,7 +32,7 @@ export const handleTaxCategoryAction = async (client: CommercetoolsApiClient, ke
     }
 
     appLogger.info(
-      `[TAX-CATEGORY SUCCESS]: Tax category version ${taxCategory!.version} with key ${taxCategory!.key} exists.`,
+      `[TAX-CATEGORY SUCCESS]: Tax category version ${taxCategory!.version} with key ${taxCategory!.key} was created.`,
     );
 
     return !!taxCategory;

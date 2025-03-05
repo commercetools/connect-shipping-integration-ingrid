@@ -265,7 +265,7 @@ export const mockIngridCheckoutSessionWithAddresses: IngridGetSessionResponse = 
     status: 'active',
     updated_at: '2023-01-01T00:00:00Z',
     cart: {
-      total_value: 1000,
+      total_value: 2599,
       total_discount: 0,
       items: [],
       cart_id: 'mock-cart-id',

@@ -1,4 +1,4 @@
-import { describe, test, expect, afterEach, jest } from '@jest/globals';
+import { describe, test, expect, afterEach, jest, beforeEach } from '@jest/globals';
 import { additionalType, type } from '../mock/mock-type';
 import { CommercetoolsApiClient } from '../../src/clients/commercetools/api.client';
 import { handleCustomTypeAction, handleTaxCategoryAction } from '../../src/connectors/actions';

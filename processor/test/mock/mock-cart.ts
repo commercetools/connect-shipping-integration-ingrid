@@ -651,6 +651,21 @@ export const cartWithShippingAddress: Cart = {
     type: { typeId: 'type', id: 'ingrid-session-type-id' },
     fields: { ingridSessionId: 'ingrid-session-id' },
   },
+  taxedPrice: {
+    totalNet: {
+      type: 'centPrecision',
+      centAmount: 2184,
+      currencyCode: 'EUR',
+      fractionDigits: 2,
+    },
+    totalGross: {
+      type: 'centPrecision',
+      centAmount: 2599,
+      currencyCode: 'EUR',
+      fractionDigits: 2,
+    },
+    taxPortions: [],
+  },
   inventoryMode: 'None',
   taxMode: 'Platform',
   taxRoundingMode: 'HalfEven',

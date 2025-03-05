@@ -16,6 +16,7 @@ import {
   cartWithoutCustomType,
   cartWithAdditionalCustomType,
   setCustomFieldFailureResponse,
+  cartWithShippingAddress,
 } from '../mock/mock-cart';
 import { type } from '../mock/mock-type';
 import { mockRequest } from '../mock/mock-utils';
@@ -83,141 +84,160 @@ describe('ingrid-shipping.service', () => {
     mockServer.resetHandlers();
   });
 
-  test('init session OK', async () => {
-    mockServer.use(
-      mockRequest(
-        IngridBasePath.STAGING,
-        IngridUrls.DELIVERY_CHECKOUT + '/session.create',
-        200,
-        mockCreateCheckoutSessionSuccessResponse,
-      ),
-    );
-    mockServer.use(
-      mockRequest(
-        IngridBasePath.STAGING,
-        IngridUrls.DELIVERY_CHECKOUT + '/session.get',
-        200,
-        mockCreateCheckoutSessionSuccessResponse,
-      ),
-    );
-    jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(type);
-    jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cartWithoutCustomType);
-    jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomType').mockResolvedValue(cart);
-    jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomField').mockResolvedValue(cart);
+  describe('init', () => {
+    test('init session OK', async () => {
+      mockServer.use(
+        mockRequest(
+          IngridBasePath.STAGING,
+          IngridUrls.DELIVERY_CHECKOUT + '/session.create',
+          200,
+          mockCreateCheckoutSessionSuccessResponse,
+        ),
+      );
+      mockServer.use(
+        mockRequest(
+          IngridBasePath.STAGING,
+          IngridUrls.DELIVERY_CHECKOUT + '/session.get',
+          200,
+          mockCreateCheckoutSessionSuccessResponse,
+        ),
+      );
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(type);
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cartWithoutCustomType);
+      jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomType').mockResolvedValue(cart);
+      jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomField').mockResolvedValue(cart);
 
-    const result = await shippingService.init();
+      // Mock the transformCommercetoolsCartToIngridPayload function to handle the cart properly
+      jest.mock('../../src/services/helpers/transformCommercetoolsToIngridDTOs', () => ({
+        transformCommercetoolsCartToIngridPayload: jest.fn().mockReturnValue({
+          cart: {
+            items: [{ id: 'item-1', quantity: 1 }],
+            total_value: 2599,
+            total_discount: 0,
+            cart_id: 'cart-id',
+          },
+          locales: ['de-DE'],
+          purchase_country: 'DE',
+          purchase_currency: 'EUR',
+        }),
+      }));
 
-    expect(typeof result.data).toBe('object');
+      const result = await shippingService.init();
 
-    const data: InitSessionSuccessResponseSchemaDTO = result.data;
-    expect(typeof data.ingridHtml).toBe('string');
-    expect(typeof data.ingridSessionId).toBe('string');
-    expect(typeof data.success).toBe('boolean');
-    expect(typeof data.cartVersion).toBe('number');
-  });
+      expect(typeof result.data).toBe('object');
 
-  test('init session failed with no ingrid-session custom type', async () => {
-    // @ts-expect-error: should not be null but could happen if getCustomType() is not properly implemented
-    jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(null);
+      const data: InitSessionSuccessResponseSchemaDTO = result.data;
+      expect(typeof data.ingridHtml).toBe('string');
+      expect(typeof data.ingridSessionId).toBe('string');
+      expect(typeof data.success).toBe('boolean');
+      expect(typeof data.cartVersion).toBe('number');
+    });
 
-    try {
-      await shippingService.init();
-    } catch (error) {
-      expect(error instanceof CustomError).toBe(true);
-    }
-  });
+    test('init session failed with no ingrid-session custom type', async () => {
+      // @ts-expect-error: should not be null but could happen if getCustomType() is not properly implemented
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(null);
 
-  test('init session OK when cart containing ingrid-session custom type', async () => {
-    mockServer.use(
-      mockRequest(
-        IngridBasePath.STAGING,
-        IngridUrls.DELIVERY_CHECKOUT + '/session.create',
-        200,
-        mockCreateCheckoutSessionSuccessResponse,
-      ),
-    );
-    mockServer.use(
-      mockRequest(
-        IngridBasePath.STAGING,
-        IngridUrls.DELIVERY_CHECKOUT + '/session.get',
-        200,
-        mockCreateCheckoutSessionSuccessResponse,
-      ),
-    );
-    jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(type);
-    jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cart);
-    jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomField').mockResolvedValue(cart);
+      try {
+        await shippingService.init();
+      } catch (error) {
+        expect(error instanceof CustomError).toBe(true);
+      }
+    });
 
-    const result = await shippingService.init();
+    test('init session OK when cart containing ingrid-session custom type', async () => {
+      mockServer.use(
+        mockRequest(
+          IngridBasePath.STAGING,
+          IngridUrls.DELIVERY_CHECKOUT + '/session.create',
+          200,
+          mockCreateCheckoutSessionSuccessResponse,
+        ),
+      );
+      mockServer.use(
+        mockRequest(
+          IngridBasePath.STAGING,
+          IngridUrls.DELIVERY_CHECKOUT + '/session.get',
+          200,
+          mockCreateCheckoutSessionSuccessResponse,
+        ),
+      );
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(type);
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cart);
+      jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomField').mockResolvedValue(cart);
 
-    expect(typeof result.data).toBe('object');
+      const result = await shippingService.init();
 
-    const data: InitSessionSuccessResponseSchemaDTO = result.data;
-    expect(typeof data.ingridHtml).toBe('string');
-    expect(typeof data.ingridSessionId).toBe('string');
-    expect(typeof data.success).toBe('boolean');
-    expect(typeof data.cartVersion).toBe('number');
-  });
+      expect(typeof result.data).toBe('object');
 
-  test('init session failed with a cart containing additional custom type but no ingridSessionId as custom field', async () => {
-    mockServer.use(
-      mockRequest(
-        IngridBasePath.STAGING,
-        IngridUrls.DELIVERY_CHECKOUT + '/session.create',
-        200,
-        mockCreateCheckoutSessionSuccessResponse,
-      ),
-    );
-    mockServer.use(
-      mockRequest(
-        IngridBasePath.STAGING,
-        IngridUrls.DELIVERY_CHECKOUT + '/session.get',
-        200,
-        mockCreateCheckoutSessionSuccessResponse,
-      ),
-    );
-    jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(type);
-    jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cartWithAdditionalCustomType);
-    jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomField').mockRejectedValue(setCustomFieldFailureResponse);
+      const data: InitSessionSuccessResponseSchemaDTO = result.data;
+      expect(typeof data.ingridHtml).toBe('string');
+      expect(typeof data.ingridSessionId).toBe('string');
+      expect(typeof data.success).toBe('boolean');
+      expect(typeof data.cartVersion).toBe('number');
+    });
 
-    try {
-      await shippingService.init();
-    } catch (error) {
-      expect(error instanceof CustomError).toBe(true);
-      const customError = error as CustomError;
-      expect(customError.httpErrorStatus).toBe(400);
-    }
-  });
+    test('init session failed with a cart containing additional custom type but no ingridSessionId as custom field', async () => {
+      mockServer.use(
+        mockRequest(
+          IngridBasePath.STAGING,
+          IngridUrls.DELIVERY_CHECKOUT + '/session.create',
+          200,
+          mockCreateCheckoutSessionSuccessResponse,
+        ),
+      );
+      mockServer.use(
+        mockRequest(
+          IngridBasePath.STAGING,
+          IngridUrls.DELIVERY_CHECKOUT + '/session.get',
+          200,
+          mockCreateCheckoutSessionSuccessResponse,
+        ),
+      );
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(type);
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cartWithAdditionalCustomType);
+      jest
+        .spyOn(CommercetoolsApiClient.prototype, 'setCartCustomField')
+        .mockRejectedValue(setCustomFieldFailureResponse);
 
-  test('init session failed due to wrong api key', async () => {
-    mockServer.use(
-      mockRequest(
-        IngridBasePath.STAGING,
-        IngridUrls.DELIVERY_CHECKOUT + '/session.create',
-        401,
-        mockCreateCheckoutSessionAuthFailureResponse,
-      ),
-    );
-    mockServer.use(
-      mockRequest(
-        IngridBasePath.STAGING,
-        IngridUrls.DELIVERY_CHECKOUT + '/session.get',
-        401,
-        mockCreateCheckoutSessionAuthFailureResponse,
-      ),
-    );
-    jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(type);
-    jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cart);
-    jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomType').mockResolvedValue(cart);
-    jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomField').mockResolvedValue(cart);
+      try {
+        await shippingService.init();
+      } catch (error) {
+        expect(error instanceof CustomError).toBe(true);
+        const customError = error as CustomError;
+        expect(customError.httpErrorStatus).toBe(400);
+      }
+    });
 
-    try {
-      await shippingService.init();
-    } catch (error) {
-      expect(error instanceof CustomError).toBe(true);
-      const customError = error as CustomError;
-      expect(customError.httpErrorStatus).toBe(401);
-    }
+    test('init session failed due to wrong api key', async () => {
+      mockServer.use(
+        mockRequest(
+          IngridBasePath.STAGING,
+          IngridUrls.DELIVERY_CHECKOUT + '/session.create',
+          401,
+          mockCreateCheckoutSessionAuthFailureResponse,
+        ),
+      );
+      mockServer.use(
+        mockRequest(
+          IngridBasePath.STAGING,
+          IngridUrls.DELIVERY_CHECKOUT + '/session.get',
+          401,
+          mockCreateCheckoutSessionAuthFailureResponse,
+        ),
+      );
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(type);
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cart);
+      jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomType').mockResolvedValue(cart);
+      jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomField').mockResolvedValue(cart);
+
+      try {
+        await shippingService.init();
+      } catch (error) {
+        expect(error instanceof CustomError).toBe(true);
+        const customError = error as CustomError;
+        expect(customError.httpErrorStatus).toBe(401);
+      }
+    });
   });
 
   describe('update', () => {
@@ -242,7 +262,38 @@ describe('ingrid-shipping.service', () => {
         .mockResolvedValue(mockIngridCheckoutSessionWithAddresses);
 
       // Mock updating cart with addresses and shipping method
-      jest.spyOn(CommercetoolsApiClient.prototype, 'updateCartWithAddressAndShippingMethod').mockResolvedValue(cart);
+      jest
+        .spyOn(CommercetoolsApiClient.prototype, 'updateCartWithAddressAndShippingMethod')
+        .mockResolvedValue(cartWithShippingAddress);
+
+      // Mock the transformCommercetoolsCartToIngridPayload function for the update case
+      jest.mock('../../src/services/helpers/transformCommercetoolsToIngridDTOs', () => ({
+        transformCommercetoolsCartToIngridPayload: jest.fn().mockReturnValue({
+          cart: {
+            items: [{ id: 'item-1', quantity: 1 }],
+            total_value: 2599,
+            total_discount: 0,
+            cart_id: 'cart-id',
+          },
+          locales: ['de-DE'],
+          purchase_country: 'DE',
+          purchase_currency: 'EUR',
+        }),
+      }));
+
+      // Mock the updateCheckoutSession method
+      jest.spyOn(IngridApiClient.prototype, 'updateCheckoutSession').mockResolvedValue({
+        session: {
+          checkout_session_id: 'mock-ingrid-session-id',
+          status: 'active',
+          updated_at: '2021-01-01T00:00:00.000Z',
+          cart: mockIngridCheckoutSessionWithAddresses.session.cart,
+          delivery_groups: mockIngridCheckoutSessionWithAddresses.session.delivery_groups,
+          purchase_country: 'DE',
+          // ... other session properties
+        },
+        html_snippet: '<div>Ingrid Checkout</div>',
+      });
 
       const result = await shippingService.update();
 
@@ -269,6 +320,125 @@ describe('ingrid-shipping.service', () => {
           shippingMethodName: expect.any(String),
           shippingRate: expect.any(Object),
           taxCategory: expect.any(Object),
+        }),
+      );
+    });
+
+    test('should update Ingrid session when prices differ', async () => {
+      // Mock getting cart with ingrid session
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue({
+        ...cart,
+        custom: {
+          type: { typeId: 'type', id: 'type-id' },
+          fields: { ingridSessionId: 'mock-ingrid-session-id' },
+        },
+      });
+
+      // Mock getting Ingrid checkout session with different price
+      const mockSessionWithDifferentPrice = {
+        ...mockIngridCheckoutSessionWithAddresses,
+        session: {
+          ...mockIngridCheckoutSessionWithAddresses.session,
+          cart: {
+            ...mockIngridCheckoutSessionWithAddresses.session.cart,
+            total_value: 3000, // Different from cart's taxedPrice.totalGross.centAmount
+          },
+        },
+      };
+
+      jest.spyOn(IngridApiClient.prototype, 'getCheckoutSession').mockResolvedValue(mockSessionWithDifferentPrice);
+
+      // Mock updating cart with addresses and shipping method
+      const updatedCartWithTaxedPrice = {
+        ...cartWithShippingAddress,
+        taxedPrice: {
+          totalGross: { type: 'centPrecision' as const, centAmount: 2599, currencyCode: 'EUR', fractionDigits: 2 },
+          totalNet: { type: 'centPrecision' as const, centAmount: 2184, currencyCode: 'EUR', fractionDigits: 2 },
+          totalTax: { type: 'centPrecision' as const, centAmount: 415, currencyCode: 'EUR', fractionDigits: 2 },
+          taxPortions: [
+            {
+              rate: 0.19,
+              amount: { type: 'centPrecision' as const, centAmount: 415, currencyCode: 'EUR', fractionDigits: 2 },
+              name: 'VAT',
+            },
+          ],
+        },
+      };
+
+      jest
+        .spyOn(CommercetoolsApiClient.prototype, 'updateCartWithAddressAndShippingMethod')
+        .mockResolvedValue(updatedCartWithTaxedPrice);
+
+      // Mock the transformCommercetoolsCartToIngridPayload function
+      jest.mock('../../src/services/helpers/transformCommercetoolsToIngridDTOs', () => ({
+        transformCommercetoolsCartToIngridPayload: jest.fn().mockReturnValue({
+          cart: {
+            items: [{ id: 'item-1', quantity: 1 }],
+            total_value: 2599,
+            total_discount: 0,
+            cart_id: 'cart-id',
+          },
+          locales: ['de-DE'],
+          purchase_country: 'DE',
+          purchase_currency: 'EUR',
+        }),
+      }));
+
+      // Mock the updateCheckoutSession method
+      const updateSessionSpy = jest.spyOn(IngridApiClient.prototype, 'updateCheckoutSession').mockResolvedValue({
+        session: {
+          checkout_session_id: 'mock-ingrid-session-id',
+          status: 'active',
+          updated_at: '2021-01-01T00:00:00.000Z',
+          cart: mockIngridCheckoutSessionWithAddresses.session.cart,
+          delivery_groups: mockIngridCheckoutSessionWithAddresses.session.delivery_groups,
+          purchase_country: 'DE',
+          // ... other session properties
+        },
+        html_snippet: '<div>Updated Ingrid Checkout</div>',
+      });
+
+      const result = await shippingService.update();
+
+      expect(result.data).toEqual({
+        success: true,
+        cartVersion: updatedCartWithTaxedPrice.version,
+        ingridSessionId: 'mock-ingrid-session-id',
+      });
+
+      // Verify that updateCheckoutSession was called
+      expect(updateSessionSpy).toHaveBeenCalled();
+    });
+
+    test('should throw error when cart has no taxed price', async () => {
+      // Mock getting cart with ingrid session
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue({
+        ...cart,
+        custom: {
+          type: { typeId: 'type', id: 'type-id' },
+          fields: { ingridSessionId: 'mock-ingrid-session-id' },
+        },
+      });
+
+      // Mock getting Ingrid checkout session
+      jest
+        .spyOn(IngridApiClient.prototype, 'getCheckoutSession')
+        .mockResolvedValue(mockIngridCheckoutSessionWithAddresses);
+
+      // Mock updating cart with addresses and shipping method but without taxed price
+      const cartWithoutTaxedPrice = { ...cartWithShippingAddress };
+      delete cartWithoutTaxedPrice.taxedPrice;
+
+      jest
+        .spyOn(CommercetoolsApiClient.prototype, 'updateCartWithAddressAndShippingMethod')
+        .mockResolvedValue(cartWithoutTaxedPrice);
+
+      await expect(shippingService.update()).rejects.toThrow(
+        new CustomError({
+          message:
+            'Failed to get taxed price from commercetools cart. It seems like there is no shipping address set on commercetools cart.',
+          code: 'FAILED_TO_GET_TAXED_PRICE_FROM_COMMERCETOOLS_CART',
+          httpErrorStatus: 400,
         }),
       );
     });

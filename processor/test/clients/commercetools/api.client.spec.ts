@@ -177,15 +177,31 @@ describe('commercetools api client', () => {
   });
 
   describe('createTaxCategoryWithNullRate', () => {
-    test('should create tax category with null rate', async () => {
+    test('should create tax category with null rate for all project countries', async () => {
+      const mockProjectResponse = {
+        countries: ['DE', 'US', 'FR'],
+      };
+
       const mockTaxCategory = {
         key: 'test-tax',
-        name: { en: 'Test Tax' },
+        name: 'test-tax (created by Ingrid Connector)',
         rates: [
           {
-            name: 'null',
+            name: 'DE',
             amount: 0,
             country: 'DE',
+            includedInPrice: true,
+          },
+          {
+            name: 'US',
+            amount: 0,
+            country: 'US',
+            includedInPrice: true,
+          },
+          {
+            name: 'FR',
+            amount: 0,
+            country: 'FR',
             includedInPrice: true,
           },
         ],
@@ -193,6 +209,7 @@ describe('commercetools api client', () => {
 
       mockServer.use(
         mockRequest('https://auth.test.de/', 'oauth/token', 200, mockAccessToken),
+        mockRequest('https://api.test.de/', 'dummy-project-key', 200, mockProjectResponse),
         mockRequest('https://api.test.de/', 'dummy-project-key/tax-categories', 201, mockTaxCategory),
       );
 
@@ -201,6 +218,76 @@ describe('commercetools api client', () => {
 
       expect(resp).toBeDefined();
       expect(resp).toEqual(mockTaxCategory);
+    });
+
+    test('should handle empty countries list', async () => {
+      const mockProjectResponse = {
+        countries: [],
+      };
+
+      const mockTaxCategory = {
+        key: 'test-tax',
+        name: 'test-tax (created by Ingrid Connector)',
+        rates: [],
+      };
+
+      mockServer.use(
+        mockRequest('https://auth.test.de/', 'oauth/token', 200, mockAccessToken),
+        mockRequest('https://api.test.de/', 'dummy-project-key', 200, mockProjectResponse),
+        mockRequest('https://api.test.de/', 'dummy-project-key/tax-categories', 201, mockTaxCategory),
+      );
+
+      const apiClient = new CommercetoolsApiClient(opt);
+      const resp = await apiClient.createTaxCategoryWithNullRate('test-tax');
+
+      expect(resp).toBeDefined();
+      expect(resp).toEqual(mockTaxCategory);
+    });
+  });
+
+  describe('getProjectCountries', () => {
+    test('should return list of countries from project', async () => {
+      const mockProjectResponse = {
+        countries: ['DE', 'US', 'FR'],
+      };
+
+      mockServer.use(
+        mockRequest('https://auth.test.de/', 'oauth/token', 200, mockAccessToken),
+        mockRequest('https://api.test.de/', 'dummy-project-key', 200, mockProjectResponse),
+      );
+
+      const apiClient = new CommercetoolsApiClient(opt);
+      const countries = await apiClient.getProjectCountries();
+
+      expect(countries).toEqual(['DE', 'US', 'FR']);
+    });
+
+    test('should handle empty countries list', async () => {
+      const mockProjectResponse = {
+        countries: [],
+      };
+
+      mockServer.use(
+        mockRequest('https://auth.test.de/', 'oauth/token', 200, mockAccessToken),
+        mockRequest('https://api.test.de/', 'dummy-project-key', 200, mockProjectResponse),
+      );
+
+      const apiClient = new CommercetoolsApiClient(opt);
+      const countries = await apiClient.getProjectCountries();
+
+      expect(countries).toEqual([]);
+    });
+
+    test('should handle error when fetching project countries', async () => {
+      mockServer.use(
+        mockRequest('https://auth.test.de/', 'oauth/token', 200, mockAccessToken),
+        mockRequest('https://api.test.de/', 'dummy-project-key', 500, {
+          message: 'Internal Server Error',
+        }),
+      );
+
+      const apiClient = new CommercetoolsApiClient(opt);
+      await expect(apiClient.getProjectCountries()).rejects.toThrow();
     });
   });
 
