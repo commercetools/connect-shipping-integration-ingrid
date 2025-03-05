@@ -106,6 +106,21 @@ describe('ingrid-shipping.service', () => {
     jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomType').mockResolvedValue(cart);
     jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomField').mockResolvedValue(cart);
 
+    // Mock the transformCommercetoolsCartToIngridPayload function to handle the cart properly
+    jest.mock('../../src/services/helpers/transformCommercetoolsToIngridDTOs', () => ({
+      transformCommercetoolsCartToIngridPayload: jest.fn().mockReturnValue({
+        cart: {
+          items: [{ id: 'item-1', quantity: 1 }],
+          total_value: 2599,
+          total_discount: 0,
+          cart_id: 'cart-id',
+        },
+        locales: ['de-DE'],
+        purchase_country: 'DE',
+        purchase_currency: 'EUR',
+      }),
+    }));
+
     const result = await shippingService.init();
 
     expect(typeof result.data).toBe('object');
@@ -247,6 +262,35 @@ describe('ingrid-shipping.service', () => {
         .spyOn(CommercetoolsApiClient.prototype, 'updateCartWithAddressAndShippingMethod')
         .mockResolvedValue(cartWithShippingAddress);
 
+      // Mock the transformCommercetoolsCartToIngridPayload function for the update case
+      jest.mock('../../src/services/helpers/transformCommercetoolsToIngridDTOs', () => ({
+        transformCommercetoolsCartToIngridPayload: jest.fn().mockReturnValue({
+          cart: {
+            items: [{ id: 'item-1', quantity: 1 }],
+            total_value: 2599,
+            total_discount: 0,
+            cart_id: 'cart-id',
+          },
+          locales: ['de-DE'],
+          purchase_country: 'DE',
+          purchase_currency: 'EUR',
+        }),
+      }));
+
+      // Mock the updateCheckoutSession method
+      jest.spyOn(IngridApiClient.prototype, 'updateCheckoutSession').mockResolvedValue({
+        session: {
+          checkout_session_id: 'mock-ingrid-session-id',
+          status: 'active',
+          updated_at: '2021-01-01T00:00:00.000Z',
+          cart: mockIngridCheckoutSessionWithAddresses.session.cart,
+          delivery_groups: mockIngridCheckoutSessionWithAddresses.session.delivery_groups,
+          purchase_country: 'DE',
+          // ... other session properties
+        },
+        html_snippet: '<div>Ingrid Checkout</div>',
+      });
+
       const result = await shippingService.update();
 
       expect(result.data).toEqual({
@@ -272,6 +316,125 @@ describe('ingrid-shipping.service', () => {
           shippingMethodName: expect.any(String),
           shippingRate: expect.any(Object),
           taxCategory: expect.any(Object),
+        }),
+      );
+    });
+
+    test('should update Ingrid session when prices differ', async () => {
+      // Mock getting cart with ingrid session
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue({
+        ...cart,
+        custom: {
+          type: { typeId: 'type', id: 'type-id' },
+          fields: { ingridSessionId: 'mock-ingrid-session-id' },
+        },
+      });
+
+      // Mock getting Ingrid checkout session with different price
+      const mockSessionWithDifferentPrice = {
+        ...mockIngridCheckoutSessionWithAddresses,
+        session: {
+          ...mockIngridCheckoutSessionWithAddresses.session,
+          cart: {
+            ...mockIngridCheckoutSessionWithAddresses.session.cart,
+            total_value: 3000, // Different from cart's taxedPrice.totalGross.centAmount
+          },
+        },
+      };
+
+      jest.spyOn(IngridApiClient.prototype, 'getCheckoutSession').mockResolvedValue(mockSessionWithDifferentPrice);
+
+      // Mock updating cart with addresses and shipping method
+      const updatedCartWithTaxedPrice = {
+        ...cartWithShippingAddress,
+        taxedPrice: {
+          totalGross: { type: 'centPrecision' as const, centAmount: 2599, currencyCode: 'EUR', fractionDigits: 2 },
+          totalNet: { type: 'centPrecision' as const, centAmount: 2184, currencyCode: 'EUR', fractionDigits: 2 },
+          totalTax: { type: 'centPrecision' as const, centAmount: 415, currencyCode: 'EUR', fractionDigits: 2 },
+          taxPortions: [
+            {
+              rate: 0.19,
+              amount: { type: 'centPrecision' as const, centAmount: 415, currencyCode: 'EUR', fractionDigits: 2 },
+              name: 'VAT',
+            },
+          ],
+        },
+      };
+
+      jest
+        .spyOn(CommercetoolsApiClient.prototype, 'updateCartWithAddressAndShippingMethod')
+        .mockResolvedValue(updatedCartWithTaxedPrice);
+
+      // Mock the transformCommercetoolsCartToIngridPayload function
+      jest.mock('../../src/services/helpers/transformCommercetoolsToIngridDTOs', () => ({
+        transformCommercetoolsCartToIngridPayload: jest.fn().mockReturnValue({
+          cart: {
+            items: [{ id: 'item-1', quantity: 1 }],
+            total_value: 2599,
+            total_discount: 0,
+            cart_id: 'cart-id',
+          },
+          locales: ['de-DE'],
+          purchase_country: 'DE',
+          purchase_currency: 'EUR',
+        }),
+      }));
+
+      // Mock the updateCheckoutSession method
+      const updateSessionSpy = jest.spyOn(IngridApiClient.prototype, 'updateCheckoutSession').mockResolvedValue({
+        session: {
+          checkout_session_id: 'mock-ingrid-session-id-updated',
+          status: 'active',
+          updated_at: '2021-01-01T00:00:00.000Z',
+          cart: mockIngridCheckoutSessionWithAddresses.session.cart,
+          delivery_groups: mockIngridCheckoutSessionWithAddresses.session.delivery_groups,
+          purchase_country: 'DE',
+          // ... other session properties
+        },
+        html_snippet: '<div>Updated Ingrid Checkout</div>',
+      });
+
+      const result = await shippingService.update();
+
+      expect(result.data).toEqual({
+        success: true,
+        cartVersion: updatedCartWithTaxedPrice.version,
+        ingridSessionId: 'mock-ingrid-session-id-updated', // Should be the updated session ID
+      });
+
+      // Verify that updateCheckoutSession was called
+      expect(updateSessionSpy).toHaveBeenCalled();
+    });
+
+    test('should throw error when cart has no taxed price', async () => {
+      // Mock getting cart with ingrid session
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue({
+        ...cart,
+        custom: {
+          type: { typeId: 'type', id: 'type-id' },
+          fields: { ingridSessionId: 'mock-ingrid-session-id' },
+        },
+      });
+
+      // Mock getting Ingrid checkout session
+      jest
+        .spyOn(IngridApiClient.prototype, 'getCheckoutSession')
+        .mockResolvedValue(mockIngridCheckoutSessionWithAddresses);
+
+      // Mock updating cart with addresses and shipping method but without taxed price
+      const cartWithoutTaxedPrice = { ...cartWithShippingAddress };
+      delete cartWithoutTaxedPrice.taxedPrice;
+
+      jest
+        .spyOn(CommercetoolsApiClient.prototype, 'updateCartWithAddressAndShippingMethod')
+        .mockResolvedValue(cartWithoutTaxedPrice);
+
+      await expect(shippingService.update()).rejects.toThrow(
+        new CustomError({
+          message:
+            'Failed to get taxed price from commercetools cart. It seems like there is no shipping address set on commercetools cart.',
+          code: 'FAILED_TO_GET_TAXED_PRICE_FROM_COMMERCETOOLS_CART',
+          httpErrorStatus: 400,
         }),
       );
     });
