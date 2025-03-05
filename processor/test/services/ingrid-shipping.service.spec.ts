@@ -383,7 +383,7 @@ describe('ingrid-shipping.service', () => {
       // Mock the updateCheckoutSession method
       const updateSessionSpy = jest.spyOn(IngridApiClient.prototype, 'updateCheckoutSession').mockResolvedValue({
         session: {
-          checkout_session_id: 'mock-ingrid-session-id-updated',
+          checkout_session_id: 'mock-ingrid-session-id',
           status: 'active',
           updated_at: '2021-01-01T00:00:00.000Z',
           cart: mockIngridCheckoutSessionWithAddresses.session.cart,
@@ -399,7 +399,7 @@ describe('ingrid-shipping.service', () => {
       expect(result.data).toEqual({
         success: true,
         cartVersion: updatedCartWithTaxedPrice.version,
-        ingridSessionId: 'mock-ingrid-session-id-updated', // Should be the updated session ID
+        ingridSessionId: 'mock-ingrid-session-id',
       });
 
       // Verify that updateCheckoutSession was called

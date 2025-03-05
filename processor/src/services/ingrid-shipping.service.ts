@@ -77,7 +77,7 @@ export class IngridShippingService extends AbstractShippingService {
     const ctCart = await this.commercetoolsClient.getCartById(getCartIdFromContext());
 
     // get ingrid session id
-    let ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
+    const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
 
     if (!ingridSessionId) {
       throw new CustomError({
@@ -89,7 +89,6 @@ export class IngridShippingService extends AbstractShippingService {
 
     // get ingrid checkout session
     const ingridCheckoutSession = await this.ingridClient.getCheckoutSession(ingridSessionId);
-    ingridSessionId = ingridCheckoutSession.session.checkout_session_id;
 
     // check for presence of billing and delivery addresses
     const { billing_address, delivery_address } = ingridCheckoutSession.session.delivery_groups[0]?.addresses ?? {};
@@ -143,10 +142,7 @@ export class IngridShippingService extends AbstractShippingService {
         checkout_session_id: ingridSessionId,
       };
 
-      const updatedIngridCheckoutSession = await this.ingridClient.updateCheckoutSession(
-        updatedIngridCheckoutSessionPayload,
-      );
-      ingridSessionId = updatedIngridCheckoutSession.session.checkout_session_id;
+      await this.ingridClient.updateCheckoutSession(updatedIngridCheckoutSessionPayload);
     }
 
     return {
