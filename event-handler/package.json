@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@commercetools-backend/loggers": "^23.1.0",
-    "@commercetools/platform-sdk": "^8.2.0",
+    "@commercetools/platform-sdk": "^8.3.0",
     "@commercetools/ts-client": "^3.0.4",
     "axios": "^1.8.1",
     "body-parser": "^1.20.2",
