@@ -229,17 +229,30 @@ export class CommercetoolsApiClient {
   }
 
   public async createTaxCategoryWithNullRate(key: string): Promise<TaxCategory> {
+    const countries = await this.getProjectCountries();
     const response = await this.client
       .taxCategories()
       .post({
         body: {
           key,
           name: key + ' (created by Ingrid Connector)',
+          rates: countries.map((country) => ({
+            name: country,
+            amount: 0,
+            country,
+            includedInPrice: true,
+          })),
         },
       })
       .execute();
     const taxCategory = response.body;
     return taxCategory;
+  }
+
+  public async getProjectCountries(): Promise<string[]> {
+    const response = await this.client.get().execute();
+    const countries = response.body.countries;
+    return countries;
   }
 }
 
