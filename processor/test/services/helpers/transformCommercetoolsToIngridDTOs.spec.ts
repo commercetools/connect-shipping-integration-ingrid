@@ -90,7 +90,7 @@ describe('transformCommercetoolsToIngridDTOs', () => {
       throw new Error('Test setup error: cart.lineItems[0] is undefined');
     }
 
-    const cartWithDiscount = {
+    const cartWithDiscount: Cart = {
       ...cart,
       discountOnTotalPrice: {
         discountedAmount: {
@@ -98,7 +98,21 @@ describe('transformCommercetoolsToIngridDTOs', () => {
           currencyCode: 'EUR',
           centAmount: 500,
           fractionDigits: 2,
-        } as any,
+        },
+        includedDiscounts: [
+          {
+            discountedAmount: {
+              type: 'centPrecision',
+              currencyCode: 'EUR',
+              centAmount: 500,
+              fractionDigits: 2,
+            },
+            discount: {
+              typeId: 'cart-discount',
+              id: 'test-cart-discount-id',
+            },
+          },
+        ],
       },
       lineItems: [
         {
@@ -114,11 +128,15 @@ describe('transformCommercetoolsToIngridDTOs', () => {
                 ...lineItem.price.value,
                 centAmount: 2599,
               },
+              discount: {
+                id: 'test-discount-id',
+                typeId: 'product-discount',
+              },
             },
           },
         },
       ],
-    } as Cart;
+    };
 
     const payload = transformCommercetoolsCartToIngridPayload(cartWithDiscount);
     expect(payload.cart.total_discount).toEqual(1099); // 500 (cart discount) + 599 (line item discount)
