@@ -1,5 +1,9 @@
 # connect-shipping-integration-ingrid
 This repository provides a [connect](https://docs.commercetools.com/connect) for integration to Ingrid delivery solution provider.
+- [Feature](#Features)
+- [Overview](#Overview)
+- [Prerequsite](#Prerequsite)
+- [Development Guide](#DevelopmentGuide)
 
 ## Features
 - Typescript language supported.
@@ -261,7 +265,7 @@ Here you can see the details about various variables in configuration
 - `INGRID_SPECIFIC_TAX_CATEGORY_KEY`: It represents the key of the `taxCategory` defined in commercetools composable commerce. If the commercetools project itself has already defined a `taxCategory`, the key of this `taxCategory` can be provided to the connector. This tax category is used for applying tax on the shipping cost. If the value of this configuration is not provided, the connector will create a new `taxCategory` for customer with a pre-defined key `ingrid-tax`.
 
 ## Development
-In order to get started developing this connector certain configuration are necessary, most of which involve updating environment variables in both services (enabler, processor).
+In order to get started developing this connector certain configuration are necessary, most of which involve updating environment variables in all applications (enabler, processor, event-handler).
 
 #### Configuration steps
 
