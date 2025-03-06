@@ -81,4 +81,40 @@ flowchart TD
 1. commercetools Checkout sends request via the SDK to endpoints exposed by `processor` to trigger update cart process.
 2. The `processor` fetches the up-to-date shipping info from the Ingrid platform collected through the widget.
 3. Shipping info is saved to the cart in commercetools composable commerce.
-4. If the price stored in the Ingrid platform is different from the tax-included price in commercetools cart, this price is sychronized to the Ingrid platform
+4. If the price stored in the Ingrid platform is different from the tax-included price in commercetools cart, this price is sychronized to the Ingrid platform.
+
+### Completion Flow
+
+``` Mermaid
+%%{ init : { "theme" : "", "flowchart" : { "defaultRenderer": "dagre-wrapper", "curve" : "linear" }}}%%
+
+flowchart TD
+    user("User")-->checkout("Checkout Page")
+    subgraph connector
+        event-handler
+    end
+    subgraph coco["Commercetools Composable Commerce"]
+        order
+        subscription
+        
+    end
+    subgraph shipping["Ingrid"]
+        session.complete
+    end
+    
+    checkout("Checkout Page")--"1.Create order"-->order-->subscription
+    subscription--"2.send orderCreated message"-->event-handler
+    event-handler--"3.fetch Ingrid session"-->coco
+    event-handler--"4.complete session"-->shipping
+    event-handler--"5.change order shipment state"-->order
+   
+    style coco height:280
+    style order height:120, text-align:center
+    style subscription height:50, text-align:center  
+```
+
+1. commercetools Checkout sends request of order creation to commercetools composable commerce, and subscription listens to order creation event.
+2. The commercetools subscription sends message containing order ID to the `eventHandler` inside connector.
+3. The `eventHandler` makes use the order ID to fetch the Ingrid session ID stored inside the cart as custom field.
+4. The `eventHandler` sends request with the the Ingrid session ID to Ingrid platform to complete the delivery session.
+5. The `eventHandler` change the shipment state inside the cart to either `ready` or `canceled` based on the result of delivery session completion.
