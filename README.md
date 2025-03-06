@@ -11,7 +11,7 @@ This repository provides a [connect](https://docs.commercetools.com/connect) for
 The Ingrid-integration connector contains three modules :  
 - Enabler: Acts as a wrapper implementation in which frontend components from Ingrid embedded. It gives control to checkout product on when and how to load the connector frontend based on business configuration. In cases connector is used directly and not through Checkout product, the connector library can be loaded directly on frontend than the PSP one.
 - Processor : Acts as backend services which is middleware to integrate with Ingrid platform. It is mainly responsible for managing session initialized in Ingrid platform and updating cart entity in composable commerce.  Also the request context, commercetools checkout sessions and other tools necessary to transact are all maintained inside this module.
-- Event Handler: As named, it provides a handling to manage event messages from commercetools composable commerce in asynchronous mode. The connector subscribes order creation event in commercetools composable commerce and use it to complete Ingrid session in the delivery platform as well as changing shipment state for commercetools order.
+- Event Handler: It processes event messages from commercetools composable commerce in asynchronous mode. The connector subscribes order creation event in commercetools composable commerce and uses it to complete the delivery session in the Ingrid platform followed by changing shipment state for commercetools order.
 
 ### Intial Flow
 ```mermaid
