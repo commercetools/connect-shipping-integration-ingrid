@@ -25,8 +25,8 @@ flowchart TD
         processor
     end
     subgraph coco["Commercetools Composable Commerce"]
-        cart/session
-        
+        cart
+        session
     end
     subgraph shipping["Ingrid"]
         session.create
