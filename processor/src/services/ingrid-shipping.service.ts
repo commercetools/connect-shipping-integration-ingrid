@@ -130,7 +130,6 @@ export class IngridShippingService extends AbstractShippingService {
       },
     );
 
-<<<<<<< HEAD
     if (!updatedCart.taxedPrice?.totalGross) {
       appLogger.error(
         `[ERROR]: Failed to get taxed price from cart ID "${ctCart.id}", shipping address has likely not been set on commercetools cart.`,
@@ -159,8 +158,6 @@ export class IngridShippingService extends AbstractShippingService {
 
       await this.ingridClient.updateCheckoutSession(updatedIngridCheckoutSessionPayload);
     }
-=======
->>>>>>> b7f4645c553319e0478ae8c80e5302dc81860ea7
     appLogger.info(
       `[SUCCESS]: Composable commerce platform updated by change triggered in Ingrid platform, session ID "${ingridSessionId}", cart ID "${ctCart.id}".`,
     );
