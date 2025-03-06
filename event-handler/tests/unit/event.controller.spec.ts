@@ -4,6 +4,10 @@ import { createApiRoot } from '../../src/client/commercetools/create.client';
 import * as updateClient from '../../src/client/commercetools/update.client';
 import PubSubValidator from '../../src/utils/validate_requests.utils';
 import IngridApiClient from '../../src/client/ingrid/ingrid.client';
+import {
+  IngridCompleteSessionRequestPayload,
+  IngridCompleteSessionResponse,
+} from '../../src/client/ingrid/types/ingrid.client.type';
 import { readConfiguration } from '../../src/utils/config.utils';
 import { logger } from '../../src/utils/logger.utils';
 
@@ -37,6 +41,9 @@ interface MockGetOrderResponse {
     };
   };
 }
+
+// Define the mocked function type
+type ThenCallback = (arg: any) => any;
 
 describe('Event Controller', () => {
   let mockRequest: Partial<Request>;
@@ -219,5 +226,271 @@ describe('Event Controller', () => {
     ).rejects.toThrow('Invalid request body');
 
     expect(logger.error).not.toHaveBeenCalled();
+  });
+
+  // Test for handling errors in ingridClient.completeCheckoutSession
+  it('should handle errors from ingridClient.completeCheckoutSession and update shipment state as canceled', async () => {
+    // Setup mocks
+    const mockOrderId = 'test-order-id';
+    const mockVersion = 1;
+    const mockError = new Error('Failed to complete session on Ingrid');
+
+    // Mock PubSubValidator
+    (PubSubValidator.validateRequestBody as jest.Mock).mockReturnValue({});
+    (PubSubValidator.validateMessageFormat as jest.Mock).mockReturnValue({});
+    (PubSubValidator.decodeMessageData as jest.Mock).mockReturnValue({});
+    (PubSubValidator.validateDecodedMessage as jest.Mock).mockReturnValue(
+      mockOrderId
+    );
+
+    // Mock createApiRoot get order response
+    const mockApiRoot = {
+      orders: jest.fn().mockReturnThis(),
+      withId: jest.fn().mockReturnThis(),
+      get: jest.fn().mockReturnThis(),
+      execute: jest.fn().mockReturnThis(),
+      then: jest.fn().mockImplementation(function (callback: any) {
+        return Promise.resolve(
+          callback({
+            body: {
+              id: mockOrderId,
+              version: mockVersion,
+              cart: {
+                obj: {
+                  custom: {
+                    fields: {
+                      ingridSessionId: 'test-session-id',
+                    },
+                  },
+                },
+              },
+            },
+          })
+        );
+      }),
+    };
+
+    (createApiRoot as jest.Mock).mockReturnValue(mockApiRoot);
+
+    // Mock readConfiguration
+    (readConfiguration as jest.Mock).mockReturnValue({
+      ingridApiKey: 'test-api-key',
+      ingridEnvironment: 'STAGING',
+    });
+
+    // Mock IngridApiClient
+    // Using a type assertion that won't cause linter errors
+    const mockRejectedFn = jest
+      .fn()
+      .mockImplementation(() => Promise.reject(mockError));
+    const originalCompleteFn =
+      IngridApiClient.prototype.completeCheckoutSession;
+    IngridApiClient.prototype.completeCheckoutSession = mockRejectedFn as any;
+
+    // Mock changeShipmentState
+    jest
+      .spyOn(updateClient, 'changeShipmentState')
+      .mockResolvedValueOnce(orderWithCancelShipmentState);
+
+    try {
+      // Execute test
+      await expect(
+        post(mockRequest as Request, mockResponse as Response)
+      ).rejects.toThrow('Failed to complete session on Ingrid');
+
+      // Verify the shipment state was updated to CANCELED
+      expect(updateClient.changeShipmentState).toHaveBeenCalledWith(
+        mockOrderId,
+        mockVersion,
+        'Canceled'
+      );
+    } finally {
+      // Restore the original function
+      IngridApiClient.prototype.completeCheckoutSession = originalCompleteFn;
+    }
+  });
+
+  // Test for handling INCOMPLETE status from Ingrid
+  it('should update shipment state as canceled when Ingrid session status is not COMPLETE', async () => {
+    // Setup mocks
+    const mockOrderId = 'test-order-id';
+    const mockVersion = 1;
+
+    // Mock PubSubValidator
+    (PubSubValidator.validateRequestBody as jest.Mock).mockReturnValue({});
+    (PubSubValidator.validateMessageFormat as jest.Mock).mockReturnValue({});
+    (PubSubValidator.decodeMessageData as jest.Mock).mockReturnValue({});
+    (PubSubValidator.validateDecodedMessage as jest.Mock).mockReturnValue(
+      mockOrderId
+    );
+
+    // Mock createApiRoot get order response
+    const mockApiRoot = {
+      orders: jest.fn().mockReturnThis(),
+      withId: jest.fn().mockReturnThis(),
+      get: jest.fn().mockReturnThis(),
+      execute: jest.fn().mockReturnThis(),
+      then: jest.fn().mockImplementation(function (callback: any) {
+        return Promise.resolve(
+          callback({
+            body: {
+              id: mockOrderId,
+              version: mockVersion,
+              cart: {
+                obj: {
+                  custom: {
+                    fields: {
+                      ingridSessionId: 'test-session-id',
+                    },
+                  },
+                },
+              },
+            },
+          })
+        );
+      }),
+    };
+
+    (createApiRoot as jest.Mock).mockReturnValue(mockApiRoot);
+
+    // Mock readConfiguration
+    (readConfiguration as jest.Mock).mockReturnValue({
+      ingridApiKey: 'test-api-key',
+      ingridEnvironment: 'STAGING',
+    });
+
+    // Mock IngridApiClient with INCOMPLETE status
+    const mockIngridResponse: Partial<IngridCompleteSessionResponse> = {
+      session: {
+        checkout_session_id: 'test-session-id',
+        status: 'INCOMPLETE',
+        updated_at: new Date().toISOString(),
+        cart: {
+          total_value: 0,
+          total_discount: 0,
+          items: [],
+          cart_id: 'test-cart-id',
+        },
+        delivery_groups: [],
+        purchase_country: 'US',
+      },
+    };
+
+    // Using a type assertion that won't cause linter errors
+    const mockResolvedFn = jest
+      .fn()
+      .mockImplementation(() => Promise.resolve(mockIngridResponse));
+    const originalCompleteFn =
+      IngridApiClient.prototype.completeCheckoutSession;
+    IngridApiClient.prototype.completeCheckoutSession = mockResolvedFn as any;
+
+    // Mock changeShipmentState
+    jest
+      .spyOn(updateClient, 'changeShipmentState')
+      .mockResolvedValueOnce(orderWithCancelShipmentState);
+
+    try {
+      // Execute test
+      await post(mockRequest as Request, mockResponse as Response);
+
+      // Verify the shipment state was updated to CANCELED
+      expect(updateClient.changeShipmentState).toHaveBeenCalledWith(
+        mockOrderId,
+        mockVersion,
+        'Canceled'
+      );
+
+      // Verify the response
+      expect(mockResponse.status).toHaveBeenCalledWith(204);
+      expect(mockResponse.send).toHaveBeenCalledWith({
+        ingridSessionId: 'test-session-id',
+        status: 'INCOMPLETE',
+      });
+
+      // Verify logs were created
+      expect(jest.mocked(logger.info)).toHaveBeenCalledWith(
+        expect.stringContaining('complete ingrid session failed')
+      );
+      expect(jest.mocked(logger.info)).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'Update commercetools cart shipment state as canceled'
+        )
+      );
+    } finally {
+      // Restore the original function
+      IngridApiClient.prototype.completeCheckoutSession = originalCompleteFn;
+    }
+  });
+
+  // Test for handling missing ingridSessionId
+  it('should throw an error when ingridSessionId is not found', async () => {
+    // Setup mocks
+    const mockOrderId = 'test-order-id';
+    const mockVersion = 1;
+
+    // Mock PubSubValidator
+    (PubSubValidator.validateRequestBody as jest.Mock).mockReturnValue({});
+    (PubSubValidator.validateMessageFormat as jest.Mock).mockReturnValue({});
+    (PubSubValidator.decodeMessageData as jest.Mock).mockReturnValue({});
+    (PubSubValidator.validateDecodedMessage as jest.Mock).mockReturnValue(
+      mockOrderId
+    );
+
+    // Mock createApiRoot get order response with missing ingridSessionId
+    const mockApiRoot = {
+      orders: jest.fn().mockReturnThis(),
+      withId: jest.fn().mockReturnThis(),
+      get: jest.fn().mockReturnThis(),
+      execute: jest.fn().mockReturnThis(),
+      then: jest.fn().mockImplementation(function (callback: any) {
+        return Promise.resolve(
+          callback({
+            body: {
+              id: mockOrderId,
+              version: mockVersion,
+              cart: {
+                obj: {
+                  custom: {
+                    fields: {
+                      // ingridSessionId is missing
+                    },
+                  },
+                },
+              },
+            },
+          })
+        );
+      }),
+    };
+
+    (createApiRoot as jest.Mock).mockReturnValue(mockApiRoot);
+
+    // Execute test
+    await expect(
+      post(mockRequest as Request, mockResponse as Response)
+    ).rejects.toThrow('Bad request. Ingrid session ID not found');
+  });
+
+  // Test for handling RESOURCE_CREATED_MESSAGE
+  it('should skip processing for RESOURCE_CREATED_MESSAGE', async () => {
+    // Mock PubSubValidator to return RESOURCE_CREATED_MESSAGE
+    jest.mocked(PubSubValidator.validateRequestBody).mockReturnValue({});
+    jest.mocked(PubSubValidator.validateMessageFormat).mockReturnValue({});
+    jest.mocked(PubSubValidator.decodeMessageData).mockReturnValue({});
+    jest
+      .mocked(PubSubValidator.validateDecodedMessage)
+      .mockReturnValue('RESOURCE_CREATED_MESSAGE');
+
+    // Execute test
+    await post(mockRequest as Request, mockResponse as Response);
+
+    // Verify the response
+    expect(mockResponse.status).toHaveBeenCalledWith(204);
+    expect(mockResponse.send).toHaveBeenCalledWith(
+      'Message for subscription created. Skip processing message.'
+    );
+    expect(jest.mocked(logger.info)).toHaveBeenCalledWith(
+      'Message for subscription created. Skip processing message.'
+    );
   });
 });
