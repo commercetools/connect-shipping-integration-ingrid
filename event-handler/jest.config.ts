@@ -1,3 +1,5 @@
+/** @type {import('ts-jest').JestConfigWithTsJest} */
+
 module.exports = {
   displayName: 'Tests Typescript Application - Event',
   moduleDirectories: ['node_modules', 'src'],
