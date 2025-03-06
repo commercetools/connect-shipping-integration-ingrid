@@ -94,7 +94,7 @@ flowchart TD
     subgraph coco["Commercetools Composable Commerce"]
         order
         subscription
-        
+        cart
     end
     subgraph shipping["Ingrid"]
         session.complete
@@ -102,11 +102,11 @@ flowchart TD
     
     checkout("Checkout Page")--"1.Create order"-->order-->subscription
     subscription--"2.send orderCreated message"-->event-handler
-    event-handler--"3.fetch Ingrid session"-->coco
+    event-handler--"3.fetch Ingrid session"-->cart
     event-handler--"4.complete session"-->shipping
     event-handler--"5.change order shipment state"-->order
    
-    style coco height:280
+    style coco height:640
     style order height:120, text-align:center
     style subscription height:50, text-align:center  
 ```
