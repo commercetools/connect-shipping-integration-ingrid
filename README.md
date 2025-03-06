@@ -15,7 +15,7 @@ The Ingrid-integration connector contains three modules :
 
 ### Intial Flow
 ```mermaid
-%%{ init : { "theme" : "", "flowchart" : { "defaultRenderer": "dagre-wrapper", "curve" : "linear" }}}%%
+
 flowchart TD
     node1(( ))
     node2(( ))
@@ -85,9 +85,7 @@ flowchart TD
 
 ### Completion Flow
 
-``` Mermaid
-%%{ init : { "theme" : "", "flowchart" : { "defaultRenderer": "dagre-wrapper", "curve" : "linear" }}}%%
-
+```mermaid
 flowchart TD
     user("User")-->checkout("Checkout Page")
     subgraph connector
