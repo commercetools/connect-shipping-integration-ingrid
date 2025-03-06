@@ -13,7 +13,7 @@ describe('HTTP Middleware', () => {
   it('should configure HTTP middleware with the correct host', () => {
     // Mock readConfiguration
     jest.mocked(readConfiguration).mockReturnValue({
-      region: 'eu-dummy-west-1',
+      region: 'mockedRegion',
       clientId: 'test-client-id',
       clientSecret: 'test-client-secret',
       projectKey: 'test-project-key',
@@ -26,6 +26,6 @@ describe('HTTP Middleware', () => {
     const options = httpMiddlewareOptions;
 
     // Verify the configuration
-    expect(options.host).toBe('https://api.eu-dummy-west-1.commercetools.com');
+    expect(options.host).toBe('https://api.mockedRegion.commercetools.com');
   });
 });

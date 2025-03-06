@@ -7,7 +7,6 @@ import {
   afterEach,
 } from '@jest/globals';
 import { authMiddlewareOptions } from '../../../src/middleware/auth.middleware';
-import { readConfiguration } from '../../../src/utils/config.utils';
 
 // Mock the readConfiguration function
 jest.mock('../../../src/utils/config.utils');
@@ -25,48 +24,27 @@ describe('Auth Middleware', () => {
   });
 
   it('should configure auth middleware with scope when provided', () => {
-    // Mock readConfiguration to return a scope
-    jest.mocked(readConfiguration).mockReturnValue({
-      region: 'eu-west-1',
-      projectKey: 'test-project',
-      clientId: 'test-client-id',
-      clientSecret: 'test-client-secret',
-      scope: 'test-scope',
-      ingridApiKey: 'test-api-key',
-      ingridEnvironment: 'STAGING',
-    });
-
     // Access the authMiddlewareOptions to trigger the code
     const options = authMiddlewareOptions;
 
     // Verify the configuration
-    expect(options.host).toBe('https://auth.eu-west-1.commercetools.com');
-    expect(options.projectKey).toBe('test-project');
-    expect(options.credentials.clientId).toBe('test-client-id');
-    expect(options.credentials.clientSecret).toBe('test-client-secret');
-    expect(options.scopes).toEqual(['test-scope']);
+    expect(options.host).toBe('https://auth.mockedRegion.commercetools.com');
+    expect(options.projectKey).toBe('mockedProjectKey');
+    expect(options.credentials.clientId).toBe('mockedClientId');
+    expect(options.credentials.clientSecret).toBe('mockedClientSecret');
+    expect(options.scopes).toEqual(['mockedScope']);
   });
 
   it('should configure auth middleware with default scope when not provided', () => {
-    // Mock readConfiguration to return no scope
-    jest.mocked(readConfiguration).mockReturnValue({
-      region: 'eu-west-1',
-      projectKey: 'test-project',
-      clientId: 'test-client-id',
-      clientSecret: 'test-client-secret',
-      scope: undefined,
-      ingridApiKey: 'test-api-key',
-      ingridEnvironment: 'STAGING',
-    });
-
+    process.env.CTP_SCOPE = undefined;
     // Access the authMiddlewareOptions to trigger the code
     const options = authMiddlewareOptions;
 
     // Verify the configuration
-    expect(options.host).toBe('https://auth.eu-west-1.commercetools.com');
-    expect(options.projectKey).toBe('test-project');
-    expect(options.credentials.clientId).toBe('test-client-id');
-    expect(options.credentials.clientSecret).toBe('test-client-secret');
-    expect(options.scopes).toEqual(['default']);
+    expect(options.host).toBe('https://auth.mockedRegion.commercetools.com');
+    expect(options.projectKey).toBe('mockedProjectKey');
+    expect(options.credentials.clientId).toBe('mockedClientId');
+    expect(options.credentials.clientSecret).toBe('mockedClientSecret');
+    expect(options.scopes).toEqual(['mockedScope']);
   });
 });

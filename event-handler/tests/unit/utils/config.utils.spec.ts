@@ -28,33 +28,34 @@ describe('Config Utils', () => {
     });
 
     it('should read configuration from environment variables successfully', () => {
-      // Set up environment variables
-      process.env.CTP_CLIENT_ID = 'test-client-id';
-      process.env.CTP_CLIENT_SECRET = 'test-client-secret';
-      process.env.CTP_PROJECT_KEY = 'test-project-key';
-      process.env.CTP_SCOPE = 'test-scope';
-      process.env.CTP_REGION = 'test-region';
-      process.env.INGRID_API_KEY = 'test-api-key';
-      process.env.INGRID_ENVIRONMENT = 'STAGING';
+      process.env = {
+        CTP_CLIENT_ID: 'mockedClientId',
+        CTP_CLIENT_SECRET: 'mockedClientSecret',
+        CTP_PROJECT_KEY: 'mockedProjectKey',
+        CTP_SCOPE: 'mockedScope',
+        CTP_REGION: 'mockedRegion',
+        INGRID_API_KEY: 'mockedApiKey',
+        INGRID_ENVIRONMENT: 'mockedEnvironment',
+      };
 
       const config = readConfiguration();
 
       expect(config).toEqual({
-        clientId: 'test-client-id',
-        clientSecret: 'test-client-secret',
-        projectKey: 'test-project-key',
-        scope: 'test-scope',
-        region: 'test-region',
-        ingridApiKey: 'test-api-key',
-        ingridEnvironment: 'STAGING',
+        clientId: 'mockedClientId',
+        clientSecret: 'mockedClientSecret',
+        projectKey: 'mockedProjectKey',
+        scope: 'mockedScope',
+        region: 'mockedRegion',
+        ingridApiKey: 'mockedApiKey',
+        ingridEnvironment: 'mockedEnvironment',
       });
 
       expect(validatorsHelpers.getValidateMessages).toHaveBeenCalledWith(
         expect.anything(),
         expect.objectContaining({
-          clientId: 'test-client-id',
-          clientSecret: 'test-client-secret',
-          projectKey: 'test-project-key',
+          clientId: 'mockedClientId',
+          clientSecret: 'mockedClientSecret',
+          projectKey: 'mockedProjectKey',
         })
       );
     });

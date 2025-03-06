@@ -1,8 +1,12 @@
 import * as createClientModule from '../../../../src/client/commercetools/create.client';
 import { changeShipmentState } from '../../../../src/client/commercetools/update.client';
+import { readConfiguration } from '../../../../src/utils/config.utils';
 
 // Add Jest imports
 import { describe, beforeEach, it, expect, jest } from '@jest/globals';
+
+// Mock the readConfiguration function
+jest.mock('../../../../src/utils/config.utils');
 
 describe('Update Client', () => {
   const mockOrderId = 'test-order-id';
@@ -22,6 +26,18 @@ describe('Update Client', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Mock readConfiguration to return valid configuration
+    jest.mocked(readConfiguration).mockReturnValue({
+      region: 'europe-west1.gcp',
+      projectKey: 'test-project-key',
+      clientId: 'test-client-id',
+      clientSecret: 'test-client-secret',
+      scope: 'test-scope',
+      ingridApiKey: 'test-api-key',
+      ingridEnvironment: 'STAGING',
+    });
+
     jest
       .spyOn(createClientModule, 'createApiRoot')
       .mockReturnValue(mockApiRoot as any);

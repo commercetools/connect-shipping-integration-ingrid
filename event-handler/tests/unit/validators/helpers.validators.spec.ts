@@ -126,7 +126,6 @@ describe('Validator Helpers', () => {
           referencedBy: 'age',
         }),
       ];
-
       // Test with valid item
       const validItem = {
         name: 'John Doe',

@@ -6,13 +6,11 @@ import { readConfiguration } from '../../../../src/utils/config.utils';
 // Mock the dependencies
 jest.mock('../../../../src/client/commercetools/build.client');
 jest.mock('../../../../src/utils/config.utils');
-jest.mock('@commercetools/platform-sdk', () => {
-  return {
-    createApiBuilderFromCtpClient: jest.fn().mockImplementation(() => ({
-      withProjectKey: jest.fn().mockImplementation(() => 'mockApiRoot'),
-    })),
-  };
-});
+jest.mock('@commercetools/platform-sdk', () => ({
+  createApiBuilderFromCtpClient: jest.fn().mockImplementation(() => ({
+    withProjectKey: jest.fn().mockImplementation(() => 'mockApiRoot'),
+  })),
+}));
 
 describe('Create Client', () => {
   const mockProjectKey = 'test-project';
