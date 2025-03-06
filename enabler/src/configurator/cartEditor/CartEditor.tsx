@@ -39,6 +39,21 @@ function CartEditor() {
               onClick={() => {
                   setTextareaValue('');
                   cartStore.dispatch({
+                    type: "FETCH_CART",
+                  })
+                }
+              }
+            >
+            Fetch cart
+            </button>
+            
+          )}
+          {cart && (
+            <button
+              disabled={loading}
+              onClick={() => {
+                  setTextareaValue('');
+                  cartStore.dispatch({
                     type: "DELETE_CART",
                   })
                 }

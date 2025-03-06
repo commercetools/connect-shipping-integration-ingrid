@@ -10,6 +10,7 @@ import client from './coco';
 const ingridElementId = "enablerContainer";
 const MountEnabler = memo(function MountEnabler() {
   const [showEnabler, setShowEnabler] = useState(false);
+  const [showPaymentButton, setShowPaymentButton] = useState(false);
   const [updateEndpoint, setUpdateEndpoint] = useState(false);
   const session = useSyncExternalStore(
     cocoSessionStore.subscribe,
@@ -85,12 +86,17 @@ const MountEnabler = memo(function MountEnabler() {
             if (result.isSuccess) {
               localStorage.setItem("ingrid-session-id", result.ingridSessionId);
             }
+            setShowPaymentButton(true)
           },
           onUpdateCompleted: async (result: ShippingUpdateResult) => {
             console.log("onUpdateCompleted", { result });
             showMessage(`shipping options updated : ${result.isSuccess?"success":"failed"}`)
-            if (result.isSuccess)
-              await createOrder();
+            if (result.isSuccess) 
+
+            await createOrder().then(() => {
+              setShowEnabler(false)
+              setShowPaymentButton(false) 
+            });
           },
           onError: (err: Error) => {           
             console.error("onError", err.message);
@@ -138,11 +144,9 @@ const MountEnabler = memo(function MountEnabler() {
       {showEnabler ? <div id={ingridElementId} /> : null}
       {component && (
         <div><br/>
-        <button
-          disabled={!showEnabler}
-          onClick={() => setUpdateEndpoint((e) => !e)}
-        >
-          Proceed Payment
+        <button style={{ display: showPaymentButton?"block":"none" }}
+          onClick={() => setUpdateEndpoint((e) => !e)}>
+         Proceed Payment
         </button>
         
         </div>
