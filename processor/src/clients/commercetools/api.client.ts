@@ -1,5 +1,4 @@
 import { randomUUID } from 'crypto';
-import { appLogger } from '../../libs/logger';
 import {
   createApiBuilderFromCtpClient,
   ByProjectKeyRequestBuilder,
@@ -29,7 +28,6 @@ import type { RequestContextData } from '../../libs/fastify/context';
  * @param opts.projectKey - Project key in Commercetools
  * @param [opts.getContextFn] - Function to get the current request context
  * @param [opts.updateContextFn] - Function to update the request context
- * @param opts.logger - Logger instance to use
  *
  * @returns A configured Commercetools API client instance
  */
@@ -44,7 +42,6 @@ export class CommercetoolsApiClient {
     projectKey: string;
     getContextFn?: () => RequestContextData;
     updateContextFn?: (ctx: Partial<RequestContextData>) => void;
-    logger: typeof appLogger;
   }) {
     this.client = createClient(opts);
   }
