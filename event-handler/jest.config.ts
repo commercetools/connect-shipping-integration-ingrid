@@ -6,4 +6,12 @@ module.exports = {
   testMatch: ['**/tests/**/*.spec.[jt]s?(x)', '**/?(*.)+(spec|test).[tj]s?(x)'],
   preset: 'ts-jest',
   testEnvironment: 'node',
+  coverageThreshold: {
+    global: {
+      branches: 75,
+      functions: 75,
+      lines: 75,
+      statements: 75,
+    },
+  },
 };

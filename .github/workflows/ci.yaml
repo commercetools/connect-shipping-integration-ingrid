@@ -81,7 +81,7 @@ jobs:
         run: npm run build
 
       - name: Execute test case
-        run: npm run test
+        run: npm run test:coverage
 
   build-event-handler:
     name: Build the application for event handler
@@ -108,4 +108,4 @@ jobs:
         run: npm run build
 
       - name: Execute test case
-        run: npm run test
+        run: npm run test:coverage
