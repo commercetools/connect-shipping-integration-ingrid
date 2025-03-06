@@ -3,7 +3,7 @@ This repository provides a [connect](https://docs.commercetools.com/connect) for
 - [Feature](#Features)
 - [Overview](#Overview)
 - [Prerequisite](#Prerequisite)
-- [Development Guide](#Development%20Guide)
+- [Development Guide](#development-guide)
 
 ## Features
 - Typescript language supported.
