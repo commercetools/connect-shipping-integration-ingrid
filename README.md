@@ -33,10 +33,10 @@ flowchart TD
     end
     checkout----node1
     
-    node1--"0.Create cart & checkout session"------>cart/session
+    node1--"0.Create cart & checkout session"------>coco
     
     checkout("Checkout Page")----node2
-    processor("processor (APIs)")--"2.fetch cart"-->cart/session
+    processor("processor (APIs)")--"2.fetch cart"-->coco
     node2--"1.init Ingrid session"-->enabler("enabler(Javascript SDK)")-->processor("processor (APIs)")--"3.create Ingrid session with cart"-->shipping("Ingrid")--"4.return HTML widget"-->processor("processor (APIs)")
     style coco height:150
     style cart height:80, text-align:center
