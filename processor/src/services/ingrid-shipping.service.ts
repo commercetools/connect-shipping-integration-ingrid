@@ -30,6 +30,9 @@ export class IngridShippingService extends AbstractShippingService {
     const customType = await this.commercetoolsClient.getCustomType(ingridSessionCustomTypeKey);
 
     if (!customType) {
+      appLogger.error(
+        `[ERROR]: Failed to get custom type on Ingrid session init with key "${ingridSessionCustomTypeKey}".`,
+      );
       throw new CustomError({
         message: 'No ingrid session custom type id found',
         code: 'NO_INGRID_SESSION_CUSTOM_TYPE_ID_FOUND',
@@ -50,6 +53,8 @@ export class IngridShippingService extends AbstractShippingService {
       ingridCheckoutSession.session.checkout_session_id,
       customType.id,
     );
+
+    appLogger.info(`[SUCCESS]: Ingrid session with ID ${ingridSessionId} initiated.`);
 
     return {
       data: {
@@ -77,8 +82,11 @@ export class IngridShippingService extends AbstractShippingService {
     const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
 
     if (!ingridSessionId) {
+      appLogger.error(
+        `[ERROR]: Failed to update composable commerce platform, Ingrid session ID on cart with ID "${ctCart.id}" not found.`,
+      );
       throw new CustomError({
-        message: 'No ingrid session id found on cart',
+        message: 'No Ingrid session id found on cart',
         code: 'NO_INGRID_SESSION_ID_FOUND',
         httpErrorStatus: 400,
       });
@@ -90,9 +98,12 @@ export class IngridShippingService extends AbstractShippingService {
     // check for presence of billing and delivery addresses
     const { billing_address, delivery_address } = ingridCheckoutSession.session.delivery_groups[0]?.addresses ?? {};
     if (!billing_address || !delivery_address) {
+      appLogger.error(
+        `[ERROR]: Failed to get billing and delivery addresses from Ingrid checkout session with ID "${ingridSessionId}", cart ID "${ctCart.id}".`,
+      );
       throw new CustomError({
         message:
-          "Failed to get billing and delivery addresses from ingrid checkout session. It seems like the addresses weren't provided by the customer.",
+          "Failed to get billing and delivery addresses from Ingrid checkout session. It seems like the addresses weren't provided by the customer.",
         code: 'FAILED_TO_GET_BILLING_OR_DELIVERY_ADDRESSES_FROM_INGRID_CHECKOUT_SESSION',
         httpErrorStatus: 400,
       });
@@ -114,6 +125,10 @@ export class IngridShippingService extends AbstractShippingService {
         shippingRate: customShippingMethod.shippingRate,
         taxCategory: { key: getConfig().taxCategoryKey, typeId: 'tax-category' },
       },
+    );
+
+    appLogger.info(
+      `[SUCCESS]: Composable commerce platform updated by change triggered in Ingrid platform, session ID "${ingridSessionId}", cart ID "${ctCart.id}".`,
     );
 
     return {
@@ -146,7 +161,7 @@ export class IngridShippingService extends AbstractShippingService {
     cart = await this.commercetoolsClient
       .setCartCustomField(cart.id, cart.version, 'ingridSessionId', ingridSessionId)
       .catch((error) => {
-        appLogger.error(`[ERROR]: Failed to set IngridSessionId ${ingridSessionId} on cart ${cart.id}`);
+        appLogger.error(`[ERROR]: Failed to set IngridSessionId ${ingridSessionId} on cart ${cart.id}.`);
         throw new CustomError({
           message: error?.message,
           code: error.code,
@@ -154,7 +169,7 @@ export class IngridShippingService extends AbstractShippingService {
           cause: error,
         });
       });
-    appLogger.info(`[SUCCESS]: IngridSessionId ${ingridSessionId} is set on cart ${cart.id}`);
+    appLogger.info(`[SUCCESS]: IngridSessionId ${ingridSessionId} is set on cart ${cart.id}.`);
     return cart;
   }
 }
