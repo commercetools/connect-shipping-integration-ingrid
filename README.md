@@ -40,8 +40,41 @@ flowchart TD
     node2--"1.init Ingrid session"-->enabler("enabler(Javascript SDK)")-->processor("processor (APIs)")--"3.create Ingrid session with cart"-->shipping("Ingrid")--"4.return HTML widget"-->processor("processor (APIs)")
 ```
 
-0. It is supposed that merchant creates the cart and [checkout session](https://docs.commercetools.com/checkout/installing-checkout#create-checkout-sessions) in commercetools composable commerce.
-1. commercetools Checkout retrieves SDK as static assets from `enabler` in connector. After downloading the SDK, commercetools Checkout sends request via the SDK to endpoints exposed by processor to trigger Ingrid session initialization.
-2. The processor fetches the latest cart from commercetools composable commerce by the provided commercetools checkout session.
-3. Ingrid receives the cart details from the processor and initialize an Ingrid session.
+0. It is supposed that merchant creates the cart and [checkout session](https://docs.commercetools.com/checkout/installing-checkout#create-checkout-sessions) in commercetools composable commerce before initialize delivery session on Ingrid platform.
+1. commercetools Checkout retrieves SDK as static assets from `enabler` in connector. After downloading the SDK, commercetools Checkout sends request via the SDK to endpoints exposed by `processor` to trigger Ingrid session initialization.
+2. The `processor` fetches the latest cart from commercetools composable commerce by the provided commercetools checkout session.
+3. Ingrid receives the cart details from the `processor` and initialize a delivery session on Ingrid platform.
 4. Ingrid platform returns HTML snippet of the widget, which contains a form for filling shipping address and shipping options. The HTML snippet is returned back to frontend checkout page for display purpose.
+
+### Update Flow
+```mermaid
+
+flowchart TD
+    node1(( ))
+    user("User")-->checkout("Checkout Page")
+    subgraph connector
+        enabler
+        processor
+    end
+    subgraph coco["Commercetools Composable Commerce"]
+        cart
+        session
+        
+    end
+    subgraph shipping["Ingrid"]
+        session.get
+    end
+    
+    checkout("Checkout Page")----node1
+    processor("processor (APIs)")--"3.update shipping info"-->coco
+    node1--"1.Update cart"-->enabler("enabler(Javascript SDK)")-->processor("processor (APIs)")--"2.fetch Ingrid shipping options"-->shipping("Ingrid")-->processor("processor (APIs)")
+    processor("processor (APIs)")--"4.Synchronize tax-included price"-->shipping("Ingrid")
+    style coco height:150
+    style cart height:80, text-align:center
+    style session height:80, text-align:center
+```
+
+1. commercetools Checkout sends request via the SDK to endpoints exposed by `processor` to trigger update cart process.
+2. The `processor` fetches the up-to-date shipping info from the Ingrid platform collected through the widget.
+3. Shipping info is saved to the cart in commercetools composable commerce.
+4. If the price stored in the Ingrid platform is different from the tax-included price in commercetools cart, this price is sychronized to the Ingrid platform
