@@ -15,6 +15,7 @@ import {
 } from '../unit/mock/mock-order';
 
 // Define types for mocks
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type MockFn = jest.MockedFunction<any>;
 
 jest.mock('../../src/client/commercetools/create.client');
