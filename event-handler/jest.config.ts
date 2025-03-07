@@ -12,10 +12,4 @@ module.exports = {
       statements: 75,
     },
   },
-  /* // Explicitly exclude post-deploy and pre-undeploy scripts from coverage
-  // Its functionality is covered inside the actions.spec.ts file
-  coveragePathIgnorePatterns: [
-    'src/connector/post-deploy.ts',
-    'src/connector/pre-undeploy.ts',
-  ], */
 };
