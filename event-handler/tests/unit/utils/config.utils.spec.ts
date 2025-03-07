@@ -9,6 +9,7 @@ import {
 import { readConfiguration } from '../../../src/utils/config.utils';
 import CustomError from '../../../src/errors/custom.error';
 import * as validatorsHelpers from '../../../src/validators/helpers.validators';
+import { mockConfiguration } from '../mock/mock-configuration';
 
 jest.mock('../../../src/validators/helpers.validators');
 
@@ -29,33 +30,25 @@ describe('Config Utils', () => {
 
     it('should read configuration from environment variables successfully', () => {
       process.env = {
-        CTP_CLIENT_ID: 'mockedClientId',
-        CTP_CLIENT_SECRET: 'mockedClientSecret',
-        CTP_PROJECT_KEY: 'mockedProjectKey',
-        CTP_SCOPE: 'mockedScope',
-        CTP_REGION: 'mockedRegion',
-        INGRID_API_KEY: 'mockedApiKey',
-        INGRID_ENVIRONMENT: 'mockedEnvironment',
+        CTP_CLIENT_ID: mockConfiguration.clientId,
+        CTP_CLIENT_SECRET: mockConfiguration.clientSecret,
+        CTP_PROJECT_KEY: mockConfiguration.projectKey,
+        CTP_SCOPE: mockConfiguration.scope,
+        CTP_REGION: mockConfiguration.region,
+        INGRID_API_KEY: mockConfiguration.ingridApiKey,
+        INGRID_ENVIRONMENT: mockConfiguration.ingridEnvironment,
       };
 
       const config = readConfiguration();
 
-      expect(config).toEqual({
-        clientId: 'mockedClientId',
-        clientSecret: 'mockedClientSecret',
-        projectKey: 'mockedProjectKey',
-        scope: 'mockedScope',
-        region: 'mockedRegion',
-        ingridApiKey: 'mockedApiKey',
-        ingridEnvironment: 'mockedEnvironment',
-      });
+      expect(config).toEqual(mockConfiguration);
 
       expect(validatorsHelpers.getValidateMessages).toHaveBeenCalledWith(
         expect.anything(),
         expect.objectContaining({
-          clientId: 'mockedClientId',
-          clientSecret: 'mockedClientSecret',
-          projectKey: 'mockedProjectKey',
+          clientId: mockConfiguration.clientId,
+          clientSecret: mockConfiguration.clientSecret,
+          projectKey: mockConfiguration.projectKey,
         })
       );
     });

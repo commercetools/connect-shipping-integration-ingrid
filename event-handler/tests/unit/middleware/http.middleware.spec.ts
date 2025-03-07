@@ -11,17 +11,6 @@ describe('HTTP Middleware', () => {
   });
 
   it('should configure HTTP middleware with the correct host', () => {
-    // Mock readConfiguration
-    jest.mocked(readConfiguration).mockReturnValue({
-      region: 'mockedRegion',
-      clientId: 'test-client-id',
-      clientSecret: 'test-client-secret',
-      projectKey: 'test-project-key',
-      scope: 'test-scope',
-      ingridApiKey: 'test-ingrid-api-key',
-      ingridEnvironment: 'STAGING',
-    });
-
     // Access the httpMiddlewareOptions to trigger the code
     const options = httpMiddlewareOptions;
 
