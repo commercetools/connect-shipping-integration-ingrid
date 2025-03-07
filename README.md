@@ -124,7 +124,7 @@ flowchart TD
 ## Prerequisite
 #### 1. commercetools composable commerce API client
 Users are expected to create API client responsible for cart management in composable commerce project. Details of the API client are taken as input as environment variables/ configuration for connect such as `CTP_PROJECT_KEY` , `CTP_CLIENT_ID`, `CTP_CLIENT_SECRET`. For details, please read [Deployment Configuration](./README.md#deployment-configuration).
-In addition, please make sure the API client should have enough scope to be able to manage checkout session, cart and order. For details, please refer to [Running Application](./processor/README.md#running-application)
+In addition, please make sure the API client should have enough scope to be able to manage checkout session, cart and order. 
 
 #### 2. various URLs from commercetools composable commerce
 Various URLs from commercetools platform are required to be configured so that the connect application can handle session and authentication process for endpoints.
