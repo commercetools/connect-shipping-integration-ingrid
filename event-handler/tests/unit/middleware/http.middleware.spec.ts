@@ -1,6 +1,5 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { httpMiddlewareOptions } from '../../../src/middleware/http.middleware';
-import { readConfiguration } from '../../../src/utils/config.utils';
 
 // Mock the readConfiguration function
 jest.mock('../../../src/utils/config.utils');

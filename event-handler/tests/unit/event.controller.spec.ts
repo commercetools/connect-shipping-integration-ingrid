@@ -4,10 +4,7 @@ import { createApiRoot } from '../../src/client/commercetools/create.client';
 import * as updateClient from '../../src/client/commercetools/update.client';
 import PubSubValidator from '../../src/utils/validate_requests.utils';
 import IngridApiClient from '../../src/client/ingrid/ingrid.client';
-import {
-  IngridCompleteSessionRequestPayload,
-  IngridCompleteSessionResponse,
-} from '../../src/client/ingrid/types/ingrid.client.type';
+import { IngridCompleteSessionResponse } from '../../src/client/ingrid/types/ingrid.client.type';
 import { readConfiguration } from '../../src/utils/config.utils';
 import { logger } from '../../src/utils/logger.utils';
 
@@ -42,9 +39,6 @@ interface MockGetOrderResponse {
     };
   };
 }
-
-// Define the mocked function type
-type ThenCallback = (arg: any) => any;
 
 describe('Event Controller', () => {
   let mockRequest: Partial<Request>;
