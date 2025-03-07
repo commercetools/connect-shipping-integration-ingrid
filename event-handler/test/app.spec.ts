@@ -1,11 +1,11 @@
 import { expect } from '@jest/globals';
 import request from 'supertest';
 import express, { Request, Response } from 'express';
-import app from '../../src/app';
-import { readConfiguration } from '../../src/utils/config.utils';
+import app from '../src/app';
+import { readConfiguration } from '../src/utils/config.utils';
 
-jest.mock('../../src/utils/config.utils');
-jest.mock('../../src/routes/event.route', () => {
+jest.mock('../src/utils/config.utils');
+jest.mock('../src/routes/event.route', () => {
   const router = express.Router();
   router.post('/', (_req: Request, res: Response) => {
     res.status(200).send({ success: true });

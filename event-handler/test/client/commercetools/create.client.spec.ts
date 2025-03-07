@@ -1,11 +1,11 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { createApiRoot } from '../../../../src/client/commercetools/create.client';
-import * as buildClient from '../../../../src/client/commercetools/build.client';
-import { readConfiguration } from '../../../../src/utils/config.utils';
+import { createApiRoot } from '../../../src/client/commercetools/create.client';
+import * as buildClient from '../../../src/client/commercetools/build.client';
+import { readConfiguration } from '../../../src/utils/config.utils';
 
 // Mock the dependencies
-jest.mock('../../../../src/client/commercetools/build.client');
-jest.mock('../../../../src/utils/config.utils');
+jest.mock('../../../src/client/commercetools/build.client');
+jest.mock('../../../src/utils/config.utils');
 jest.mock('@commercetools/platform-sdk', () => ({
   createApiBuilderFromCtpClient: jest.fn().mockImplementation(() => ({
     withProjectKey: jest.fn().mockImplementation(() => 'mockApiRoot'),

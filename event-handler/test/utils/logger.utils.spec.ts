@@ -1,5 +1,5 @@
 import { describe, it, expect, jest } from '@jest/globals';
-import { logger } from '../../../src/utils/logger.utils';
+import { logger } from '../../src/utils/logger.utils';
 import { createApplicationLogger } from '@commercetools-backend/loggers';
 
 // Mock the createApplicationLogger

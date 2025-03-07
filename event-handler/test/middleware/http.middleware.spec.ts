@@ -1,8 +1,8 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { httpMiddlewareOptions } from '../../../src/middleware/http.middleware';
+import { httpMiddlewareOptions } from '../../src/middleware/http.middleware';
 
 // Mock the readConfiguration function
-jest.mock('../../../src/utils/config.utils');
+jest.mock('../../src/utils/config.utils');
 
 describe('HTTP Middleware', () => {
   beforeEach(() => {

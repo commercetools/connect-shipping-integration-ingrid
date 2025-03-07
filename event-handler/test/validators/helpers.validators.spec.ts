@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import * as helpers from '../../../src/validators/helpers.validators';
+import * as helpers from '../../src/validators/helpers.validators';
 import validator from 'validator';
 
 describe('Validator Helpers', () => {

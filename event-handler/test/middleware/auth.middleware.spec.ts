@@ -6,10 +6,10 @@ import {
   beforeEach,
   afterEach,
 } from '@jest/globals';
-import { authMiddlewareOptions } from '../../../src/middleware/auth.middleware';
+import { authMiddlewareOptions } from '../../src/middleware/auth.middleware';
 
 // Mock the readConfiguration function
-jest.mock('../../../src/utils/config.utils');
+jest.mock('../../src/utils/config.utils');
 
 describe('Auth Middleware', () => {
   const originalEnv = process.env;

@@ -6,12 +6,12 @@ import {
   expect,
   jest,
 } from '@jest/globals';
-import { readConfiguration } from '../../../src/utils/config.utils';
-import CustomError from '../../../src/errors/custom.error';
-import * as validatorsHelpers from '../../../src/validators/helpers.validators';
+import { readConfiguration } from '../../src/utils/config.utils';
+import CustomError from '../../src/errors/custom.error';
+import * as validatorsHelpers from '../../src/validators/helpers.validators';
 import { mockConfiguration } from '../mock/mock-configuration';
 
-jest.mock('../../../src/validators/helpers.validators');
+jest.mock('../../src/validators/helpers.validators');
 
 describe('Config Utils', () => {
   describe('readConfiguration', () => {

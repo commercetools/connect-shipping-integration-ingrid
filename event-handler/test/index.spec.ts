@@ -9,7 +9,7 @@ import {
 import http from 'http';
 
 // Mock the logger
-jest.mock('../../src/utils/logger.utils', () => ({
+jest.mock('../src/utils/logger.utils', () => ({
   logger: {
     info: jest.fn(),
     error: jest.fn(),
@@ -17,7 +17,7 @@ jest.mock('../../src/utils/logger.utils', () => ({
 }));
 
 // Mock the config utils
-jest.mock('../../src/utils/config.utils');
+jest.mock('../src/utils/config.utils');
 
 describe('Server initialization', () => {
   // Store the original process.env
@@ -45,7 +45,7 @@ describe('Server initialization', () => {
       });
 
     // Get the mocked logger
-    const loggerModule = require('../../src/utils/logger.utils');
+    const loggerModule = require('../src/utils/logger.utils');
     mockLogger = loggerModule.logger;
   });
 
@@ -65,7 +65,7 @@ describe('Server initialization', () => {
 
   test('should start server on the default port 8080', async () => {
     // Import the server (this will execute the code that starts the server)
-    const serverModule = await import('../../src/index');
+    const serverModule = await import('../src/index');
     server = serverModule.default;
 
     // Check if listen was called with the right port
@@ -76,7 +76,7 @@ describe('Server initialization', () => {
 
   test('should log server start information', async () => {
     // Import the server (this will execute the code that starts the server)
-    const serverModule = await import('../../src/index');
+    const serverModule = await import('../src/index');
     server = serverModule.default;
 
     // Check if the logger was called with the right message
@@ -87,7 +87,7 @@ describe('Server initialization', () => {
 
   test('should export the server instance', async () => {
     // Import the server
-    const serverModule = await import('../../src/index');
+    const serverModule = await import('../src/index');
     server = serverModule.default;
 
     // Verify that the exported server is an instance of http.Server

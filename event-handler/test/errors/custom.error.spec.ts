@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import CustomError from '../../../src/errors/custom.error';
+import CustomError from '../../src/errors/custom.error';
 
 describe('CustomError', () => {
   it('should create a CustomError with statusCode and message', () => {

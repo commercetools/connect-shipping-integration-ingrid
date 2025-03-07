@@ -13,7 +13,7 @@ import { jest, describe, beforeEach, it, expect } from '@jest/globals';
 import {
   orderWithReadyShipmentState,
   orderWithCancelShipmentState,
-} from '../unit/mock/mock-order';
+} from '../mock/mock-order';
 
 // Define types for mocks
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

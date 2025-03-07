@@ -6,9 +6,9 @@ import {
   beforeEach,
   afterEach,
 } from '@jest/globals';
-import { errorMiddleware } from '../../../src/middleware/error.middleware';
-import CustomError from '../../../src/errors/custom.error';
-import { logger } from '../../../src/utils/logger.utils';
+import { errorMiddleware } from '../../src/middleware/error.middleware';
+import CustomError from '../../src/errors/custom.error';
+import { logger } from '../../src/utils/logger.utils';
 
 // Define the ErrorItem type based on the CustomError implementation
 type ErrorItem = {
@@ -19,7 +19,7 @@ type ErrorItem = {
 };
 
 // Mock the logger
-jest.mock('../../../src/utils/logger.utils');
+jest.mock('../../src/utils/logger.utils');
 
 describe('Error Middleware', () => {
   let mockRequest: any;

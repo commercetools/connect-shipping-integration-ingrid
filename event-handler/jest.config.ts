@@ -1,11 +1,9 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 
 module.exports = {
-  displayName: 'Tests Typescript Application - Event',
-  moduleDirectories: ['node_modules', 'src'],
-  testMatch: ['**/tests/**/*.spec.[jt]s?(x)', '**/?(*.)+(spec|test).[tj]s?(x)'],
   preset: 'ts-jest',
   testEnvironment: 'node',
+  roots: ['./test'],
   coverageThreshold: {
     global: {
       branches: 75,
@@ -14,4 +12,10 @@ module.exports = {
       statements: 75,
     },
   },
+  /* // Explicitly exclude post-deploy and pre-undeploy scripts from coverage
+  // Its functionality is covered inside the actions.spec.ts file
+  coveragePathIgnorePatterns: [
+    'src/connector/post-deploy.ts',
+    'src/connector/pre-undeploy.ts',
+  ], */
 };
