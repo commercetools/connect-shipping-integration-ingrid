@@ -6,6 +6,7 @@ import {
   beforeEach,
   afterEach,
 } from '@jest/globals';
+import { Request, Response } from 'express';
 import { errorMiddleware } from '../../src/middleware/error.middleware';
 import CustomError from '../../src/errors/custom.error';
 import { logger } from '../../src/utils/logger.utils';
@@ -22,9 +23,13 @@ type ErrorItem = {
 jest.mock('../../src/utils/logger.utils');
 
 describe('Error Middleware', () => {
-  let mockRequest: any;
-  let mockResponse: any;
-  let mockNext: any;
+  let mockRequest: Partial<Request>;
+  let mockResponse: {
+    status: jest.Mock;
+    json: jest.Mock;
+    send: jest.Mock;
+  };
+  let mockNext: jest.Mock;
   const originalNodeEnv = process.env.NODE_ENV;
 
   beforeEach(() => {
@@ -55,7 +60,12 @@ describe('Error Middleware', () => {
     });
     customError.stack = 'Stack trace';
 
-    errorMiddleware(customError, mockRequest, mockResponse, mockNext);
+    errorMiddleware(
+      customError,
+      mockRequest as Request,
+      mockResponse as unknown as Response,
+      mockNext
+    );
 
     expect(jest.mocked(logger.error)).toHaveBeenCalledWith(
       customError.message,
@@ -81,7 +91,12 @@ describe('Error Middleware', () => {
       errors: [errorItem],
     });
 
-    errorMiddleware(customError, mockRequest, mockResponse, mockNext);
+    errorMiddleware(
+      customError,
+      mockRequest as Request,
+      mockResponse as unknown as Response,
+      mockNext
+    );
 
     expect(jest.mocked(logger.error)).toHaveBeenCalledWith(
       customError.message,
@@ -101,7 +116,12 @@ describe('Error Middleware', () => {
 
     const error = new Error('Something went wrong');
 
-    errorMiddleware(error, mockRequest, mockResponse, mockNext);
+    errorMiddleware(
+      error,
+      mockRequest as Request,
+      mockResponse as unknown as Response,
+      mockNext
+    );
 
     expect(jest.mocked(logger.error)).toHaveBeenCalledWith(
       error.message,
@@ -119,7 +139,12 @@ describe('Error Middleware', () => {
 
     const error = new Error('Something went wrong');
 
-    errorMiddleware(error, mockRequest, mockResponse, mockNext);
+    errorMiddleware(
+      error,
+      mockRequest as Request,
+      mockResponse as unknown as Response,
+      mockNext
+    );
 
     expect(jest.mocked(logger.error)).toHaveBeenCalledWith(
       error.message,

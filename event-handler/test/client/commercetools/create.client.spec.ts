@@ -26,6 +26,7 @@ describe('Create Client', () => {
       ingridApiKey: 'test-api-key',
       ingridEnvironment: 'STAGING',
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     jest.mocked(buildClient.createClient).mockReturnValue('mockClient' as any);
   });
 

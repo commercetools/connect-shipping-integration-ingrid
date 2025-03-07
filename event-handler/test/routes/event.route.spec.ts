@@ -4,6 +4,7 @@ import express from 'express';
 import app from '../../src/app';
 import { readConfiguration } from '../../src/utils/config.utils';
 import CustomError from '../../src/errors/custom.error';
+import { errorMiddleware } from '../../src/middleware/error.middleware';
 
 // Mock only the essential dependencies
 jest.mock('../../src/utils/config.utils');
@@ -100,9 +101,6 @@ describe('Error handling', () => {
     mockApp.use('/', mockRouter);
 
     // Add error middleware from the actual app
-    const {
-      errorMiddleware,
-    } = require('../../src/middleware/error.middleware');
     mockApp.use(errorMiddleware);
   });
 

@@ -68,11 +68,11 @@ describe('Validator Helpers', () => {
       };
 
       // Test non-array values with our test function
-      // @ts-ignore - Intentionally testing with invalid type
+      // @ts-expect-error - Intentionally testing with invalid type
       expect(testFn('not-an-array')).toBe(false);
-      // @ts-ignore - Intentionally testing with invalid type
+      // @ts-expect-error - Intentionally testing with invalid type
       expect(testFn(null)).toBe(false);
-      // @ts-ignore - Intentionally testing with invalid type
+      // @ts-expect-error - Intentionally testing with invalid type
       expect(testFn(undefined)).toBe(false);
     });
 
@@ -91,8 +91,11 @@ describe('Validator Helpers', () => {
 
       // Wrap the validator with array
       const arrayValidator = helpers.array(mockValidator);
-      const [_path, validators] = arrayValidator('values', 'Invalid values');
-      const [validatorFn, _message, validatorArgs] = validators[0];
+      const [, /* path */ validators] = arrayValidator(
+        'values',
+        'Invalid values'
+      );
+      const [validatorFn /* message */, , validatorArgs] = validators[0];
 
       expect(validatorArgs).toBe('expectedValue');
 

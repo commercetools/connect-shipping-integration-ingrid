@@ -244,6 +244,7 @@ describe('Event Controller', () => {
       withId: jest.fn().mockReturnThis(),
       get: jest.fn().mockReturnThis(),
       execute: jest.fn().mockReturnThis(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       then: jest.fn().mockImplementation(function (callback: any) {
         return Promise.resolve(
           callback({
@@ -280,6 +281,7 @@ describe('Event Controller', () => {
       .mockImplementation(() => Promise.reject(mockError));
     const originalCompleteFn =
       IngridApiClient.prototype.completeCheckoutSession;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     IngridApiClient.prototype.completeCheckoutSession = mockRejectedFn as any;
 
     // Mock changeShipmentState
@@ -325,6 +327,7 @@ describe('Event Controller', () => {
       withId: jest.fn().mockReturnThis(),
       get: jest.fn().mockReturnThis(),
       execute: jest.fn().mockReturnThis(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       then: jest.fn().mockImplementation(function (callback: any) {
         return Promise.resolve(
           callback({
@@ -377,6 +380,7 @@ describe('Event Controller', () => {
       .mockImplementation(() => Promise.resolve(mockIngridResponse));
     const originalCompleteFn =
       IngridApiClient.prototype.completeCheckoutSession;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     IngridApiClient.prototype.completeCheckoutSession = mockResolvedFn as any;
 
     // Mock changeShipmentState
@@ -437,6 +441,7 @@ describe('Event Controller', () => {
       withId: jest.fn().mockReturnThis(),
       get: jest.fn().mockReturnThis(),
       execute: jest.fn().mockReturnThis(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       then: jest.fn().mockImplementation(function (callback: any) {
         return Promise.resolve(
           callback({

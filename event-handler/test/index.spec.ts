@@ -35,9 +35,10 @@ describe('Server initialization', () => {
     // Mock the HTTP Server listen method
     mockListen = jest
       .spyOn(http.Server.prototype, 'listen')
-      .mockImplementation(function (this: any) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockImplementation(function (this: any, ...rest: any[]) {
         // Extract the callback if it exists (it could be the 1st, 2nd, or 3rd argument)
-        const args = Array.from(arguments);
+        const args = Array.from(rest);
         const callback = args.find((arg) => typeof arg === 'function');
 
         if (callback) callback();
@@ -45,7 +46,9 @@ describe('Server initialization', () => {
       });
 
     // Get the mocked logger
-    const loggerModule = require('../src/utils/logger.utils');
+    const loggerModule = jest.requireMock('../src/utils/logger.utils') as {
+      logger: { info: jest.Mock; error: jest.Mock };
+    };
     mockLogger = loggerModule.logger;
   });
 

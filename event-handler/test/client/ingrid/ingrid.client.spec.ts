@@ -93,7 +93,7 @@ describe('IngridApiClient', () => {
     });
 
     it('should handle non-Error objects thrown by axios', async () => {
-      mockAxiosInstance.post.mockRejectedValueOnce('String error' as any);
+      mockAxiosInstance.post.mockRejectedValueOnce('String error');
 
       await expect(client.completeCheckoutSession(mockPayload)).rejects.toThrow(
         CustomError

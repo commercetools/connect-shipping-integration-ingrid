@@ -17,6 +17,7 @@ describe('Update Client', () => {
     withId: jest.fn().mockReturnThis(),
     post: jest.fn().mockReturnThis(),
     execute: jest.fn().mockReturnThis(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     then: jest.fn().mockImplementation((callback: any) => {
       return Promise.resolve(
         callback({ body: { id: mockOrderId, version: mockOrderVersion + 1 } })
@@ -40,6 +41,7 @@ describe('Update Client', () => {
 
     jest
       .spyOn(createClientModule, 'createApiRoot')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .mockReturnValue(mockApiRoot as any);
   });
 
