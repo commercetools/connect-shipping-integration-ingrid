@@ -91,8 +91,8 @@ describe('Validator Helpers', () => {
 
       // Wrap the validator with array
       const arrayValidator = helpers.array(mockValidator);
-      const [path, validators] = arrayValidator('values', 'Invalid values');
-      const [validatorFn, message, validatorArgs] = validators[0];
+      const [_path, validators] = arrayValidator('values', 'Invalid values');
+      const [validatorFn, _message, validatorArgs] = validators[0];
 
       expect(validatorArgs).toBe('expectedValue');
 

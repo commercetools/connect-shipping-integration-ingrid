@@ -25,7 +25,7 @@ export const errorMiddleware: ErrorRequestHandler = (
     .status(500)
     .send(
       isDevelopment
-        ? { messge: error.message }
+        ? { message: error.message }
         : { message: 'Internal server error' }
     );
 };
