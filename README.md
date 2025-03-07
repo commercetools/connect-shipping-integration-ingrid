@@ -290,9 +290,16 @@ This command would start 3 required services, necessary for development
 3. Event Handler
 4. Dev checkout page (Loading Javascript SDK from localhost)
 
-To test the enabler and processor, you can access http://localhost:3000 to load a testing page. This testing page simulate a checkout page and download javascript SDK from local enabler and communicate with local processor.
+To test the `enabler`, you can access http://localhost:3000 to load a testing page. This testing page simulate a checkout page and download javascript SDK from local enabler and communicate with local processor.
 
-To test the event handler locally, you can send POST request to http://localhost with request body as shown below 
+To test the `processor` directly without using the `enabler`, you can send request to http://localhost:8080/sessions/init or http://localhost:8080/sessions/update by assigning checkout session into `x-session-id` in request header. No request body is required.
+
+```
+curl --location --request POST 'http://localhost:8080/sessions/init' \
+--header 'X-Session-Id: 91f46831-98e2-44d9-a017-487476b2bb54'
+```
+
+To test the `eventHandler` locally, you can send POST request to http://localhost with request body as shown below 
 ```
 {
   "message": {
