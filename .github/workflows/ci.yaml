@@ -80,7 +80,7 @@ jobs:
       - name: Execute build
         run: npm run build
 
-      - name: Execute test case
+      - name: Execute test case and checks for coverage above 75%
         run: npm run test:coverage
 
   build-event-handler:
@@ -107,5 +107,5 @@ jobs:
       - name: Execute build
         run: npm run build
 
-      - name: Execute test case
+      - name: Execute test case and checks for coverage above 75%
         run: npm run test:coverage
