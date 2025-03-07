@@ -4,4 +4,6 @@ export const readConfiguration = jest.fn(() => ({
   projectKey: 'mockedProjectKey',
   scope: 'mockedScope',
   region: 'mockedRegion',
+  ingridApiKey: 'mockedApiKey',
+  ingridEnvironment: 'mockedEnvironment',
 }));
