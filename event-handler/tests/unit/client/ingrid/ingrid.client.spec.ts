@@ -4,7 +4,6 @@ import {
   IngridBasePath,
   IngridUrls,
   IngridCompleteSessionRequestPayload,
-  IngridCompleteSessionResponse,
 } from '../../../../src/client/ingrid/types/ingrid.client.type';
 import CustomError from '../../../../src/errors/custom.error';
 import { describe, beforeEach, it, expect, jest } from '@jest/globals';
