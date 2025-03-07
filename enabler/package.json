@@ -17,7 +17,7 @@
     "serve": "14.2.4"
   },
   "devDependencies": {
-    "@commercetools/platform-sdk": "^8.3.0",
+    "@commercetools/platform-sdk": "^8.4.0",
     "@commercetools/sdk-client": "^3.0.0",
     "@commercetools/sdk-middleware-auth": "^7.0.1",
     "@commercetools/sdk-middleware-http": "^7.0.4",
@@ -38,7 +38,7 @@
     "sass": "1.85.1",
     "ts-jest": "^29.2.6",
     "typescript": "5.8.2",
-    "vite": "6.2.0",
+    "vite": "6.2.1",
     "vite-plugin-css-injected-by-js": "3.5.2"
   },
   "overrides": {
