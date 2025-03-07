@@ -149,7 +149,7 @@ Regarding the development of processor module, please refer to the following doc
 
 #### Deployment Configuration
 In order to deploy your customized connector application on commercetools Connect, it needs to be published. For details, please refer to [documentation about commercetools Connect](https://docs.commercetools.com/connect/concepts)
-In addition, in order to support connect, the adyen payment integration connector has a folder structure as listed below
+In addition, in order to support connect, the ingrid shipping integration connector has a folder structure as listed below
 ```
 ├── enabler
 │   ├── src
