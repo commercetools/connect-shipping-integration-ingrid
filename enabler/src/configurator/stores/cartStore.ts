@@ -7,14 +7,14 @@ import loadingStore from "./loadingStore";
 import Store from "./Store";
 
 type ACTION =
-  {
-    type: "SET_SHIPPING_ADDRESS",
-    address: Address;
-  }
   | {
-    type: "APPLY_DISCOUNT";
-    percetage: number;
-  }
+      type: "SET_SHIPPING_ADDRESS";
+      address: Address;
+    }
+  | {
+      type: "APPLY_DISCOUNT";
+      percetage: number;
+    }
   | {
       type: "SET_CART";
       cart: Cart;
@@ -37,9 +37,9 @@ const initialState: Cart = cartJSON ? JSON.parse(cartJSON) : undefined;
 const cartStore = new Store<Cart | undefined, ACTION>(
   (action, state, setState) => {
     switch (action.type) {
-      case "FETCH_CART": 
+      case "FETCH_CART":
         if (!state) return;
-      
+
         loadingStore.dispatch("START_LOADING");
         client
           .carts()
@@ -55,7 +55,6 @@ const cartStore = new Store<Cart | undefined, ACTION>(
           .catch((e) => console.error(e))
           .finally(() => {
             loadingStore.dispatch("DONE");
-   
           });
         break;
       case "SET_SHIPPING_ADDRESS":
@@ -70,7 +69,7 @@ const cartStore = new Store<Cart | undefined, ACTION>(
                 actions: [
                   {
                     action: "setShippingAddress",
-                    address: action.address
+                    address: action.address,
                   },
                 ],
               },
@@ -80,13 +79,12 @@ const cartStore = new Store<Cart | undefined, ACTION>(
               cartStore.dispatch({
                 type: "SET_CART",
                 cart: cart.body,
-              })
+              });
             })
             .finally(() => loadingStore.dispatch("DONE"));
-          }
+        }
         break;
       case "APPLY_DISCOUNT":
-       
         if (state) {
           loadingStore.dispatch("START_LOADING");
           client
@@ -102,14 +100,14 @@ const cartStore = new Store<Cart | undefined, ACTION>(
                       {
                         value: {
                           type: "relative",
-                          permyriad: action.percetage
+                          permyriad: action.percetage,
                         },
                         target: {
                           type: "lineItems",
-                          predicate: "true"
-                        }
-                      }
-                    ]
+                          predicate: "true",
+                        },
+                      },
+                    ],
                   },
                 ],
               },
@@ -119,12 +117,12 @@ const cartStore = new Store<Cart | undefined, ACTION>(
               cartStore.dispatch({
                 type: "SET_CART",
                 cart: cart.body,
-              })
+              });
             })
             .finally(() => loadingStore.dispatch("DONE"));
-          }
+        }
         break;
-        
+
       case "SET_CART":
         localStorage.setItem("cart", JSON.stringify(action.cart));
         setState(action.cart);
@@ -140,7 +138,9 @@ const cartStore = new Store<Cart | undefined, ACTION>(
                 currency: countryCurrencyLanguageStore.getSnapshot().currency,
                 country: countryCurrencyLanguageStore.getSnapshot().country,
                 locale: countryCurrencyLanguageStore.getSnapshot().language,
-                shippingAddress: { country: countryCurrencyLanguageStore.getSnapshot().country },
+                shippingAddress: {
+                  country: countryCurrencyLanguageStore.getSnapshot().country,
+                },
               },
             })
             .execute()
@@ -178,7 +178,6 @@ const cartStore = new Store<Cart | undefined, ACTION>(
         break;
       case "DELETE_CART":
         if (!state) {
-          // TODO should we throw some kind of warning/error here?
           return;
         }
         loadingStore.dispatch("START_LOADING");
