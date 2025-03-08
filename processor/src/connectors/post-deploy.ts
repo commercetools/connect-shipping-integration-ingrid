@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
-import { appLogger } from '../libs/logger';
 import { handleCustomTypeAction, handleTaxCategoryAction } from './actions';
 
 dotenv.config();
