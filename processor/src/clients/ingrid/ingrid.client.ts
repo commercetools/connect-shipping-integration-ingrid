@@ -73,7 +73,7 @@ export class IngridApiClient implements AbstractIngridClient {
     const response = await this.client.get(
       IngridUrls.DELIVERY_CHECKOUT + `/session.pull?checkout_session_id=${checkout_session_id}`,
     );
-    return response.data as IngridGetSessionResponse;
+    return response.data;
   }
 
   /**
@@ -93,7 +93,7 @@ export class IngridApiClient implements AbstractIngridClient {
     const response = await this.client.get(
       IngridUrls.DELIVERY_CHECKOUT + `/session.get?checkout_session_id=${checkout_session_id}`,
     );
-    return response.data as IngridGetSessionResponse;
+    return response.data;
   }
 
   /**
@@ -111,7 +111,7 @@ export class IngridApiClient implements AbstractIngridClient {
    */
   public async updateCheckoutSession(payload: IngridUpdateSessionRequestPayload): Promise<IngridUpdateSessionResponse> {
     const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.update', payload);
-    return response.data as IngridUpdateSessionResponse;
+    return response.data;
   }
 
   /**
@@ -132,7 +132,7 @@ export class IngridApiClient implements AbstractIngridClient {
     payload: IngridCompleteSessionRequestPayload,
   ): Promise<IngridCompleteSessionResponse> {
     const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.complete', payload);
-    return response.data as IngridCompleteSessionResponse;
+    return response.data;
   }
 }
 
