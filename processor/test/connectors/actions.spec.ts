@@ -15,7 +15,6 @@ describe('actions', () => {
     authUrl: 'dummy',
     apiUrl: 'dummy',
     projectKey: 'dummy',
-    logger: appLogger,
   });
 
   beforeEach(() => {

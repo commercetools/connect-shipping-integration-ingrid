@@ -247,7 +247,7 @@ describe('ingrid-shipping.service', () => {
         throw new Error('Mock data is missing required address information');
       }
 
-      // Mock getting cart with ingrid session
+      // Mock getting cart with Ingrid session
       jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue({
         ...cart,
         custom: {
@@ -325,7 +325,7 @@ describe('ingrid-shipping.service', () => {
     });
 
     test('should update Ingrid session when prices differ', async () => {
-      // Mock getting cart with ingrid session
+      // Mock getting cart with Ingrid session
       jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue({
         ...cart,
         custom: {
@@ -411,7 +411,7 @@ describe('ingrid-shipping.service', () => {
     });
 
     test('should throw error when cart has no taxed price', async () => {
-      // Mock getting cart with ingrid session
+      // Mock getting cart with Ingrid session
       jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue({
         ...cart,
         custom: {
@@ -461,7 +461,7 @@ describe('ingrid-shipping.service', () => {
       await expect(shippingService.update()).rejects.toThrow(
         new CustomError({
           message:
-            "Failed to get billing and delivery addresses from ingrid checkout session. It seems like the addresses weren't provided by the customer.",
+            "Failed to get billing and delivery addresses from Ingrid checkout session. It seems like the addresses weren't provided by the customer.",
           code: 'FAILED_TO_GET_BILLING_OR_DELIVERY_ADDRESSES_FROM_INGRID_CHECKOUT_SESSION',
           httpErrorStatus: 400,
         }),
@@ -469,14 +469,14 @@ describe('ingrid-shipping.service', () => {
     });
 
     test('should throw error when cart has no Ingrid session ID', async () => {
-      // Mock getting cart without ingrid session
+      // Mock getting cart without Ingrid session
       jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cartWithoutCustomType);
 
       await expect(shippingService.update()).rejects.toThrow(CustomError);
     });
 
     test('should throw error when updating cart fails', async () => {
-      // Mock getting cart with ingrid session
+      // Mock getting cart with Ingrid session
       jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue({
         ...cart,
         custom: {
