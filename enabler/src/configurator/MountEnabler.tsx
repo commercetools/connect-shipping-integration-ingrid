@@ -5,12 +5,15 @@ import type {
   ShippingInitResult,
   ShippingUpdateResult,
 } from "../shipping-enabler/shipping-enabler";
-import type { Cart } from '@commercetools/platform-sdk';
-import client from './coco';
+// import type { Cart } from '@commercetools/platform-sdk';
+// import client from './coco';
 const ingridElementId = "enablerContainer";
+import { paymentFlow } from '@commercetools/checkout-browser-sdk';
+
 const MountEnabler = memo(function MountEnabler() {
   const [showEnabler, setShowEnabler] = useState(false);
   const [showPaymentButton, setShowPaymentButton] = useState(false);
+
   const [updateEndpoint, setUpdateEndpoint] = useState(false);
   const session = useSyncExternalStore(
     cocoSessionStore.subscribe,
@@ -29,50 +32,36 @@ const MountEnabler = memo(function MountEnabler() {
       resultMessageEle.innerHTML += message + '<br>'
   }
 
-  const createOrder = async() => {
-    const cartString = localStorage.getItem('cart');
-    const cart = cartString ? JSON.parse(cartString) as Cart : undefined;
-    if (cart) {
-
-      const cartId = cart.id;
-      let cartVersion = cart.version;
-      
-      setTimeout(() => {
-      
-        client
-          .carts().withId({ ID: cartId })
-          .get()
-          .execute()
-          .then((updatedCartResponse) => {
-            cartVersion = updatedCartResponse?.body.version as number;
-            return cartVersion;
-          })
-          .then((cartVersion) => {
-            const order = client
-              .orders()
-              .post({
-                body: {
-                  'cart': {
-                    'id': cartId,
-                    'typeId': 'cart',
-                  },
-                  'version': cartVersion,
-                },
-              })
-              .execute();
-              return order
-          })
-          .then((result) => {
-            console.log('Order created', result);
-            appendMessage(`Order created : ${result.body.id}`)
-          })
-          .catch((e) => {
-            console.error('something went wrong:', e)
-            appendMessage(`Something went wrong: ${e.message}`)
-          });
-      }, 500);
-    }
+  const proceedPayment = async () => {  
+    paymentFlow({
+      projectKey: import.meta.env.VITE_CTP_PROJECT_KEY,
+      region: import.meta.env.VITE_CTP_REGION ?? "europe-west1.gcp",
+      sessionId: session?.id || "",
+      locale: "en",
+      logInfo: true,
+      logWarn: true,
+      logError: true,
+      onInfo: (message) => {
+        if (message.code==="checkout_completed") {
+          setShowEnabler(false)
+          setShowPaymentButton(false) 
+          const {
+            order: { id: orderId },
+          } = message.payload as {
+            order: { id: string };
+          };
+          console.log('Order created : ', orderId);
+          appendMessage(`Order created : ${orderId}`)
+        }
+      },
+    
+      onError: (message) => {
+        console.log("error", message);
+        appendMessage(`Failed to create order: ${message}`)
+      }
+    });
   }
+
   const initEnabler = async () => {
  
     const enabler = await import(import.meta.env.VITE_ENABLER_URL)
@@ -91,12 +80,9 @@ const MountEnabler = memo(function MountEnabler() {
           onUpdateCompleted: async (result: ShippingUpdateResult) => {
             console.log("onUpdateCompleted", { result });
             showMessage(`shipping options updated : ${result.isSuccess?"success":"failed"}`)
-            if (result.isSuccess) 
-
-            await createOrder().then(() => {
-              setShowEnabler(false)
-              setShowPaymentButton(false) 
-            });
+            if (result.isSuccess)  {
+              proceedPayment()
+            }
           },
           onError: (err: Error) => {           
             console.error("onError", err.message);
@@ -146,7 +132,7 @@ const MountEnabler = memo(function MountEnabler() {
         <div><br/>
         <button style={{ display: showPaymentButton?"block":"none" }}
           onClick={() => setUpdateEndpoint((e) => !e)}>
-         Proceed Payment
+         Update Shipping Options
         </button>
         
         </div>
