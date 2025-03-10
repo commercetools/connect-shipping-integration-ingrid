@@ -17,6 +17,7 @@ import { mockDelete, mockRequest, mockGet, mockPost } from '../mock/mock-utils';
 import { mockAccessToken } from '../mock/mock-authorization';
 import { mockSubscription } from '../mock/mock-subscriptions';
 import * as Config from '../../src/utils/config.utils';
+import { mockConfiguration } from '../mock/mock-configuration';
 
 describe('actions.ts', () => {
   const mockServer = setupServer();
@@ -33,16 +34,7 @@ describe('actions.ts', () => {
   });
 
   test('createGcpPubSubOrderCreateSubscription - successfully creates a subscription', async () => {
-    const configResult = {
-      clientId: '12345678901234567890123456789012',
-      clientSecret: '123456789012345678901234',
-      projectKey: 'dummy-project-key',
-      scope: 'manage_project:connect-shipping-integration-ingrid',
-      region: 'europe-west1.gcp',
-      ingridApiKey: 'dummy-ingrid-api-key',
-      ingridEnvironment: 'STAGING' as 'STAGING' | 'PRODUCTION',
-    };
-    jest.spyOn(Config, 'readConfiguration').mockReturnValue(configResult);
+    jest.spyOn(Config, 'readConfiguration').mockReturnValue(mockConfiguration);
     let apiRoot: ByProjectKeyRequestBuilder | undefined = undefined;
     await import('../../src/client/commercetools/create.client').then(
       (module) => {
@@ -55,26 +47,26 @@ describe('actions.ts', () => {
     const subscriptionKey = 'ingridShippingConnector-orderCreateSubscription';
     mockServer.use(
       mockRequest(
-        'https://auth.europe-west1.gcp.commercetools.com/',
+        'https://auth.test-region.commercetools.com/',
         'oauth/token',
         200,
         mockAccessToken
       ),
       mockGet(
-        'https://api.europe-west1.gcp.commercetools.com/',
-        `dummy-project-key/subscriptions?where=key%3D%22${subscriptionKey}%22`,
+        'https://api.test-region.commercetools.com/',
+        `test-project-key/subscriptions?where=key%3D%22${subscriptionKey}%22`,
         200,
         { results: [mockSubscription] }
       ),
       mockDelete(
-        'https://api.europe-west1.gcp.commercetools.com/',
-        `dummy-project-key/subscriptions/key=${subscriptionKey}?version=1`,
+        'https://api.test-region.commercetools.com/',
+        `test-project-key/subscriptions/key=${subscriptionKey}?version=1`,
         200,
         mockSubscription
       ),
       mockPost(
-        'https://api.europe-west1.gcp.commercetools.com/',
-        `dummy-project-key/subscriptions`,
+        'https://api.test-region.commercetools.com/',
+        `test-project-key/subscriptions`,
         200,
         mockSubscription
       )
@@ -88,16 +80,7 @@ describe('actions.ts', () => {
   });
 
   test('deleteOrderCreateSubscription - successfully deletes an existing subscription', async () => {
-    const configResult = {
-      clientId: '12345678901234567890123456789012',
-      clientSecret: '123456789012345678901234',
-      projectKey: 'dummy-project-key',
-      scope: 'manage_project:connect-shipping-integration-ingrid',
-      region: 'europe-west1.gcp',
-      ingridApiKey: 'dummy-ingrid-api-key',
-      ingridEnvironment: 'STAGING' as 'STAGING' | 'PRODUCTION',
-    };
-    jest.spyOn(Config, 'readConfiguration').mockReturnValue(configResult);
+    jest.spyOn(Config, 'readConfiguration').mockReturnValue(mockConfiguration);
     let apiRoot: ByProjectKeyRequestBuilder | undefined = undefined;
     await import('../../src/client/commercetools/create.client').then(
       (module) => {
@@ -110,20 +93,20 @@ describe('actions.ts', () => {
     const subscriptionKey = 'ingridShippingConnector-orderCreateSubscription';
     mockServer.use(
       mockRequest(
-        'https://auth.europe-west1.gcp.commercetools.com/',
+        'https://auth.test-region.commercetools.com/',
         'oauth/token',
         200,
         mockAccessToken
       ),
       mockGet(
-        'https://api.europe-west1.gcp.commercetools.com/',
-        `dummy-project-key/subscriptions?where=key%3D%22${subscriptionKey}%22`,
+        'https://api.test-region.commercetools.com/',
+        `test-project-key/subscriptions?where=key%3D%22${subscriptionKey}%22`,
         200,
         { results: [mockSubscription] }
       ),
       mockDelete(
-        'https://api.europe-west1.gcp.commercetools.com/',
-        `dummy-project-key/subscriptions/key=${subscriptionKey}?version=1`,
+        'https://api.test-region.commercetools.com/',
+        `test-project-key/subscriptions/key=${subscriptionKey}?version=1`,
         200,
         mockSubscription
       )
@@ -134,16 +117,7 @@ describe('actions.ts', () => {
   });
 
   test('deleteOrderCreateSubscription - no action when subscription does not exist', async () => {
-    const configResult = {
-      clientId: '12345678901234567890123456789012',
-      clientSecret: '123456789012345678901234',
-      projectKey: 'dummy-project-key',
-      scope: 'manage_project:connect-shipping-integration-ingrid',
-      region: 'europe-west1.gcp',
-      ingridApiKey: 'dummy-ingrid-api-key',
-      ingridEnvironment: 'STAGING' as 'STAGING' | 'PRODUCTION',
-    };
-    jest.spyOn(Config, 'readConfiguration').mockReturnValue(configResult);
+    jest.spyOn(Config, 'readConfiguration').mockReturnValue(mockConfiguration);
     let apiRoot: ByProjectKeyRequestBuilder | undefined = undefined;
     await import('../../src/client/commercetools/create.client').then(
       (module) => {
@@ -156,14 +130,14 @@ describe('actions.ts', () => {
     const subscriptionKey = 'ingridShippingConnector-orderCreateSubscription';
     mockServer.use(
       mockRequest(
-        'https://auth.europe-west1.gcp.commercetools.com/',
+        'https://auth.test-region.commercetools.com/',
         'oauth/token',
         200,
         mockAccessToken
       ),
       mockGet(
-        'https://api.europe-west1.gcp.commercetools.com/',
-        `dummy-project-key/subscriptions?where=key%3D%22${subscriptionKey}%22`,
+        'https://api.test-region.commercetools.com/',
+        `test-project-key/subscriptions?where=key%3D%22${subscriptionKey}%22`,
         200,
         { results: [] }
       )

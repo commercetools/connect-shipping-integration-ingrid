@@ -2,6 +2,7 @@ import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { createApiRoot } from '../../../src/client/commercetools/create.client';
 import * as buildClient from '../../../src/client/commercetools/build.client';
 import { readConfiguration } from '../../../src/utils/config.utils';
+import { mockConfiguration } from '../../mock/mock-configuration';
 
 // Mock the dependencies
 jest.mock('../../../src/client/commercetools/build.client');
@@ -13,19 +14,9 @@ jest.mock('@commercetools/platform-sdk', () => ({
 }));
 
 describe('Create Client', () => {
-  const mockProjectKey = 'test-project';
-
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.mocked(readConfiguration).mockReturnValue({
-      projectKey: mockProjectKey,
-      region: 'eu-west-1',
-      clientId: 'test-client-id',
-      clientSecret: 'test-client-secret',
-      scope: 'test-scope',
-      ingridApiKey: 'test-api-key',
-      ingridEnvironment: 'STAGING',
-    });
+    jest.mocked(readConfiguration).mockReturnValue(mockConfiguration);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     jest.mocked(buildClient.createClient).mockReturnValue('mockClient' as any);
   });

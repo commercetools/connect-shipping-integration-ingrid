@@ -4,6 +4,7 @@ import { readConfiguration } from '../../../src/utils/config.utils';
 
 // Add Jest imports
 import { describe, beforeEach, it, expect, jest } from '@jest/globals';
+import { mockConfiguration } from '../../mock/mock-configuration';
 
 // Mock the readConfiguration function
 jest.mock('../../../src/utils/config.utils');
@@ -29,15 +30,7 @@ describe('Update Client', () => {
     jest.clearAllMocks();
 
     // Mock readConfiguration to return valid configuration
-    jest.mocked(readConfiguration).mockReturnValue({
-      region: 'europe-west1.gcp',
-      projectKey: 'test-project-key',
-      clientId: 'test-client-id',
-      clientSecret: 'test-client-secret',
-      scope: 'test-scope',
-      ingridApiKey: 'test-api-key',
-      ingridEnvironment: 'STAGING',
-    });
+    jest.mocked(readConfiguration).mockReturnValue(mockConfiguration);
 
     jest
       .spyOn(createClientModule, 'createApiRoot')
