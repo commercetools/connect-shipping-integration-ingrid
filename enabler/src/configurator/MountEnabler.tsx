@@ -9,7 +9,7 @@ import type {
 // import client from './coco';
 const ingridElementId = "enablerContainer";
 import { paymentFlow, close } from '@commercetools/checkout-browser-sdk';
-
+import cartStore from "./stores/cartStore";
 const MountEnabler = memo(function MountEnabler() {
   const [showEnabler, setShowEnabler] = useState(false);
   const [showPaymentButton, setShowPaymentButton] = useState(false);
@@ -50,12 +50,14 @@ const MountEnabler = memo(function MountEnabler() {
           } = message.payload as {
             order: { id: string };
           };
+          cartStore.dispatch({ type: "FETCH_CART" })
           console.log('Order created : ', orderId);
           appendMessage(`Order created : ${orderId}`)
         }
       },
       onError: (error) => {
         console.log("error", error);
+        cartStore.dispatch({ type: "FETCH_CART" })
         close();
         appendMessage(`Failed to create order: ${(error as unknown as { message:string}).message}`)
       }
@@ -76,10 +78,12 @@ const MountEnabler = memo(function MountEnabler() {
               localStorage.setItem("ingrid-session-id", result.ingridSessionId);
             }
             setShowPaymentButton(true)
+            cartStore.dispatch({ type: "FETCH_CART" })
           },
           onUpdateCompleted: async (result: ShippingUpdateResult) => {
             console.log("onUpdateCompleted", { result });
             showMessage(`shipping options updated : ${result.isSuccess?"success":"failed"}`)
+            cartStore.dispatch({ type: "FETCH_CART" })
             if (result.isSuccess)  {
               proceedPayment()
             }
