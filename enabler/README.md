@@ -79,17 +79,15 @@ $ npm run dev
 ## Development Site
 To run development site to simulate checkout flow. Please make sure following environment variables has to be defined: 
 
-`VITE_CTP_CLIENT_ID`:  The client ID of your commercetools composable commerce user account. It is used in commercetools client to communicate with commercetools composable commerce.
+- `VITE_CTP_CLIENT_ID`:  The client ID of your commercetools composable commerce user account. It is used in commercetools client to communicate with commercetools composable commerce.
 
-`VITE_CTP_CLIENT_SECRET`:  The client secret of commercetools composable commerce user account. It is used in commercetools client to communicate with commercetools composable commerce.
+- `VITE_CTP_CLIENT_SECRET`:  The client secret of commercetools composable commerce user account. It is used in commercetools client to communicate with commercetools composable commerce.
+- `VITE_CTP_PROJECT_KEY`: The key of commercetools composable commerce project.
 
-`VITE_CTP_PROJECT_KEY`: The key of commercetools composable commerce project.
+- `VITE_PROCESSOR_URL`: The URL of the `processor`. This URL is required when instantiate enabler in development checkout site. If processor has been started locally by docker-compose. It would be http://localhost:8080.
 
-`VITE_PROCESSOR_URL`: The URL of the `processor`. This URL is required when instantiate enabler in development checkout site. If processor has been started locally by docker-compose. It would be http://localhost:8080.
-
-`VITE_ENABLER_URL`: The URL of the `enabler` javascript SDK. This URL is required to load the javascript SDK on the fly of loading the development checkout site. If `enabler` has been started locally by docker-compose, the URL should contain javascript SDK http://localhost:8888/connector-enabler.es.js.
-
-`VITE_CTP_APPLICATION_KEY`: The key of a commercetools checkout application to run payment-only flow. In order to execute payment in development site with the help of commercetools checkout SDK, a commercetools checkout application has to be created. The application key can be found in merchant center checkout section. To know more details, please refer to the [commercetools checkout documentation](https://docs.commercetools.com/checkout/installing-checkout).
+- `VITE_ENABLER_URL`: The URL of the `enabler` javascript SDK. This URL is required to load the javascript SDK on the fly of loading the development checkout site. If `enabler` has been started locally by docker-compose, the URL should contain javascript SDK http://localhost:8888/connector-enabler.es.js.
+- `VITE_CTP_APPLICATION_KEY`: The key of a commercetools checkout application to run payment-only flow. In order to execute payment in development site with the help of commercetools checkout SDK, a commercetools checkout application has to be created. The application key can be found in merchant center checkout section. To know more details, please refer to the [commercetools checkout documentation](https://docs.commercetools.com/checkout/installing-checkout).
 
 
 To test `enabler` and `processor` in local environment, it is recommended to build them and the development site with docker-compose command. It has already arranged the forwarding port numbers without duplication.
