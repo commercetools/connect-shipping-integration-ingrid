@@ -34,7 +34,7 @@ const envValidators = [
     message: 'Project key should be a valid string.',
     referencedBy: 'environmentVariables',
   }),
-  optional(standardString)(
+  standardString(
     ['scope'],
     {
       code: 'InvalidScope',
