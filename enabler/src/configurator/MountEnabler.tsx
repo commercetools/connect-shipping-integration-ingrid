@@ -8,7 +8,7 @@ import type {
 // import type { Cart } from '@commercetools/platform-sdk';
 // import client from './coco';
 const ingridElementId = "enablerContainer";
-import { paymentFlow } from '@commercetools/checkout-browser-sdk';
+import { paymentFlow, close } from '@commercetools/checkout-browser-sdk';
 
 const MountEnabler = memo(function MountEnabler() {
   const [showEnabler, setShowEnabler] = useState(false);
@@ -54,10 +54,10 @@ const MountEnabler = memo(function MountEnabler() {
           appendMessage(`Order created : ${orderId}`)
         }
       },
-    
-      onError: (message) => {
-        console.log("error", message);
-        appendMessage(`Failed to create order: ${message}`)
+      onError: (error) => {
+        console.log("error", error);
+        close();
+        appendMessage(`Failed to create order: ${(error as unknown as { message:string}).message}`)
       }
     });
   }
