@@ -30,6 +30,5 @@ export const readConfiguration = () => {
       validationErrors
     );
   }
-
   return envVars;
 };

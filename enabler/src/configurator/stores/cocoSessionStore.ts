@@ -36,6 +36,9 @@ async function createSession(cartId: string) {
             id: cartId,
           },
         },
+        metadata: {
+          applicationKey: import.meta.env.VITE_CTP_APPLICATION_KEY ?? "",
+        }
       }),
     }
   ).then((r) => r.json());
