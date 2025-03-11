@@ -77,13 +77,15 @@ $ npm run dev
 ```
 
 ## Development Site
-To run development site to simulate checkout flow. Please make sure following environment variables has to be defined: 
+We also provide development site in `enabler` which can be used to load the `enabler` javascript SDK to simulate the checkout flow. The code can be found in `src/configurator`. To run development site, please make sure following environment variables has to be defined: 
 
 - `VITE_CTP_CLIENT_ID`:  The client ID of your commercetools composable commerce user account. It is used in commercetools client to communicate with commercetools composable commerce.
 
 - `VITE_CTP_CLIENT_SECRET`:  The client secret of commercetools composable commerce user account. It is used in commercetools client to communicate with commercetools composable commerce.
 - `VITE_CTP_PROJECT_KEY`: The key of commercetools composable commerce project.
-
+- `VITE_CTP_AUTH_URL`: The URL for authentication in commercetools platform. It is used to generate OAuth 2.0 token which is required in every API call to commercetools composable commerce. The URL pattern is `https://auth.{region}.commercetools.com`. For details, please refer to documentation [here](https://docs.commercetools.com/tutorials/api-tutorial#authentication).
+- `VITE_CTP_API_URL`: The URL for commercetools composable commerce API. The URL pattern is `https://api.{region}.commercetools.com`.
+- `VITE_CTP_SESSION_URL`: The URL for session creation in commercetools platform. Connectors relies on the session created to be able to share information between enabler and processor. The URL pattern is `https://session.{region}.commercetools.com`.
 - `VITE_PROCESSOR_URL`: The URL of the `processor`. This URL is required when instantiate enabler in development checkout site. If processor has been started locally by docker-compose. It would be http://localhost:8080.
 
 - `VITE_ENABLER_URL`: The URL of the `enabler` javascript SDK. This URL is required to load the javascript SDK on the fly of loading the development checkout site. If `enabler` has been started locally by docker-compose, the URL should contain javascript SDK http://localhost:8888/connector-enabler.es.js.
