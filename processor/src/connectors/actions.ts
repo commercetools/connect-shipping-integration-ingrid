@@ -65,7 +65,6 @@ export const handleCustomTypeAction = async (
 ): Promise<Type | undefined> => {
   const ingridCustomTypeExists = await client.checkIfCustomTypeExistsByKey(key);
   let type: Type | undefined;
-
   if (ingridCustomTypeExists) {
     appLogger.info(`[CUSTOM-TYPE VALIDATING]: Custom type with key ${key}`);
     type = await updateType(client, key);
@@ -83,12 +82,14 @@ export const handleCustomTypeAction = async (
 async function updateType(client: CommercetoolsApiClient, key: string): Promise<Type> {
   let customType = await client.getCustomType(key);
   const ingridSessionId = customType.fieldDefinitions.find(({ name }) => name === 'ingridSessionId');
-
+  if (!customType.resourceTypeIds.includes('order')) {
+    appLogger.info(`[CUSTOM-TYPE NOT FOUND]: Custom type with key ${key} does not have order resource type`);
+    customType = await createType(client, key);
+  }
   if (!ingridSessionId) {
     appLogger.info(`[CUSTOM-TYPE NOT FOUND]: Custom type with key ${key} does not have ingridSessionId field`);
     customType = await createFieldDefinitionOnType(client, customType);
   }
-
   return customType;
 }
 
