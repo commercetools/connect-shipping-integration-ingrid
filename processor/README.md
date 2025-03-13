@@ -55,7 +55,7 @@ Make sure commercetools client credential have at least the following permission
 * `view_api_clients` 
 
 ```
-npm run dev
+$ npm run dev
 ```
 
 ## Authentication
