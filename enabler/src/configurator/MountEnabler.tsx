@@ -14,7 +14,6 @@ const MountEnabler = memo(function MountEnabler() {
   const [showEnabler, setShowEnabler] = useState(false);
   const [showPaymentButton, setShowPaymentButton] = useState(false);
 
-  const [updateEndpoint, setUpdateEndpoint] = useState(false);
   const session = useSyncExternalStore(
     cocoSessionStore.subscribe,
     cocoSessionStore.getSnapshot
@@ -84,9 +83,6 @@ const MountEnabler = memo(function MountEnabler() {
             console.log("onUpdateCompleted", { result });
             showMessage(`shipping options updated : ${result.isSuccess?"success":"failed"}`)
             cartStore.dispatch({ type: "FETCH_CART" })
-            if (result.isSuccess)  {
-              proceedPayment()
-            }
           },
           onError: (err: Error) => {           
             console.error("onError", err.message);
@@ -105,11 +101,7 @@ const MountEnabler = memo(function MountEnabler() {
       return component;
   };
 
-  useEffect(() => {
-    if (component) {
-      component.update();
-    }
-  }, [updateEndpoint]);
+
 
   useEffect(() => {
     if (showEnabler && session) {
@@ -135,8 +127,8 @@ const MountEnabler = memo(function MountEnabler() {
       {component && (
         <div><br/>
         <button style={{ display: showPaymentButton?"block":"none" }}
-          onClick={() => setUpdateEndpoint((e) => !e)}>
-         Update Shipping Options
+          onClick={() => proceedPayment()}>
+         Proceed Payment
         </button>
         
         </div>
