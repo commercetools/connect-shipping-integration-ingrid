@@ -71,7 +71,7 @@ export class DefaultComponent implements ShippingComponent {
             }
           });
           api.on("summary_changed", (data, meta) => {
-            if(!(meta as SummaryChangedMeta).delivery_address_changed) {
+            if((meta as SummaryChangedMeta).delivery_address_changed) {
               console.log("summary_changed: data", data);
               console.log("summary_changed: meta", meta);
               this.update();
