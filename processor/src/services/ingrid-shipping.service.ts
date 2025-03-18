@@ -24,15 +24,18 @@ export class IngridShippingService extends AbstractShippingService {
    * @remarks
    * Implementation to initialize session in Ingrid platform.
    *
-   * @returns {Promise<InitSessionResponse>} Returns the commercetools cart id, ingrid session id and ingrid checkout session html snippet
+   * @returns {Promise<InitSessionResponse>} Returns the commercetools cart id, Ingrid session id and Ingrid checkout session html snippet
    */
   public async init(): Promise<InitSessionResponse> {
     const ingridSessionCustomTypeKey = getConfig().keyOfIngridSessionCustomType;
     const customType = await this.commercetoolsClient.getCustomType(ingridSessionCustomTypeKey);
 
     if (!customType) {
+      appLogger.error(
+        `[ERROR]: Failed to get custom type on Ingrid session init with key "${ingridSessionCustomTypeKey}".`,
+      );
       throw new CustomError({
-        message: 'No ingrid session custom type id found',
+        message: 'No Ingrid session custom type id found',
         code: 'NO_INGRID_SESSION_CUSTOM_TYPE_ID_FOUND',
         httpErrorStatus: 400,
       });
@@ -52,6 +55,8 @@ export class IngridShippingService extends AbstractShippingService {
       customType.id,
     );
 
+    appLogger.info(`[SUCCESS]: Ingrid session with ID ${ingridSessionId} initiated.`);
+
     return {
       data: {
         success: true,
@@ -68,7 +73,7 @@ export class IngridShippingService extends AbstractShippingService {
    * @remarks
    * Implementation to update composable commerce platform if update is triggered in Ingrid platform.
    *
-   * @returns {Promise<UpdateSessionResponse>} Returns the commercetools cart id and ingrid session id
+   * @returns {Promise<UpdateSessionResponse>} Returns the commercetools cart id and Ingrid session id
    */
   public async update(): Promise<UpdateSessionResponse> {
     const ingridTaxCategoryKey = getConfig().taxCategoryKey;
@@ -76,32 +81,38 @@ export class IngridShippingService extends AbstractShippingService {
     // get commercetools cart
     const ctCart = await this.commercetoolsClient.getCartById(getCartIdFromContext());
 
-    // get ingrid session id
+    // get Ingrid session id
     const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
 
     if (!ingridSessionId) {
+      appLogger.error(
+        `[ERROR]: Failed to update composable commerce platform, Ingrid session ID on cart with ID "${ctCart.id}" not found.`,
+      );
       throw new CustomError({
-        message: 'No ingrid session id found on cart',
+        message: 'No Ingrid session id found on cart',
         code: 'NO_INGRID_SESSION_ID_FOUND',
         httpErrorStatus: 400,
       });
     }
 
-    // get ingrid checkout session
+    // get Ingrid checkout session
     const ingridCheckoutSession = await this.ingridClient.getCheckoutSession(ingridSessionId);
 
     // check for presence of billing and delivery addresses
     const { billing_address, delivery_address } = ingridCheckoutSession.session.delivery_groups[0]?.addresses ?? {};
     if (!billing_address || !delivery_address) {
+      appLogger.error(
+        `[ERROR]: Failed to get billing and delivery addresses from Ingrid checkout session with ID "${ingridSessionId}", cart ID "${ctCart.id}".`,
+      );
       throw new CustomError({
         message:
-          "Failed to get billing and delivery addresses from ingrid checkout session. It seems like the addresses weren't provided by the customer.",
+          "Failed to get billing and delivery addresses from Ingrid checkout session. It seems like the addresses weren't provided by the customer.",
         code: 'FAILED_TO_GET_BILLING_OR_DELIVERY_ADDRESSES_FROM_INGRID_CHECKOUT_SESSION',
         httpErrorStatus: 400,
       });
     }
 
-    // transform ingrid checkout session delivery groups to commercetools data types
+    // transform Ingrid checkout session delivery groups to commercetools data types
     const { billingAddress, deliveryAddress, customShippingMethod } =
       transformIngridDeliveryGroupsToCommercetoolsDataTypes(ingridCheckoutSession.session.delivery_groups);
 
@@ -120,6 +131,9 @@ export class IngridShippingService extends AbstractShippingService {
     );
 
     if (!updatedCart.taxedPrice?.totalGross) {
+      appLogger.error(
+        `[ERROR]: Failed to get taxed price from cart ID "${ctCart.id}", shipping address has likely not been set on commercetools cart.`,
+      );
       throw new CustomError({
         message:
           'Failed to get taxed price from commercetools cart. It seems like there is no shipping address set on commercetools cart.',
@@ -128,13 +142,13 @@ export class IngridShippingService extends AbstractShippingService {
       });
     }
 
-    // check if price on ingrid is same as total gross on commercetools cart
-    // ingrid uses the same format for prices as commercetools
+    // check if price on Ingrid is same as total gross on commercetools cart
+    // Ingrid uses the same format for prices as commercetools
     // example: 10000 = 100.00 [Currency Code]
     const { total_value: ingridTotalValue } = ingridCheckoutSession.session.cart;
     const { centAmount: commercetoolsTotalTaxedValue } = updatedCart.taxedPrice.totalGross;
 
-    // if prices are not the same, update ingrid checkout session
+    // if prices are not the same, update Ingrid checkout session
     if (ingridTotalValue !== commercetoolsTotalTaxedValue) {
       // we assume that the updated cart now has taxed prices
       const updatedIngridCheckoutSessionPayload: IngridUpdateSessionRequestPayload = {
@@ -144,6 +158,9 @@ export class IngridShippingService extends AbstractShippingService {
 
       await this.ingridClient.updateCheckoutSession(updatedIngridCheckoutSessionPayload);
     }
+    appLogger.info(
+      `[SUCCESS]: Composable commerce platform updated by change triggered in Ingrid platform, session ID "${ingridSessionId}", cart ID "${ctCart.id}".`,
+    );
 
     return {
       data: {
@@ -175,7 +192,7 @@ export class IngridShippingService extends AbstractShippingService {
     cart = await this.commercetoolsClient
       .setCartCustomField(cart.id, cart.version, 'ingridSessionId', ingridSessionId)
       .catch((error) => {
-        appLogger.error(`[ERROR]: Failed to set IngridSessionId ${ingridSessionId} on cart ${cart.id}`);
+        appLogger.error(`[ERROR]: Failed to set IngridSessionId ${ingridSessionId} on cart ${cart.id}.`);
         throw new CustomError({
           message: error?.message,
           code: error.code,
@@ -183,7 +200,7 @@ export class IngridShippingService extends AbstractShippingService {
           cause: error,
         });
       });
-    appLogger.info(`[SUCCESS]: IngridSessionId ${ingridSessionId} is set on cart ${cart.id}`);
+    appLogger.info(`[SUCCESS]: IngridSessionId ${ingridSessionId} is set on cart ${cart.id}.`);
     return cart;
   }
 }

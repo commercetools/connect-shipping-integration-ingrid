@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
-import { appLogger } from '../libs/logger';
 import { handleCustomTypeAction, handleTaxCategoryAction } from './actions';
 
 dotenv.config();
@@ -33,7 +32,6 @@ async function postDeploy(_properties: Map<string, unknown>) {
     authUrl: _properties.get('CTP_AUTH_URL') as string,
     apiUrl: _properties.get('CTP_API_URL') as string,
     projectKey: _properties.get('CTP_PROJECT_KEY') as string,
-    logger: appLogger,
   });
 
   const ingridCustomTypeKey = _properties.get('INGRID_SESSION_CUSTOM_TYPE_KEY') as string; // default: ingrid-session
