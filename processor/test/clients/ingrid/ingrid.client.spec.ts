@@ -12,6 +12,7 @@ import {
 } from '../../mock/mock-ingrid-client-objects';
 import { CustomError } from '../../../src/libs/fastify/errors';
 
+import { HttpHandler } from 'msw';
 describe('Ingrid Client', () => {
   const mockServer = setupServer();
   const opts = { apiSecret: 'dummy-ingrid-api-key', environment: 'STAGING' as IngridEnvironment };
@@ -81,6 +82,27 @@ describe('Ingrid Client', () => {
     });
   });
 
+  describe('pull Ingrid checkout session with server error ', () => {
+    test('should retry 5 times and throw error ', async () => {
+      const mockRequestHandler: HttpHandler = mockRequest(
+        IngridBasePath.STAGING,
+        IngridUrls.DELIVERY_CHECKOUT + '/session.pull',
+        500,
+      );
+
+      mockServer.use(mockRequestHandler);
+
+      const client = new IngridApiClient(opts);
+      const spy = jest.spyOn(mockRequestHandler, 'run');
+      try {
+        await client.pullCheckoutSession('dummy-checkout-session-id');
+      } catch (error) {
+        expect(error instanceof CustomError).toBe(true);
+        expect(spy).toHaveBeenCalledTimes(5);
+      }
+    }, 20000);
+  });
+
   describe('get Ingrid checkout session ', () => {
     test('should return required properties', async () => {
       mockServer.use(
@@ -103,6 +125,27 @@ describe('Ingrid Client', () => {
     });
   });
 
+  describe('get Ingrid checkout session with server error ', () => {
+    test('should retry 5 times and throw error ', async () => {
+      const mockRequestHandler: HttpHandler = mockRequest(
+        IngridBasePath.STAGING,
+        IngridUrls.DELIVERY_CHECKOUT + '/session.get',
+        500,
+      );
+
+      mockServer.use(mockRequestHandler);
+
+      const client = new IngridApiClient(opts);
+      const spy = jest.spyOn(mockRequestHandler, 'run');
+      try {
+        await client.getCheckoutSession('dummy-checkout-session-id');
+      } catch (error) {
+        expect(error instanceof CustomError).toBe(true);
+        expect(spy).toHaveBeenCalledTimes(5);
+      }
+    }, 20000);
+  });
+
   describe('create Ingrid checkout session with wrong API key ', () => {
     test('should throw error', async () => {
       mockServer.use(
@@ -122,6 +165,27 @@ describe('Ingrid Client', () => {
         expect(customError.httpErrorStatus).toBe(401);
       }
     });
+  });
+
+  describe('create Ingrid checkout session with server error ', () => {
+    test('should retry 5 times and throw error ', async () => {
+      const mockRequestHandler: HttpHandler = mockRequest(
+        IngridBasePath.STAGING,
+        IngridUrls.DELIVERY_CHECKOUT + '/session.create',
+        500,
+      );
+
+      mockServer.use(mockRequestHandler);
+
+      const client = new IngridApiClient(opts);
+      const spy = jest.spyOn(mockRequestHandler, 'run');
+      try {
+        await client.createCheckoutSession(mockCreateCheckoutSessionRequest);
+      } catch (error) {
+        expect(error instanceof CustomError).toBe(true);
+        expect(spy).toHaveBeenCalledTimes(5);
+      }
+    }, 20000);
   });
 
   describe('update Ingrid checkout session', () => {
@@ -193,5 +257,38 @@ describe('Ingrid Client', () => {
       };
       await expect(client.updateCheckoutSession(updatePayload)).rejects.toThrow(CustomError);
     });
+  });
+
+  describe('update Ingrid checkout session with server error ', () => {
+    test('should retry 5 times and throw error ', async () => {
+      const mockRequestHandler: HttpHandler = mockRequest(
+        IngridBasePath.STAGING,
+        IngridUrls.DELIVERY_CHECKOUT + '/session.update',
+        500,
+      );
+
+      mockServer.use(mockRequestHandler);
+
+      const client = new IngridApiClient(opts);
+      const spy = jest.spyOn(mockRequestHandler, 'run');
+      const updatePayload = {
+        checkout_session_id: 'mock-session-id',
+        cart: {
+          cart_id: 'mock-cart-id',
+          total_value: 1000,
+          total_discount: 0,
+          items: [],
+        },
+        purchase_country: 'SE',
+        purchase_currency: 'SEK',
+      };
+
+      try {
+        await client.updateCheckoutSession(updatePayload);
+      } catch (error) {
+        expect(error instanceof CustomError).toBe(true);
+        expect(spy).toHaveBeenCalledTimes(5);
+      }
+    }, 20000);
   });
 });
