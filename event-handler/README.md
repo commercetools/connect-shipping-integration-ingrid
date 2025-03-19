@@ -44,5 +44,3 @@ $ npm run connector:post-deploy
 ```
 $ npm run connector:pre-undeploy
 ```
-
-## Post-Deployment Script
