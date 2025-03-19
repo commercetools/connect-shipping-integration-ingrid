@@ -4,11 +4,17 @@ This repository provides a [connect](https://docs.commercetools.com/connect) for
 - [Overview](#Overview)
 - [Prerequisite](#Prerequisite)
 - [Development Guide](#development-guide)
+- [Best Practice](#best-practice)
 
 ## Features
 - Typescript language supported.
 - Uses Fastify and Express as web server framework in different modules.
 - Uses [commercetools SDK](https://docs.commercetools.com/sdk/js-sdk-getting-started) for the commercetools-specific communication.
+- Applies retry logic on the communication between the connector and Ingrid platform.
+- Supports real time shipping address and method synchronization from Ingrid to the commercetools composable commerce cart when user interacts with Ingrid widget.
+- Supports single shipment per order.
+- The shipment options provided by Ingrid platform are independent of line items weights and sizes.
+- The cart details submitted to Ingrid platform is independent of Ingrid discount coupons.
 - Includes local development utilities in npm commands to build, start, test, lint & prettify code.
 
 ## Overview
@@ -339,4 +345,5 @@ For `message.data` property, please convert the following sample order creation 
 
 For details, please refer to [test an event app locally](https://docs.commercetools.com/connect/steps-locally-test-event).
 
-
+## Best Practice
+Before initializing Ingrid delivery session, it is suggested to assign shipping country into the cart in commercetools composable commerce. Once the cart contains shipping country, commercetools composable commerce can determine the tax-included price of the cart and its line item based on the tax category of the shipping country. It helps Ingrid platform to collect the tax-included price in the inital flow, and therefore less communication round-trip between Ingrid platform and the connector in the update flow.
