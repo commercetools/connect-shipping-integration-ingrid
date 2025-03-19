@@ -10,6 +10,8 @@ This repository provides a [connect](https://docs.commercetools.com/connect) for
 - Typescript language supported.
 - Uses Fastify and Express as web server framework in different modules.
 - Uses [commercetools SDK](https://docs.commercetools.com/sdk/js-sdk-getting-started) for the commercetools-specific communication.
+- Displays Ingrid widget in a single iFrame including both shipping address form and shipping options form.
+- Pre-filled address is included in the Ingrid widget if shipping address is provided during commercetools cart is created.
 - Applies retry logic on the communication between the connector and Ingrid platform.
 - Supports real time shipping address and method synchronization from Ingrid to the commercetools composable commerce cart when user interacts with Ingrid widget.
 - Supports single shipment per order.
