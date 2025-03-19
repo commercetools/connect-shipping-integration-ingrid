@@ -530,24 +530,6 @@ export type IngridUpdateSessionResponse = {
 };
 
 /**
- * Payload for completing an Ingrid session
- * @see {@link https://developer.ingrid.com/delivery_checkout/reference/#CompleteSessionRequestPayload}
- */
-export type IngridCompleteSessionRequestPayload = {
-  checkout_session_id: string;
-  customer: IngridCustomerAddress;
-  external_id?: string;
-};
-
-/**
- * Response type for completing an Ingrid session
- * @see {@link https://developer.ingrid.com/delivery_checkout/reference/#CompleteSessionResponse}
- */
-export type IngridCompleteSessionResponse = {
-  session: IngridSession;
-};
-
-/**
  * Delivery address information
  * @see {@link https://developer.ingrid.com/delivery_checkout/reference/#DeliveryAddress}
  */

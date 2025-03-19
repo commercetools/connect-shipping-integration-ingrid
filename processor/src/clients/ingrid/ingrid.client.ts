@@ -1,10 +1,9 @@
 import axios, { type AxiosInstance } from 'axios';
+
 import {
   IngridBasePath,
   IngridUrls,
   type IngridGetSessionResponse,
-  type IngridCompleteSessionRequestPayload,
-  type IngridCompleteSessionResponse,
   type IngridCreateSessionRequestPayload,
   type IngridCreateSessionResponse,
   type IngridUpdateSessionRequestPayload,
@@ -12,7 +11,7 @@ import {
 } from './types/ingrid.client.type';
 import { AbstractIngridClient } from './abstract-ingrid.client';
 import { CustomError } from '../../libs/fastify/errors';
-
+import { RetryEngine } from '../../engines/retry.engine';
 /**
  * Client for interacting with the Ingrid API
  *
@@ -51,7 +50,14 @@ export class IngridApiClient implements AbstractIngridClient {
    * @returns {Promise<IngridCreateSessionResponse>} Response containing the session ID, HTML snippet, and session details
    */
   public async createCheckoutSession(payload: IngridCreateSessionRequestPayload): Promise<IngridCreateSessionResponse> {
-    const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.create', payload);
+    const fn = async () => {
+      return this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.create', payload);
+    };
+    const retryEngine = new RetryEngine(fn)
+      .successfulPredicate((response) => response.status < 500)
+      .errorMessage('Failed to create checkout session after retries');
+
+    const response = await retryEngine.execute();
     return response.data as IngridCreateSessionResponse;
   }
 
@@ -70,9 +76,14 @@ export class IngridApiClient implements AbstractIngridClient {
    * @returns {Promise<IngridGetSessionResponse>} The response containing the latest session data
    */
   public async pullCheckoutSession(checkout_session_id: string): Promise<IngridGetSessionResponse> {
-    const response = await this.client.get(
-      IngridUrls.DELIVERY_CHECKOUT + `/session.pull?checkout_session_id=${checkout_session_id}`,
-    );
+    const fn = async () => {
+      return this.client.get(IngridUrls.DELIVERY_CHECKOUT + `/session.pull?checkout_session_id=${checkout_session_id}`);
+    };
+    const retryEngine = new RetryEngine(fn)
+      .successfulPredicate((response) => response.status < 500)
+      .errorMessage('Failed to pull checkout session after retries');
+
+    const response = await retryEngine.execute();
     return response.data;
   }
 
@@ -90,9 +101,14 @@ export class IngridApiClient implements AbstractIngridClient {
    * @returns {Promise<IngridGetSessionResponse>} The response containing the session data
    */
   public async getCheckoutSession(checkout_session_id: string): Promise<IngridGetSessionResponse> {
-    const response = await this.client.get(
-      IngridUrls.DELIVERY_CHECKOUT + `/session.get?checkout_session_id=${checkout_session_id}`,
-    );
+    const fn = async () => {
+      return this.client.get(IngridUrls.DELIVERY_CHECKOUT + `/session.get?checkout_session_id=${checkout_session_id}`);
+    };
+    const retryEngine = new RetryEngine(fn)
+      .successfulPredicate((response) => response.status < 500)
+      .errorMessage('Failed to get checkout session after retries');
+
+    const response = await retryEngine.execute();
     return response.data;
   }
 
@@ -110,28 +126,14 @@ export class IngridApiClient implements AbstractIngridClient {
    * @returns {Promise<IngridUpdateSessionResponse>} The response containing the updated session data
    */
   public async updateCheckoutSession(payload: IngridUpdateSessionRequestPayload): Promise<IngridUpdateSessionResponse> {
-    const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.update', payload);
-    return response.data;
-  }
+    const fn = async () => {
+      return this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.update', payload);
+    };
+    const retryEngine = new RetryEngine(fn)
+      .successfulPredicate((response) => response.status < 500)
+      .errorMessage('Failed to update checkout session after retries');
 
-  /**
-   * Completes a checkout session with Ingrid
-   *
-   * @remarks
-   * This method completes a checkout session with Ingrid.
-   * Changes the session state from ACTIVE to COMPLETE and generates a Transport Order Identifier (tos_id).
-   * After completion, the session becomes "frozen" and cannot be modified.
-   *
-   * @see {@link https://developer.ingrid.com/delivery_checkout/backend_integration/#complete-checkout-session}
-   *
-   * @param {IngridCompleteSessionRequestPayload} payload - The payload containing the session ID and customer information
-   *
-   * @returns {Promise<IngridCompleteSessionResponse>} The response containing the completed session data
-   */
-  public async completeCheckoutSession(
-    payload: IngridCompleteSessionRequestPayload,
-  ): Promise<IngridCompleteSessionResponse> {
-    const response = await this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.complete', payload);
+    const response = await retryEngine.execute();
     return response.data;
   }
 }
