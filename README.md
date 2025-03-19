@@ -13,7 +13,7 @@ This repository provides a [connect](https://docs.commercetools.com/connect) for
 - Displays Ingrid widget in a single iFrame including both shipping address form and shipping options form.
 - Pre-filled address is included in the Ingrid widget if shipping address is provided during commercetools cart is created.
 - Applies retry logic on the communication between the connector and Ingrid platform.
-- Supports real time shipping address and method synchronization from Ingrid to the commercetools composable commerce cart when user interacts with Ingrid widget.
+- Supports real time shipping address and shipping options synchronization from the Ingrid platform to the cart in commercetools composable commerce when user interacts with the Ingrid widget.
 - Supports single shipment per order.
 - The shipment options provided by Ingrid platform are independent of line items weights and sizes.
 - The cart details submitted to Ingrid platform is independent of Ingrid discount coupons.
