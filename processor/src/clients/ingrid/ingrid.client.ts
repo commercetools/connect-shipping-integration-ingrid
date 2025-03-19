@@ -11,7 +11,7 @@ import {
 } from './types/ingrid.client.type';
 import { AbstractIngridClient } from './abstract-ingrid.client';
 import { CustomError } from '../../libs/fastify/errors';
-import { RetryProcessor } from '../../processors/retry.processor';
+import { RetryEngine } from '../../engines/retry.engine';
 /**
  * Client for interacting with the Ingrid API
  *
@@ -53,11 +53,11 @@ export class IngridApiClient implements AbstractIngridClient {
     const fn = async () => {
       return this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.create', payload);
     };
-    const retryProcessor = new RetryProcessor(fn)
+    const retryEngine = new RetryEngine(fn)
       .successfulPredicate((response) => response.status < 500)
       .errorMessage('Failed to create checkout session after retries');
 
-    const response = await retryProcessor.execute();
+    const response = await retryEngine.execute();
     return response.data as IngridCreateSessionResponse;
   }
 
@@ -79,11 +79,11 @@ export class IngridApiClient implements AbstractIngridClient {
     const fn = async () => {
       return this.client.get(IngridUrls.DELIVERY_CHECKOUT + `/session.pull?checkout_session_id=${checkout_session_id}`);
     };
-    const retryProcessor = new RetryProcessor(fn)
+    const retryEngine = new RetryEngine(fn)
       .successfulPredicate((response) => response.status < 500)
       .errorMessage('Failed to pull checkout session after retries');
 
-    const response = await retryProcessor.execute();
+    const response = await retryEngine.execute();
     return response.data;
   }
 
@@ -104,11 +104,11 @@ export class IngridApiClient implements AbstractIngridClient {
     const fn = async () => {
       return this.client.get(IngridUrls.DELIVERY_CHECKOUT + `/session.get?checkout_session_id=${checkout_session_id}`);
     };
-    const retryProcessor = new RetryProcessor(fn)
+    const retryEngine = new RetryEngine(fn)
       .successfulPredicate((response) => response.status < 500)
       .errorMessage('Failed to get checkout session after retries');
 
-    const response = await retryProcessor.execute();
+    const response = await retryEngine.execute();
     return response.data;
   }
 
@@ -129,11 +129,11 @@ export class IngridApiClient implements AbstractIngridClient {
     const fn = async () => {
       return this.client.post(IngridUrls.DELIVERY_CHECKOUT + '/session.update', payload);
     };
-    const retryProcessor = new RetryProcessor(fn)
+    const retryEngine = new RetryEngine(fn)
       .successfulPredicate((response) => response.status < 500)
       .errorMessage('Failed to update checkout session after retries');
 
-    const response = await retryProcessor.execute();
+    const response = await retryEngine.execute();
     return response.data;
   }
 }

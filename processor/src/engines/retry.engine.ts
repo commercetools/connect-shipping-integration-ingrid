@@ -1,7 +1,7 @@
 import { CustomError } from '../libs/fastify/errors';
 import { CustomErrorOpts } from '../libs/fastify/errors/dtos/error.dto';
 
-export class RetryProcessor<T> {
+export class RetryEngine<T> {
   #ONE_SECOND_INTERVAL = 1000;
   #fn: () => Promise<T>;
   #successfulPredicate: (result: T) => boolean;
