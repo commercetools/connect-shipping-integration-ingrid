@@ -22,7 +22,3 @@ jobs:
 
       - name: Make <Latest> tag on main branch
         run: git tag -f -- "latest" && git push -f origin "latest"
-
-      # TODO: Trigger preview request in connect-service automatically
-      # - name: Trigger publish workflow
-      #   run: gh workflow run cko-preview.yml --ref latest
