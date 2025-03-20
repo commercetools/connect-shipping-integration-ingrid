@@ -35,11 +35,11 @@ describe('Server initialization', () => {
     // Mock the HTTP Server listen method
     mockListen = jest
       .spyOn(http.Server.prototype, 'listen')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .mockImplementation(function (this: any, ...rest: any[]) {
+      .mockImplementation(function (this: http.Server, ...args: unknown[]) {
         // Extract the callback if it exists (it could be the 1st, 2nd, or 3rd argument)
-        const args = Array.from(rest);
-        const callback = args.find((arg) => typeof arg === 'function');
+        const callback = args.find(
+          (arg): arg is () => void => typeof arg === 'function'
+        );
 
         if (callback) callback();
         return this;
