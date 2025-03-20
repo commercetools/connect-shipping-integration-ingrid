@@ -3,6 +3,7 @@ import { createApiRoot } from '../../../src/client/commercetools/create.client';
 import * as buildClient from '../../../src/client/commercetools/build.client';
 import { readConfiguration } from '../../../src/utils/config.utils';
 import { mockConfiguration } from '../../mock/mock-configuration';
+import { Client } from '@commercetools/ts-client';
 
 // Mock the dependencies
 jest.mock('../../../src/client/commercetools/build.client');
@@ -17,8 +18,7 @@ describe('Create Client', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.mocked(readConfiguration).mockReturnValue(mockConfiguration);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    jest.mocked(buildClient.createClient).mockReturnValue('mockClient' as any);
+    jest.mocked(buildClient.createClient).mockReturnValue({} as Client);
   });
 
   describe('createApiRoot', () => {

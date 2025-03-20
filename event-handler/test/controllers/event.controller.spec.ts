@@ -14,10 +14,11 @@ import {
   orderWithReadyShipmentState,
   orderWithCancelShipmentState,
 } from '../mock/mock-order';
+import { mockApiRootOrderResponse } from '../mock/mock-api-root';
 
-// Define types for mocks
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type MockFn = jest.MockedFunction<any>;
+
+const mockIngridSessionId = 'test-session-id';
 
 jest.mock('../../src/client/commercetools/create.client');
 jest.mock('../../src/utils/validate_requests.utils');
@@ -26,19 +27,6 @@ jest.mock('../../src/utils/config.utils');
 jest.mock('../../src/utils/logger.utils');
 
 // Define interfaces for type safety
-interface MockGetOrderResponse {
-  body: {
-    cart: {
-      obj: {
-        custom: {
-          fields: {
-            ingridSessionId?: string;
-          };
-        };
-      };
-    };
-  };
-}
 
 describe('Event Controller', () => {
   let mockRequest: Partial<Request>;
@@ -66,9 +54,6 @@ describe('Event Controller', () => {
     const mockOrderId = 'test-order-id';
     (PubSubValidator.validateRequestBody as MockFn).mockReturnValue({});
     (PubSubValidator.validateMessageFormat as MockFn).mockReturnValue({});
-    // (PubSubValidator.decodeMessageData as MockFn).mockReturnValue({
-    //   orderId: mockOrderId,
-    // });
     (PubSubValidator.decodeMessageData as MockFn).mockReturnValue({
       notificationType: 'Message',
       projectKey: 'dummy-project-key',
@@ -85,47 +70,20 @@ describe('Event Controller', () => {
     (PubSubValidator.validateDecodedMessage as MockFn).mockReturnValue(
       mockOrderId
     );
-    const mockIngridSessionId = 'test-session-id';
-    const mockCommercetoolsGetOrderExecute = jest
-      .fn<() => Promise<MockGetOrderResponse>>()
-      .mockResolvedValue({
-        body: {
-          cart: {
-            obj: {
-              custom: {
-                fields: {
-                  ingridSessionId: mockIngridSessionId,
-                },
+
+    const mockCommercetoolsGetOrders = mockApiRootOrderResponse({
+      body: {
+        cart: {
+          obj: {
+            custom: {
+              fields: {
+                ingridSessionId: mockIngridSessionId,
               },
             },
           },
         },
-      });
-
-    const mockCommercetoolsGetOrder = jest.fn().mockReturnValue({
-      execute: mockCommercetoolsGetOrderExecute,
+      },
     });
-
-    const mockCommercetoolsGetOrderWithId = jest.fn().mockReturnValue({
-      get: mockCommercetoolsGetOrder,
-    });
-
-    const mockCommercetoolsGetOrders = jest.fn().mockReturnValue({
-      withId: mockCommercetoolsGetOrderWithId,
-    });
-
-    // const mockCommercetoolsUpdateOrder = jest.fn().mockReturnValue({
-    //   execute: mockCommercetoolsUpdateOrderExecute,
-    // });
-
-    // const mockCommercetoolsUpdateOrderWithId = jest.fn().mockReturnValue({
-    //   get: mockCommercetoolsUpdateOrder,
-    // });
-
-    // const mockCommercetoolUpdateOrders = jest.fn().mockReturnValue({
-    //   withId: mockCommercetoolsUpdateOrderWithId,
-    // });
-
     (createApiRoot as MockFn).mockReturnValue({
       orders: mockCommercetoolsGetOrders,
     });
@@ -172,31 +130,18 @@ describe('Event Controller', () => {
       orderId: mockOrderId,
     });
 
-    const mockCommercetoolsGetOrderExecute = jest
-      .fn<() => Promise<MockGetOrderResponse>>()
-      .mockResolvedValue({
-        body: {
-          cart: {
-            obj: {
-              custom: {
-                fields: {},
-              },
+    const mockCommercetoolsGetOrders = mockApiRootOrderResponse({
+      body: {
+        cart: {
+          obj: {
+            custom: {
+              fields: {},
             },
           },
         },
-      });
-
-    const mockCommercetoolsGetOrder = jest.fn().mockReturnValue({
-      execute: mockCommercetoolsGetOrderExecute,
+      },
     });
 
-    const mockCommercetoolsGetOrderWithId = jest.fn().mockReturnValue({
-      get: mockCommercetoolsGetOrder,
-    });
-
-    const mockCommercetoolsGetOrders = jest.fn().mockReturnValue({
-      withId: mockCommercetoolsGetOrderWithId,
-    });
     (createApiRoot as MockFn).mockReturnValue({
       orders: mockCommercetoolsGetOrders,
     });
@@ -239,34 +184,25 @@ describe('Event Controller', () => {
     );
 
     // Mock createApiRoot get order response
-    const mockApiRoot = {
-      orders: jest.fn().mockReturnThis(),
-      withId: jest.fn().mockReturnThis(),
-      get: jest.fn().mockReturnThis(),
-      execute: jest.fn().mockReturnThis(),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      then: jest.fn().mockImplementation(function (callback: any) {
-        return Promise.resolve(
-          callback({
-            body: {
-              id: mockOrderId,
-              version: mockVersion,
-              cart: {
-                obj: {
-                  custom: {
-                    fields: {
-                      ingridSessionId: 'test-session-id',
-                    },
-                  },
-                },
+    const mockCommercetoolsGetOrders = mockApiRootOrderResponse({
+      body: {
+        id: mockOrderId,
+        version: mockVersion,
+        cart: {
+          obj: {
+            custom: {
+              fields: {
+                ingridSessionId: 'test-session-id',
               },
             },
-          })
-        );
-      }),
-    };
+          },
+        },
+      },
+    });
 
-    (createApiRoot as jest.Mock).mockReturnValue(mockApiRoot);
+    (createApiRoot as MockFn).mockReturnValue({
+      orders: mockCommercetoolsGetOrders,
+    });
 
     // Mock readConfiguration
     (readConfiguration as jest.Mock).mockReturnValue({
@@ -322,34 +258,25 @@ describe('Event Controller', () => {
     );
 
     // Mock createApiRoot get order response
-    const mockApiRoot = {
-      orders: jest.fn().mockReturnThis(),
-      withId: jest.fn().mockReturnThis(),
-      get: jest.fn().mockReturnThis(),
-      execute: jest.fn().mockReturnThis(),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      then: jest.fn().mockImplementation(function (callback: any) {
-        return Promise.resolve(
-          callback({
-            body: {
-              id: mockOrderId,
-              version: mockVersion,
-              cart: {
-                obj: {
-                  custom: {
-                    fields: {
-                      ingridSessionId: 'test-session-id',
-                    },
-                  },
-                },
+    const mockCommercetoolsGetOrders = mockApiRootOrderResponse({
+      body: {
+        id: mockOrderId,
+        version: mockVersion,
+        cart: {
+          obj: {
+            custom: {
+              fields: {
+                ingridSessionId: 'test-session-id',
               },
             },
-          })
-        );
-      }),
-    };
+          },
+        },
+      },
+    });
 
-    (createApiRoot as jest.Mock).mockReturnValue(mockApiRoot);
+    (createApiRoot as MockFn).mockReturnValue({
+      orders: mockCommercetoolsGetOrders,
+    });
 
     // Mock readConfiguration
     (readConfiguration as jest.Mock).mockReturnValue({
@@ -436,34 +363,26 @@ describe('Event Controller', () => {
     );
 
     // Mock createApiRoot get order response with missing ingridSessionId
-    const mockApiRoot = {
-      orders: jest.fn().mockReturnThis(),
-      withId: jest.fn().mockReturnThis(),
-      get: jest.fn().mockReturnThis(),
-      execute: jest.fn().mockReturnThis(),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      then: jest.fn().mockImplementation(function (callback: any) {
-        return Promise.resolve(
-          callback({
-            body: {
-              id: mockOrderId,
-              version: mockVersion,
-              cart: {
-                obj: {
-                  custom: {
-                    fields: {
-                      // ingridSessionId is missing
-                    },
-                  },
-                },
+    // Mock createApiRoot get order response
+    const mockCommercetoolsGetOrders = mockApiRootOrderResponse({
+      body: {
+        id: mockOrderId,
+        version: mockVersion,
+        cart: {
+          obj: {
+            custom: {
+              fields: {
+                // ingridSessionId is missing
               },
             },
-          })
-        );
-      }),
-    };
+          },
+        },
+      },
+    });
 
-    (createApiRoot as jest.Mock).mockReturnValue(mockApiRoot);
+    (createApiRoot as MockFn).mockReturnValue({
+      orders: mockCommercetoolsGetOrders,
+    });
 
     // Execute test
     await expect(
