@@ -16,6 +16,7 @@ import {
 } from '../mock/mock-order';
 import { mockApiRootOrderResponse } from '../mock/mock-api-root';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type MockFn = jest.MockedFunction<any>;
 
 const mockIngridSessionId = 'test-session-id';
@@ -210,37 +211,26 @@ describe('Event Controller', () => {
       ingridEnvironment: 'STAGING',
     });
 
-    // Mock IngridApiClient
-    // Using a type assertion that won't cause linter errors
-    const mockRejectedFn = jest
-      .fn()
-      .mockImplementation(() => Promise.reject(mockError));
-    const originalCompleteFn =
-      IngridApiClient.prototype.completeCheckoutSession;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    IngridApiClient.prototype.completeCheckoutSession = mockRejectedFn as any;
+    jest
+      .spyOn(IngridApiClient.prototype, 'completeCheckoutSession')
+      .mockRejectedValue(mockError);
 
     // Mock changeShipmentState
     jest
       .spyOn(updateClient, 'changeShipmentState')
       .mockResolvedValueOnce(orderWithCancelShipmentState);
 
-    try {
-      // Execute test
-      await expect(
-        post(mockRequest as Request, mockResponse as Response)
-      ).rejects.toThrow('Failed to complete session on Ingrid');
+    // Execute test
+    await expect(
+      post(mockRequest as Request, mockResponse as Response)
+    ).rejects.toThrow('Failed to complete session on Ingrid');
 
-      // Verify the shipment state was updated to CANCELED
-      expect(updateClient.changeShipmentState).toHaveBeenCalledWith(
-        mockOrderId,
-        mockVersion,
-        'Canceled'
-      );
-    } finally {
-      // Restore the original function
-      IngridApiClient.prototype.completeCheckoutSession = originalCompleteFn;
-    }
+    // Verify the shipment state was updated to CANCELED
+    expect(updateClient.changeShipmentState).toHaveBeenCalledWith(
+      mockOrderId,
+      mockVersion,
+      'Canceled'
+    );
   });
 
   // Test for handling INCOMPLETE status from Ingrid
@@ -285,7 +275,7 @@ describe('Event Controller', () => {
     });
 
     // Mock IngridApiClient with INCOMPLETE status
-    const mockIngridResponse: Partial<IngridCompleteSessionResponse> = {
+    const mockIngridResponse: IngridCompleteSessionResponse = {
       session: {
         checkout_session_id: 'test-session-id',
         status: 'INCOMPLETE',
@@ -301,51 +291,41 @@ describe('Event Controller', () => {
       },
     };
 
-    // Using a type assertion that won't cause linter errors
-    const mockResolvedFn = jest
-      .fn()
-      .mockImplementation(() => Promise.resolve(mockIngridResponse));
-    const originalCompleteFn =
-      IngridApiClient.prototype.completeCheckoutSession;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    IngridApiClient.prototype.completeCheckoutSession = mockResolvedFn as any;
+    jest
+      .spyOn(IngridApiClient.prototype, 'completeCheckoutSession')
+      .mockResolvedValue(mockIngridResponse);
 
     // Mock changeShipmentState
     jest
       .spyOn(updateClient, 'changeShipmentState')
       .mockResolvedValueOnce(orderWithCancelShipmentState);
 
-    try {
-      // Execute test
-      await post(mockRequest as Request, mockResponse as Response);
+    // Execute test
+    await post(mockRequest as Request, mockResponse as Response);
 
-      // Verify the shipment state was updated to CANCELED
-      expect(updateClient.changeShipmentState).toHaveBeenCalledWith(
-        mockOrderId,
-        mockVersion,
-        'Canceled'
-      );
+    // Verify the shipment state was updated to CANCELED
+    expect(updateClient.changeShipmentState).toHaveBeenCalledWith(
+      mockOrderId,
+      mockVersion,
+      'Canceled'
+    );
 
-      // Verify the response
-      expect(mockResponse.status).toHaveBeenCalledWith(204);
-      expect(mockResponse.send).toHaveBeenCalledWith({
-        ingridSessionId: 'test-session-id',
-        status: 'INCOMPLETE',
-      });
+    // Verify the response
+    expect(mockResponse.status).toHaveBeenCalledWith(204);
+    expect(mockResponse.send).toHaveBeenCalledWith({
+      ingridSessionId: 'test-session-id',
+      status: 'INCOMPLETE',
+    });
 
-      // Verify logs were created
-      expect(jest.mocked(logger.info)).toHaveBeenCalledWith(
-        expect.stringContaining('complete ingrid session failed')
-      );
-      expect(jest.mocked(logger.info)).toHaveBeenCalledWith(
-        expect.stringContaining(
-          'Update commercetools cart shipment state as canceled'
-        )
-      );
-    } finally {
-      // Restore the original function
-      IngridApiClient.prototype.completeCheckoutSession = originalCompleteFn;
-    }
+    // Verify logs were created
+    expect(jest.mocked(logger.info)).toHaveBeenCalledWith(
+      expect.stringContaining('complete ingrid session failed')
+    );
+    expect(jest.mocked(logger.info)).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'Update commercetools cart shipment state as canceled'
+      )
+    );
   });
 
   // Test for handling missing ingridSessionId
