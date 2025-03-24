@@ -97,7 +97,7 @@ flowchart TD
 
 flowchart TD
     node1(( ))
-    user("User")-->checkout("Checkout Page")
+    user("User")-->checkout("Ingrid Widget")
     subgraph connector
         enabler
         processor
@@ -111,17 +111,18 @@ flowchart TD
         session.get
     end
 
-    checkout("Checkout Page")----node1
-    processor("processor (APIs)")--"3.update shipping info"-->coco
-    node1--"1.Update cart"-->enabler("enabler(Javascript SDK)")-->processor("processor (APIs)")
-    shipping("Ingrid")--"2.fetch Ingrid shipping options"-->processor("processor (APIs)")
-    processor("processor (APIs)")--"4.Synchronize tax-included price"-->shipping("Ingrid")
+    checkout("Ingrid Widget")----node1
+
+    node1--"1.Capture Ingrid data changed events"-->enabler("enabler(Javascript SDK)")--"2.Send update cart request"-->processor("processor (APIs)")
+    shipping("Ingrid")--"3.fetch Ingrid shipping options"-->processor("processor (APIs)")
+    processor("processor (APIs)")--"4.update shipping info"-->coco
+    processor("processor (APIs)")--"5.Synchronize tax-included price"-->shipping("Ingrid")
     style coco height:150
     style cart height:80, text-align:center
     style session height:80, text-align:center
 ```
 
-1. commercetools Checkout sends request via the SDK to endpoints exposed by `processor` to trigger update cart process.
+1. The `enabler` capture Ingrid events when user interacts with Ingrid widget. If address changed and shipping method changed events have been captured, the `enabler` sends update cart request to the `processor`.
 2. The `processor` fetches the up-to-date shipping info from the Ingrid platform collected through the widget.
 3. Shipping info is saved to the cart in commercetools composable commerce.
 4. If the price stored in the Ingrid platform is different from the tax-included price in commercetools cart, this price is sychronized to the Ingrid platform.

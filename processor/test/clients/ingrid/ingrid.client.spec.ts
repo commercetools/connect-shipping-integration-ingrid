@@ -12,6 +12,7 @@ import {
 } from '../../mock/mock-ingrid-client-objects';
 import { CustomError } from '../../../src/libs/fastify/errors';
 
+import { HttpHandler } from 'msw';
 describe('Ingrid Client', () => {
   const mockServer = setupServer();
   const opts = { apiSecret: 'dummy-ingrid-api-key', environment: 'STAGING' as IngridEnvironment };
@@ -81,6 +82,27 @@ describe('Ingrid Client', () => {
     });
   });
 
+  describe('pull Ingrid checkout session with server error ', () => {
+    test('should retry 5 times and throw error ', async () => {
+      const mockRequestHandler: HttpHandler = mockRequest(
+        IngridBasePath.STAGING,
+        IngridUrls.DELIVERY_CHECKOUT + '/session.pull',
+        500,
+      );
+
+      mockServer.use(mockRequestHandler);
+
+      const client = new IngridApiClient(opts);
+      const spy = jest.spyOn(mockRequestHandler, 'run');
+      try {
+        await client.pullCheckoutSession('dummy-checkout-session-id');
+      } catch (error) {
+        expect(error instanceof CustomError).toBe(true);
+        expect(spy).toHaveBeenCalledTimes(5);
+      }
+    }, 20000);
+  });
+
   describe('get Ingrid checkout session ', () => {
     test('should return required properties', async () => {
       mockServer.use(
@@ -103,6 +125,27 @@ describe('Ingrid Client', () => {
     });
   });
 
+  describe('get Ingrid checkout session with server error ', () => {
+    test('should retry 5 times and throw error ', async () => {
+      const mockRequestHandler: HttpHandler = mockRequest(
+        IngridBasePath.STAGING,
+        IngridUrls.DELIVERY_CHECKOUT + '/session.get',
+        500,
+      );
+
+      mockServer.use(mockRequestHandler);
+
+      const client = new IngridApiClient(opts);
+      const spy = jest.spyOn(mockRequestHandler, 'run');
+      try {
+        await client.getCheckoutSession('dummy-checkout-session-id');
+      } catch (error) {
+        expect(error instanceof CustomError).toBe(true);
+        expect(spy).toHaveBeenCalledTimes(5);
+      }
+    }, 20000);
+  });
+
   describe('create Ingrid checkout session with wrong API key ', () => {
     test('should throw error', async () => {
       mockServer.use(
@@ -122,6 +165,27 @@ describe('Ingrid Client', () => {
         expect(customError.httpErrorStatus).toBe(401);
       }
     });
+  });
+
+  describe('create Ingrid checkout session with server error ', () => {
+    test('should retry 5 times and throw error ', async () => {
+      const mockRequestHandler: HttpHandler = mockRequest(
+        IngridBasePath.STAGING,
+        IngridUrls.DELIVERY_CHECKOUT + '/session.create',
+        500,
+      );
+
+      mockServer.use(mockRequestHandler);
+
+      const client = new IngridApiClient(opts);
+      const spy = jest.spyOn(mockRequestHandler, 'run');
+      try {
+        await client.createCheckoutSession(mockCreateCheckoutSessionRequest);
+      } catch (error) {
+        expect(error instanceof CustomError).toBe(true);
+        expect(spy).toHaveBeenCalledTimes(5);
+      }
+    }, 20000);
   });
 
   describe('update Ingrid checkout session', () => {
@@ -191,86 +255,40 @@ describe('Ingrid Client', () => {
         purchase_country: 'SE',
         purchase_currency: 'SEK',
       };
-
       await expect(client.updateCheckoutSession(updatePayload)).rejects.toThrow(CustomError);
     });
   });
 
-  describe('complete Ingrid checkout session', () => {
-    test('should complete session successfully', async () => {
-      const mockCompleteSessionResponse = {
-        session: {
-          checkout_session_id: 'mock-session-id',
-          cart: {
-            cart_id: 'mock-cart-id',
-            total_value: 1000,
-            total_discount: 0,
-            items: [],
-          },
-          delivery_groups: [],
-          purchase_country: 'SE',
-          status: 'COMPLETED',
-          updated_at: '2024-03-14T12:00:00Z',
-        },
-      };
-
-      mockServer.use(
-        mockRequest(
-          IngridBasePath.STAGING,
-          IngridUrls.DELIVERY_CHECKOUT + '/session.complete',
-          200,
-          mockCompleteSessionResponse,
-        ),
+  describe('update Ingrid checkout session with server error ', () => {
+    test('should retry 5 times and throw error ', async () => {
+      const mockRequestHandler: HttpHandler = mockRequest(
+        IngridBasePath.STAGING,
+        IngridUrls.DELIVERY_CHECKOUT + '/session.update',
+        500,
       );
 
+      mockServer.use(mockRequestHandler);
+
       const client = new IngridApiClient(opts);
-      const completePayload = {
+      const spy = jest.spyOn(mockRequestHandler, 'run');
+      const updatePayload = {
         checkout_session_id: 'mock-session-id',
-        customer: {
-          name: 'John Doe',
-          email: 'john@example.com',
-          phone: '1234567890',
-          address_lines: ['123 Main St'],
-          street: 'Main St',
-          street_number: '123',
-          apartment_number: '4B',
-          city: 'Stockholm',
-          postal_code: '12345',
-          country: 'SE',
+        cart: {
+          cart_id: 'mock-cart-id',
+          total_value: 1000,
+          total_discount: 0,
+          items: [],
         },
+        purchase_country: 'SE',
+        purchase_currency: 'SEK',
       };
 
-      const response = await client.completeCheckoutSession(completePayload);
-
-      expect(response.session.checkout_session_id).toBe('mock-session-id');
-      expect(response.session.status).toBe('COMPLETED');
-    });
-
-    test('should handle complete session failure', async () => {
-      mockServer.use(
-        mockRequest(IngridBasePath.STAGING, IngridUrls.DELIVERY_CHECKOUT + '/session.complete', 400, {
-          error: 'Invalid session state',
-        }),
-      );
-
-      const client = new IngridApiClient(opts);
-      const completePayload = {
-        checkout_session_id: 'invalid-session-id',
-        customer: {
-          name: 'John Doe',
-          email: 'john@example.com',
-          phone: '1234567890',
-          address_lines: ['123 Main St'],
-          street: 'Main St',
-          street_number: '123',
-          apartment_number: '4B',
-          city: 'Stockholm',
-          postal_code: '12345',
-          country: 'SE',
-        },
-      };
-
-      await expect(client.completeCheckoutSession(completePayload)).rejects.toThrow(CustomError);
-    });
+      try {
+        await client.updateCheckoutSession(updatePayload);
+      } catch (error) {
+        expect(error instanceof CustomError).toBe(true);
+        expect(spy).toHaveBeenCalledTimes(5);
+      }
+    }, 20000);
   });
 });

@@ -7,9 +7,9 @@ type ErrorItem = {
 
 class CustomError extends Error {
   statusCode: number | string;
-  message: string;
+  override message: string;
   errors?: ErrorItem[];
-  cause?: Error;
+  override cause?: Error;
 
   constructor(
     statusCode: number | string,

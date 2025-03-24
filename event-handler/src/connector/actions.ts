@@ -56,7 +56,7 @@ export async function deleteOrderCreateSubscription(
     })
     .execute();
 
-  if (subscriptions.length > 0) {
+  if (subscriptions.length > 0 && subscriptions[0]) {
     const subscription = subscriptions[0];
 
     await apiRoot
