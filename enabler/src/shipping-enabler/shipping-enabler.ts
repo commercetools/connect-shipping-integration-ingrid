@@ -15,13 +15,13 @@
  *
  *    const enablerBuilder = await enabler.createComponentBuilder();
  *    const enablerComponent = enablerBuilder.build();
- *    
- * Parse the pre-defined DOM element ID to mount the Ingrid Component to checkout page: 
+ *
+ * Parse the pre-defined DOM element ID to mount the Ingrid Component to checkout page:
  *    componentResult.mount(#ingridElementId);
- * 
+ *
  * Parse the commercetools sesion ID to initiate Ingrid session:
  *    componentResult.init(session.id);
- *    
+ *
  *
  */
 export interface ShippingEnabler {
@@ -33,7 +33,7 @@ export interface ShippingEnabler {
   createComponentBuilder: () => Promise<ShippingComponentBuilder | never>;
 }
 /**
- * Represents the interface for a payment component.
+ * Represents the interface for a shipping component.
  */
 export interface ShippingComponent {
   /**
@@ -54,7 +54,7 @@ export interface ShippingComponent {
 }
 
 /**
- * Represents the interface for a payment component builder.
+ * Represents the interface for a shipping component builder.
  */
 export interface ShippingComponentBuilder {
   /**
@@ -65,7 +65,7 @@ export interface ShippingComponentBuilder {
 }
 
 /**
- * Represents the options for the payment enabler.
+ * Represents the options for the shipping enabler.
  */
 export type EnablerOptions = {
   /**
