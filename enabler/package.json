@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@commercetools/checkout-browser-sdk": "^0.17.0",
-    "@commercetools/platform-sdk": "^8.5.0",
+    "@commercetools/platform-sdk": "^8.6.0",
     "@commercetools/sdk-client": "^4.0.0",
     "@commercetools/sdk-middleware-auth": "^8.0.0",
     "@commercetools/sdk-middleware-http": "^8.0.0",
