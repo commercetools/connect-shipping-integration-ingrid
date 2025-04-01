@@ -219,7 +219,7 @@ In addition, in order to support connect, the ingrid shipping integration connec
 
 Connect deployment configuration is specified in `connect.yaml` which is required information needed for publishing of the application. Following is the deployment configuration used by enabler, processor and event-handler modules
 
-```
+```yaml
 deployAs:
   - name: enabler
     applicationType: assets
@@ -349,14 +349,14 @@ To test the `enabler`, you can access http://localhost:3000 to load a testing pa
 
 To test the `processor` directly without using the `enabler`, you can send request to http://localhost:8080/sessions/init or http://localhost:8080/sessions/update by assigning checkout session into `x-session-id` in request header. No request body is required.
 
-```
+```bash
 curl --location --request POST 'http://localhost:8080/sessions/init' \
 --header 'X-Session-Id: 91f46831-98e2-44d9-a017-487476b2bb54'
 ```
 
 To test the `eventHandler` locally, you can send POST request to http://localhost with request body as shown below
 
-```
+```json
 {
   "message": {
     "attributes": {
@@ -374,7 +374,7 @@ To test the `eventHandler` locally, you can send POST request to http://localhos
 
 For `message.data` property, please convert the following sample order creation payload into base64 foramt and assign to it.
 
-```
+```json
 {
   "notificationType": "Message",
   "projectKey": "{projectKey}",
