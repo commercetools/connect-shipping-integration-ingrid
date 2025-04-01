@@ -14,7 +14,7 @@ The `enabler` provides following three functions:
 
 Following shows how to instantiate web component by `enabler` in frontend
 
-```
+```typescript
 // dynamically import the enabler javascript bundle
 const initEnabler = async () => {
     const enabler = await import(import.meta.env.VITE_ENABLER_URL)
@@ -56,20 +56,20 @@ const initEnabler = async () => {
 
 To mount the DOM element for Ingrid widget with `enabler`
 
-```
+```javascript
 <div id=${elementIdForIngridWidget} />
 enablerComponent.mount(elementIdForIngridWidget);
 ```
 
 To trigger Ingrid delivery session initialization
 
-```
+```typescript
 enablerComponent.init(session.id); // pass commercetools checkout session ID
 ```
 
 Currently the connector synchronizesthe latest delivery options from Ingrid to commercetools composable commerce at the moment user interacts with Ingrid widget. Enabler component triggers update function when Ingrid events are captured in client side. For details of Ingrid event capture, please refer to the [guide of Ingrid frontend integration](https://developer.ingrid.com/delivery_checkout/frontend_integration/index.html).
 
-```
+```typescript
 async init() {
 
     // Trigger Ingrid delivery session initialization
@@ -98,7 +98,7 @@ async init() {
 
 Alternatively, it is supported to synchronize the latest delivery options from Ingrid to commercetools composable commerce from checkout page actions
 
-```
+```typescript
 enablerComponent.update(session.id); // pass commercetools checkout session ID
 ```
 
