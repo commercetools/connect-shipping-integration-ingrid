@@ -23,7 +23,7 @@
   "license": "ISC",
   "dependencies": {
     "@commercetools-backend/loggers": "23.2.2",
-    "@commercetools/platform-sdk": "8.5.0",
+    "@commercetools/platform-sdk": "8.7.0",
     "@commercetools/ts-client": "^3.2.0",
     "@fastify/autoload": "6.2.0",
     "@fastify/cors": "11.0.1",
