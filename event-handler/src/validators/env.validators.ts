@@ -35,7 +35,7 @@ const envValidators = [
     referencedBy: 'environmentVariables',
   }),
   optional(
-    standardString(
+    standardString)(
       ['scope'],
       {
         code: 'InvalidScope',
@@ -43,7 +43,7 @@ const envValidators = [
         referencedBy: 'environmentVariables',
       },
       { min: 2, max: undefined }
-    )
+    
   ),
 
   region(['region'], {
