@@ -3,7 +3,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "target": "es2022",
-    "module": "NodeNext",
+    "module": "CommonJS",
     "allowJs": false,
     "resolveJsonModule": true,
     "moduleDetection": "force",
