@@ -17,7 +17,16 @@ jest.mock('../src/utils/logger.utils', () => ({
 }));
 
 // Mock the config utils
-jest.mock('../src/utils/config.utils');
+jest.mock('../src/utils/config.utils', () => ({
+  readConfiguration: jest.fn().mockReturnValue({
+    clientId: 'test-client-id',
+    clientSecret: 'test-client-secret',
+    projectKey: 'test-project-key',
+    region: 'test-region',
+    ingridApiKey: 'test-ingrid-api-key',
+    ingridEnvironment: 'STAGING',
+  }),
+}));
 
 describe('Server initialization', () => {
   // Store the original process.env
@@ -56,8 +65,8 @@ describe('Server initialization', () => {
     // Restore process.env
     process.env = originalEnv;
 
-    // Close the server if it exists
-    if (server) {
+    // Close the server if it exists and has a close method
+    if (server && typeof server.close === 'function') {
       server.close();
     }
 
