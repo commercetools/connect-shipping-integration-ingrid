@@ -103,6 +103,8 @@ describe('Server initialization', () => {
     server = serverModule.default;
 
     // Verify that the exported server is an instance of http.Server
-    expect(server).toBeInstanceOf(http.Server);
+    // previous check: expect(server).toBeInstanceOf(http.Server);
+    // https://stackoverflow.com/questions/58029714/jests-expectvalue-tobeinstanceofclass-fails-for-expectutil-promisify
+    expect(server.constructor.name).toBe('Server');
   });
 });
