@@ -14,7 +14,7 @@
     "check": "tsc --noEmit && npm run lint",
     "test": "jest --detectOpenHandles",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage --collectCoverageFrom='src/**/*.ts'",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --collectCoverageFrom='src/**/*.ts'",
     "connector:post-deploy": "node build/connector/post-deploy.js",
     "connector:pre-undeploy": "node build/connector/pre-undeploy.js"
   },
