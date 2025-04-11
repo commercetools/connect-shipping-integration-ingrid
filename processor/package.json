@@ -34,7 +34,7 @@
     "@fastify/type-provider-typebox": "5.1.0",
     "@sinclair/typebox": "0.34.33",
     "axios": "^1.8.4",
-    "dotenv": "16.4.7",
+    "dotenv": "16.5.0",
     "fastify": "5.2.2",
     "fastify-plugin": "5.0.1"
   },
@@ -48,7 +48,7 @@
     "@typescript-eslint/eslint-plugin": "8.29.1",
     "@typescript-eslint/parser": "8.29.1",
     "eslint": "9.24.0",
-    "eslint-config-prettier": "10.1.1",
+    "eslint-config-prettier": "10.1.2",
     "eslint-plugin-jest": "28.11.0",
     "eslint-plugin-prettier": "5.2.6",
     "eslint-plugin-unused-imports": "4.1.4",
