@@ -14,6 +14,6 @@ describe('HTTP Middleware', () => {
     const options = httpMiddlewareOptions;
 
     // Verify the configuration
-    expect(options.host).toBe('https://api.mockedRegion.commercetools.com');
+    expect(options.host).toBe('mockedApiUrl');
   });
 });
