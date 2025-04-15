@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Define routes
 app.use('/', EventRoutes);
-app.use('*', () => {
+app.use('*splat', () => {
   throw new CustomError(404, 'Path not found.');
 });
 
