@@ -10,5 +10,5 @@ export const authMiddlewareOptions: AuthMiddlewareOptions = {
   credentials: {
     clientId: readConfiguration().clientId,
     clientSecret: readConfiguration().clientSecret,
-  }
+  },
 };
