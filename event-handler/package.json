@@ -1,6 +1,6 @@
 {
   "name": "shipping-integration-ingrid",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "index.js",
   "license": "MIT",
   "private": true,
@@ -12,8 +12,8 @@
     "lint": "prettier --check \"**/**/*.{ts,js,json}\" && eslint src test",
     "prettier": "prettier --write '**/*.{js,ts}'",
     "check": "tsc --noEmit && npm run lint",
-    "test": "jest --detectOpenHandles",
-    "test:watch": "jest --watch",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js jest --watch",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --collectCoverageFrom='src/**/*.ts'",
     "connector:post-deploy": "node build/connector/post-deploy.js",
     "connector:pre-undeploy": "node build/connector/pre-undeploy.js"

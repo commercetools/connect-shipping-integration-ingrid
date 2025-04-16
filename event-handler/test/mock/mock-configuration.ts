@@ -1,9 +1,9 @@
 export const mockConfiguration = {
-  region: 'test-region',
+  authUrl: 'https://auth.europe-west1.gcp.commercetools.com/',
   clientId: 'test-client-id',
   clientSecret: 'test-client-secret',
   projectKey: 'test-project-key',
-  scope: 'test-scope',
+  apiUrl: 'https://api.europe-west1.gcp.commercetools.com/',
   ingridApiKey: 'test-ingrid-api-key',
   ingridEnvironment: 'STAGING' as const,
 };

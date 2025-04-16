@@ -47,25 +47,25 @@ describe('actions.ts', () => {
     const subscriptionKey = 'ingridShippingConnector-orderCreateSubscription';
     mockServer.use(
       mockRequest(
-        'https://auth.test-region.commercetools.com/',
+        'https://auth.europe-west1.gcp.commercetools.com/',
         'oauth/token',
         200,
         mockAccessToken
       ),
       mockGet(
-        'https://api.test-region.commercetools.com/',
+        'https://api.europe-west1.gcp.commercetools.com/',
         `test-project-key/subscriptions?where=key%3D%22${subscriptionKey}%22`,
         200,
         { results: [mockSubscription] }
       ),
       mockDelete(
-        'https://api.test-region.commercetools.com/',
+        'https://api.europe-west1.gcp.commercetools.com/',
         `test-project-key/subscriptions/key=${subscriptionKey}?version=1`,
         200,
         mockSubscription
       ),
       mockPost(
-        'https://api.test-region.commercetools.com/',
+        'https://api.europe-west1.gcp.commercetools.com/',
         `test-project-key/subscriptions`,
         200,
         mockSubscription

@@ -13,8 +13,12 @@ export const readConfiguration = () => {
     clientId: process.env.CTP_CLIENT_ID as string,
     clientSecret: process.env.CTP_CLIENT_SECRET as string,
     projectKey: process.env.CTP_PROJECT_KEY as string,
-    scope: process.env.CTP_SCOPE,
-    region: process.env.CTP_REGION as string,
+    authUrl:
+      (process.env.CTP_AUTH_URL as string) ??
+      'https://auth.europe-west1.gcp.commercetools.com',
+    apiUrl:
+      (process.env.CTP_API_URL as string) ??
+      'https://api.europe-west1.gcp.commercetools.com',
     ingridApiKey: process.env.INGRID_API_KEY as string,
     ingridEnvironment: process.env.INGRID_ENVIRONMENT as
       | 'STAGING'
