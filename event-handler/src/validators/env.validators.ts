@@ -1,8 +1,4 @@
-import {
-  optional,
-  standardString,
-  standardKey
-} from './helpers.validators';
+import { optional, standardString, standardKey } from './helpers.validators';
 
 /**
  * Create here your own validators
@@ -41,7 +37,7 @@ const envValidators = [
       referencedBy: 'environmentVariables',
     },
     { min: 2, max: undefined }
-  )
+  ),
 ];
 
 export default envValidators;
