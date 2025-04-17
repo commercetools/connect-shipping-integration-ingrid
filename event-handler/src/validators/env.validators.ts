@@ -1,8 +1,7 @@
 import {
   optional,
   standardString,
-  standardKey,
-  region,
+  standardKey
 } from './helpers.validators';
 
 /**
@@ -42,13 +41,7 @@ const envValidators = [
       referencedBy: 'environmentVariables',
     },
     { min: 2, max: undefined }
-  ),
-
-  region(['region'], {
-    code: 'InvalidRegion',
-    message: 'Not a valid region.',
-    referencedBy: 'environmentVariables',
-  }),
+  )
 ];
 
 export default envValidators;
