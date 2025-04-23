@@ -165,8 +165,7 @@ flowchart TD
 
 #### 1. commercetools composable commerce API client
 
-Users are expected to create API client responsible for cart management in composable commerce project. Details of the API client are taken as input as environment variables/ configuration for connect such as `CTP_PROJECT_KEY` , `CTP_CLIENT_ID`, `CTP_CLIENT_SECRET`. For details, please read [Deployment Configuration](./README.md#deployment-configuration).
-In addition, please make sure the API client should have enough scope to be able to manage checkout session, cart and order.
+Users are expected to create API client responsible for cart management in composable commerce project. Details of the API client are taken as input as environment variables/ configuration for connect such as `CTP_PROJECT_KEY` , `CTP_CLIENT_ID`, `CTP_CLIENT_SECRET`. In addition, please make sure the API client should have enough scope to be able to manage checkout session, cart, order and other commercetools resources. For details, please read [Deployment Configuration](./README.md#deployment-configuration).
 
 #### 2. various URLs from commercetools composable commerce
 
@@ -306,7 +305,8 @@ deployAs:
 Here you can see the details about various variables in configuration
 
 - `CTP_PROJECT_KEY`: The key of commercetools composable commerce project.
-- `CTP_CLIENT_ID`: The client ID of your commercetools composable commerce user account. It is used in commercetools client to communicate with commercetools composable commerce via SDK. Expected scopes are: `manage_orders` `view_sessions` `view_api_clients` `introspect_oauth_tokens`.
+- `CTP_CLIENT_ID`: The client ID of your commercetools composable commerce user account. It is used in commercetools client to communicate with commercetools composable commerce via SDK. Expected scopes are: `manage_orders` `manage_sessions` `view_api_clients` `introspect_oauth_tokens`
+`manage_tax_categories` `view_project_settings` `manage_subscriptions` `manage_types`.
 - `CTP_CLIENT_SECRET`: The client secret of commercetools composable commerce user account. It is used in commercetools client to communicate with commercetools composable commerce via SDK.
 - `CTP_AUTH_URL`: The URL for authentication in commercetools platform. It is used to generate OAuth 2.0 token which is required in every API call to commercetools composable commerce. The default value is `https://auth.europe-west1.gcp.commercetools.com`. For details, please refer to documentation [here](https://docs.commercetools.com/tutorials/api-tutorial#authentication).
 - `CTP_API_URL`: The URL for commercetools composable commerce API. Default value is `https://api.europe-west1.gcp.commercetools.com`.
