@@ -22,7 +22,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@commercetools-backend/loggers": "23.2.2",
+    "@commercetools-backend/loggers": "23.2.3",
     "@commercetools/platform-sdk": "8.8.0",
     "@commercetools/ts-client": "^3.3.0",
     "@fastify/autoload": "6.3.0",
@@ -39,7 +39,7 @@
     "fastify-plugin": "5.0.1"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.2.8",
+    "@eslint/compat": "^1.2.9",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.25.1",
     "@jest/globals": "29.7.0",
