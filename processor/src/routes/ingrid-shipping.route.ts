@@ -14,6 +14,19 @@ type ShippingRoutesOptions = {
 };
 
 export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPluginOptions & ShippingRoutesOptions) => {
+  fastify.get(
+    '/healthcheck',
+    
+    async (_, reply) => {
+      const serviceUrl = process.env.CONNECT_SERVICE_URL;
+      const hostUrl = _.hostname
+      reply.code(200).send({
+        serviceUrl,
+        hostUrl
+      });
+    },
+  );
+
   fastify.post<{
     Reply: InitSessionResponseSchemaDTO;
   }>(
