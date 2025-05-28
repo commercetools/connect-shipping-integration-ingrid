@@ -19,9 +19,12 @@ import { SHIPMENT_STATE } from '../client/commercetools/types/commercetools.clie
  */
 export const post = async (request: Request, response: Response) => {
   const body = PubSubValidator.validateRequestBody(request);
+  logger.info('Received body:', body);
   const message = PubSubValidator.validateMessageFormat(body);
+  logger.info('Received message:', message);
   const decodedData =
     PubSubValidator.decodeMessageData<DecodedMessageType>(message);
+  logger.info('Received decodedData:', decodedData);
   const orderId = PubSubValidator.validateDecodedMessage(decodedData);
   if (orderId === 'RESOURCE_CREATED_MESSAGE') {
     const loggingMessage =
