@@ -19,13 +19,10 @@ import { SHIPMENT_STATE } from '../client/commercetools/types/commercetools.clie
  */
 export const post = async (request: Request, response: Response) => {
   const body = PubSubValidator.validateRequestBody(request);
-  console.log('Received body:', body);
   const message = PubSubValidator.validateMessageFormat(body);
-  console.log('Received message:', message);
   const decodedData =
     PubSubValidator.decodeMessageData<DecodedMessageType>(message);
-  console.log('Received decodedData:', decodedData);
-
+  
   const orderId = PubSubValidator.validateDecodedMessage(decodedData);
   if (orderId === 'RESOURCE_CREATED_MESSAGE') {
     const loggingMessage =
@@ -48,11 +45,10 @@ export const post = async (request: Request, response: Response) => {
     .execute()
     .then((res) => res.body);
 
-  logger.info(`cart in commercetoolsOrder : ${commercetoolsOrder.cart}`);
   const ingridSessionId =
     commercetoolsOrder.cart?.obj?.custom?.fields?.ingridSessionId;
 
-  logger.info(`ingridSessionId : ${ingridSessionId}`);
+  logger.info(`ingridSessionId loaded : ${ingridSessionId}`);
 
   if (!ingridSessionId) {
     throw new CustomError(400, 'Bad request. Ingrid session ID not found');
