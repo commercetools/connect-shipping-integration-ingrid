@@ -22,7 +22,7 @@ export const post = async (request: Request, response: Response) => {
   const message = PubSubValidator.validateMessageFormat(body);
   const decodedData =
     PubSubValidator.decodeMessageData<DecodedMessageType>(message);
-  
+
   const orderId = PubSubValidator.validateDecodedMessage(decodedData);
   if (orderId === 'RESOURCE_CREATED_MESSAGE') {
     const loggingMessage =
