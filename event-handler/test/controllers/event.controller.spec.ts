@@ -98,6 +98,10 @@ describe('Event Controller', () => {
     });
 
     jest
+      .spyOn(updateClient, 'setTransportOrderId')
+      .mockResolvedValue(orderWithReadyShipmentState);
+
+    jest
       .spyOn(updateClient, 'changeShipmentState')
       .mockResolvedValue(orderWithReadyShipmentState);
 
@@ -149,7 +153,7 @@ describe('Event Controller', () => {
       'processing shipping session completion for order ID : test-order-id'
     );
     expect(logger.info).toHaveBeenCalledWith(
-      'complete ingrid session successfully : {"ingridSessionId":"test-session-id","status":"COMPLETE"}'
+      'complete ingrid session successfully : {"ingridSessionId":"test-session-id","status":"COMPLETE","tosId":"dummy-tos-id"}'
     );
   });
 
@@ -244,6 +248,11 @@ describe('Event Controller', () => {
     jest
       .spyOn(IngridApiClient.prototype, 'completeCheckoutSession')
       .mockRejectedValue(mockError);
+
+    // Mock setTransportOrderId
+    jest
+      .spyOn(updateClient, 'setTransportOrderId')
+      .mockResolvedValue(orderWithReadyShipmentState);
 
     // Mock changeShipmentState
     jest
