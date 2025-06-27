@@ -7,8 +7,13 @@ import IngridApiClient from '../client/ingrid/ingrid.client';
 import { readConfiguration } from '../utils/config.utils';
 import type { IngridCompleteSessionRequestPayload } from '../client/ingrid/types/ingrid.client.type';
 import { DecodedMessageType } from '../types/index.types';
-import { changeShipmentState } from '../client/commercetools/update.client';
+import {
+  changeShipmentState,
+  setTransportOrderId,
+} from '../client/commercetools/update.client';
 import { SHIPMENT_STATE } from '../client/commercetools/types/commercetools.client.type';
+import type { IngridCompleteSessionResponse } from '../client/ingrid/types/ingrid.client.type';
+
 /**
  * Exposed event POST endpoint.
  * Receives the Pub/Sub message and works with it
@@ -65,13 +70,18 @@ export const post = async (request: Request, response: Response) => {
     checkout_session_id: ingridSessionId,
     external_id: orderId,
   };
-  let responseObj = { ingridSessionId: '', status: '' };
+  type ResponseObjType = {
+    ingridSessionId: string;
+    status: string;
+    tosId?: string;
+  };
+
+  let responseObj: ResponseObjType = { ingridSessionId: '', status: '' };
+  let ingridResponse: IngridCompleteSessionResponse;
   try {
-    const ingridResponse = await ingridClient.completeCheckoutSession(payLoad);
-    responseObj = {
-      ingridSessionId: ingridResponse.session.checkout_session_id,
-      status: ingridResponse.session.status,
-    };
+    ingridResponse = await ingridClient.completeCheckoutSession(payLoad);
+    responseObj.ingridSessionId = ingridResponse.session.checkout_session_id;
+    responseObj.status = ingridResponse.session.status;
   } catch (error) {
     await changeShipmentState(
       orderId,
@@ -82,7 +92,17 @@ export const post = async (request: Request, response: Response) => {
       error.message += `Update commercetools cart shipment state as canceled. (orderId: ${orderId})`;
     throw error;
   }
-  if (responseObj?.status === 'COMPLETE') {
+  if (responseObj.status === 'COMPLETE') {
+    if (ingridResponse.session.delivery_groups[0]?.tos_id) {
+      responseObj.tosId = ingridResponse.session.delivery_groups[0].tos_id;
+      logger.info(`Update transport order ID : ${responseObj?.tosId})`);
+      await setTransportOrderId(
+        readConfiguration().ingridShippingCustomTypeKey,
+        orderId,
+        commercetoolsOrder.version,
+        responseObj.tosId
+      );
+    }
     const updateOrderResult = await changeShipmentState(
       orderId,
       commercetoolsOrder.version,

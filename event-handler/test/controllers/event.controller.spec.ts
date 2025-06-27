@@ -4,7 +4,15 @@ import { createApiRoot } from '../../src/client/commercetools/create.client';
 import * as updateClient from '../../src/client/commercetools/update.client';
 import PubSubValidator from '../../src/utils/validate_requests.utils';
 import IngridApiClient from '../../src/client/ingrid/ingrid.client';
-import { IngridCompleteSessionResponse } from '../../src/client/ingrid/types/ingrid.client.type';
+import {
+  IngridCompleteSessionResponse,
+  type IngridAddresses,
+  type IngridDeliveryGroupCategory,
+  type IngridDeliveryGroupDeliveryTime,
+  type IngridDeliveryGroupPricing,
+  type IngridDeliveryGroupSelection,
+  type IngridDeliveryGroupShipping,
+} from '../../src/client/ingrid/types/ingrid.client.type';
 import { readConfiguration } from '../../src/utils/config.utils';
 import { logger } from '../../src/utils/logger.utils';
 
@@ -93,16 +101,38 @@ describe('Event Controller', () => {
       .spyOn(updateClient, 'changeShipmentState')
       .mockResolvedValue(orderWithReadyShipmentState);
 
-    const mockIngridResponse = {
+    const mockIngridCompletionSuccessResponse: IngridCompleteSessionResponse = {
       session: {
-        checkout_session_id: mockIngridSessionId,
+        checkout_session_id: 'test-session-id',
         status: 'COMPLETE',
+        updated_at: new Date().toISOString(),
+        cart: {
+          total_value: 0,
+          total_discount: 0,
+          items: [],
+          cart_id: 'test-cart-id',
+        },
+        delivery_groups: [
+          {
+            addresses: {} as IngridAddresses,
+            category: {} as IngridDeliveryGroupCategory,
+            delivery_time: {} as IngridDeliveryGroupDeliveryTime,
+            group_id: '',
+            header: '',
+            items: [],
+            pricing: {} as IngridDeliveryGroupPricing,
+            selection: {} as IngridDeliveryGroupSelection,
+            shipping: {} as IngridDeliveryGroupShipping,
+            tos_id: 'dummy-tos-id',
+          },
+        ],
+        purchase_country: 'US',
       },
     };
 
     (
       IngridApiClient.prototype.completeCheckoutSession as MockFn
-    ).mockResolvedValue(mockIngridResponse);
+    ).mockResolvedValue(mockIngridCompletionSuccessResponse);
 
     await post(mockRequest as Request, mockResponse as Response);
 
