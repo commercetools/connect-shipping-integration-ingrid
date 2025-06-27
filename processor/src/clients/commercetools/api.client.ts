@@ -17,6 +17,13 @@ import {
 } from '@commercetools/ts-client';
 import type { RequestContextData } from '../../libs/fastify/context';
 
+export type CustomTypeOptions = {
+  key: string;
+  name: string;
+  resourceType: string;
+  customFieldName: string;
+  customFieldLabel: string;
+}
 /**
  * Client for interacting with the Commercetools API
  *
@@ -146,21 +153,21 @@ export class CommercetoolsApiClient {
   }
 
   // only called within post-deploy (if custom type does not exist -> will override merchants existing custom type)
-  public async createCustomTypeFieldDefinitionForIngridSessionId(ingridSessionIdTypeKey: string): Promise<Type> {
+  public async createCustomTypeFieldDefinitionForIngrid(customTypeOptions: CustomTypeOptions): Promise<Type> {
     const response = await this.client
       .types()
       .post({
         body: {
-          key: ingridSessionIdTypeKey,
+          key: customTypeOptions.key,
           name: {
-            en: 'Ingrid Session ID',
+            en: customTypeOptions.name,
           },
-          resourceTypeIds: ['order'],
+          resourceTypeIds: [customTypeOptions.resourceType],
           fieldDefinitions: [
             {
-              name: 'ingridSessionId',
+              name: customTypeOptions.customFieldName,
               label: {
-                en: 'Ingrid Session ID',
+                en: customTypeOptions.customFieldLabel,
               },
               type: {
                 name: 'String',
@@ -175,6 +182,8 @@ export class CommercetoolsApiClient {
     return customType;
   }
 
+  
+
   public async checkIfCustomTypeExistsByKey(key: string): Promise<boolean> {
     try {
       const response = await this.client.types().withKey({ key: key }).head().execute();
@@ -185,7 +194,7 @@ export class CommercetoolsApiClient {
     }
   }
 
-  public async createIngridSessionIdFieldDefinitionOnType(type: Type): Promise<Type> {
+  public async createIngridCustomFieldDefinitionOnType(type: Type, customTypeOptions: CustomTypeOptions): Promise<Type> {
     const response = await this.client
       .types()
       .withKey({ key: type.key })
@@ -196,9 +205,9 @@ export class CommercetoolsApiClient {
             {
               action: 'addFieldDefinition',
               fieldDefinition: {
-                name: 'ingridSessionId',
+                name: customTypeOptions.customFieldName,
                 label: {
-                  en: 'Ingrid Session ID',
+                  en: customTypeOptions.customFieldLabel,
                 },
                 type: {
                   name: 'String',
