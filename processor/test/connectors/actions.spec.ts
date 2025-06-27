@@ -1,7 +1,11 @@
 import { describe, test, expect, afterEach, jest, beforeEach } from '@jest/globals';
 import { additionalType, additionalShippingType, sessionType, shippingType } from '../mock/mock-type';
 import { CommercetoolsApiClient } from '../../src/clients/commercetools/api.client';
-import { handleCustomTypeAction, handleShippingCustomTypeAction, handleTaxCategoryAction } from '../../src/connectors/actions';
+import {
+  handleCustomTypeAction,
+  handleShippingCustomTypeAction,
+  handleTaxCategoryAction,
+} from '../../src/connectors/actions';
 import { appLogger } from '../../src/libs/logger';
 import { CustomError } from '../../src/libs/fastify/errors';
 import { TaxCategory, Type } from '@commercetools/platform-sdk';
@@ -56,9 +60,7 @@ describe('actions', () => {
 
       jest.spyOn(mockClient, 'checkIfCustomTypeExistsByKey').mockResolvedValue(true);
       jest.spyOn(mockClient, 'getCustomType').mockResolvedValue(additionalType);
-      jest
-        .spyOn(mockClient, 'createIngridCustomFieldDefinitionOnType')
-        .mockResolvedValue(mockTypeWithIngridSessionId);
+      jest.spyOn(mockClient, 'createIngridCustomFieldDefinitionOnType').mockResolvedValue(mockTypeWithIngridSessionId);
 
       const result = await handleCustomTypeAction(mockClient, 'dummy-type-key');
 

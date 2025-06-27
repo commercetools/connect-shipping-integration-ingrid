@@ -23,7 +23,7 @@ export type CustomTypeOptions = {
   resourceType: string;
   customFieldName: string;
   customFieldLabel: string;
-}
+};
 /**
  * Client for interacting with the Commercetools API
  *
@@ -182,8 +182,6 @@ export class CommercetoolsApiClient {
     return customType;
   }
 
-  
-
   public async checkIfCustomTypeExistsByKey(key: string): Promise<boolean> {
     try {
       const response = await this.client.types().withKey({ key: key }).head().execute();
@@ -194,7 +192,10 @@ export class CommercetoolsApiClient {
     }
   }
 
-  public async createIngridCustomFieldDefinitionOnType(type: Type, customTypeOptions: CustomTypeOptions): Promise<Type> {
+  public async createIngridCustomFieldDefinitionOnType(
+    type: Type,
+    customTypeOptions: CustomTypeOptions,
+  ): Promise<Type> {
     const response = await this.client
       .types()
       .withKey({ key: type.key })

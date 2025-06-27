@@ -25,8 +25,6 @@ const INGRID_CUSTOM_TYPE_RESOURCE_TYPE_SHIPPING = 'shipping';
 const INGRID_CUSTOM_FIELD_LABEL_SESSION_ID = 'Ingrid Session ID';
 const INGRID_CUSTOM_FIELD_LABEL_TRANSPORT_ORDER_ID = 'Ingrid Transport Order ID';
 
-
-
 export const handleTaxCategoryAction = async (client: CommercetoolsApiClient, key: string): Promise<boolean> => {
   const taxCategoryExists = await client.checkIfTaxCategoryExistsByKey(key);
 
@@ -84,10 +82,10 @@ export const handleCustomTypeAction = async (
   };
   if (ingridCustomTypeExists) {
     appLogger.info(`[CUSTOM-TYPE VALIDATING]: Custom type with key ${key}`);
-    type = await updateType(client,  customTypeOptions);
+    type = await updateType(client, customTypeOptions);
   } else {
     appLogger.info(`[CUSTOM-TYPE CONTINUING]: Custom Type not found, creating with key ${key}`);
-    type = await createType(client,  customTypeOptions);
+    type = await createType(client, customTypeOptions);
   }
 
   appLogger.info(
@@ -128,10 +126,7 @@ export const handleShippingCustomTypeAction = async (
   };
   if (ingridShippingCustomTypeExists) {
     appLogger.info(`[CUSTOM-TYPE VALIDATING]: Shipping custom type with key ${key}`);
-    type = await updateType(
-      client,
-      customTypeOptions
-    );
+    type = await updateType(client, customTypeOptions);
   } else {
     appLogger.info(`[CUSTOM-TYPE CONTINUING]: Shipping custom Type not found, creating with key ${key}`);
     type = await createType(client, customTypeOptions);
@@ -143,29 +138,28 @@ export const handleShippingCustomTypeAction = async (
   return type;
 };
 
-async function updateType(
-  client: CommercetoolsApiClient,
-  customTypeOptions: CustomTypeOptions,
-): Promise<Type> {
+async function updateType(client: CommercetoolsApiClient, customTypeOptions: CustomTypeOptions): Promise<Type> {
   let customType = await client.getCustomType(customTypeOptions.key);
   const ingridCustomField = customType.fieldDefinitions.find(({ name }) => name === customTypeOptions.customFieldName);
   if (!customType.resourceTypeIds.includes(customTypeOptions.resourceType)) {
-    appLogger.info(`[CUSTOM-TYPE NOT FOUND]: Custom type with key ${customTypeOptions.key} does not have ${customTypeOptions.resourceType} resource type`);
+    appLogger.info(
+      `[CUSTOM-TYPE NOT FOUND]: Custom type with key ${customTypeOptions.key} does not have ${customTypeOptions.resourceType} resource type`,
+    );
     customType = await createType(client, customTypeOptions);
   }
   if (!ingridCustomField) {
-    appLogger.info(`[CUSTOM-TYPE NOT FOUND]: Custom type with key ${customTypeOptions.key} does not have ${customTypeOptions.customFieldName} field`);
+    appLogger.info(
+      `[CUSTOM-TYPE NOT FOUND]: Custom type with key ${customTypeOptions.key} does not have ${customTypeOptions.customFieldName} field`,
+    );
     customType = await createFieldDefinitionOnType(client, customType, customTypeOptions);
   }
   return customType;
 }
 
 async function createType(client: CommercetoolsApiClient, customTypeOptions: CustomTypeOptions): Promise<Type> {
-  
   appLogger.info(`[CUSTOM-TYPE CONTINUING]: Creating custom type with key ${customTypeOptions.key}`);
 
   const customType = await client.createCustomTypeFieldDefinitionForIngrid(customTypeOptions);
-
 
   if (!customType) {
     throw new CustomError({
@@ -181,11 +175,12 @@ async function createType(client: CommercetoolsApiClient, customTypeOptions: Cus
 async function createFieldDefinitionOnType(
   client: CommercetoolsApiClient,
   customType: Type,
-  customTypeOptions: CustomTypeOptions
+  customTypeOptions: CustomTypeOptions,
 ): Promise<Type> {
-  appLogger.info(`[CUSTOM-TYPE CONTINUING]: Creating ${customTypeOptions.customFieldName} field on custom type with key ${customTypeOptions.key}`);
+  appLogger.info(
+    `[CUSTOM-TYPE CONTINUING]: Creating ${customTypeOptions.customFieldName} field on custom type with key ${customTypeOptions.key}`,
+  );
   const updatedCustomType = await client.createIngridCustomFieldDefinitionOnType(customType, customTypeOptions);
-  
 
   if (!updatedCustomType) {
     throw new CustomError({

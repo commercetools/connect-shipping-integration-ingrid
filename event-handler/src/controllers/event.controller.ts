@@ -76,7 +76,7 @@ export const post = async (request: Request, response: Response) => {
     tosId?: string;
   };
 
-  let responseObj: ResponseObjType = { ingridSessionId: '', status: '' };
+  const responseObj: ResponseObjType = { ingridSessionId: '', status: '' };
   let ingridResponse: IngridCompleteSessionResponse;
   try {
     ingridResponse = await ingridClient.completeCheckoutSession(payLoad);
