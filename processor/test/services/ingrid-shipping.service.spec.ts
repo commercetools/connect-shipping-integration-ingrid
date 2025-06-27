@@ -18,7 +18,7 @@ import {
   setCustomFieldFailureResponse,
   cartWithShippingAddress,
 } from '../mock/mock-cart';
-import { type } from '../mock/mock-type';
+import { sessionType } from '../mock/mock-type';
 import { mockRequest } from '../mock/mock-utils';
 import { InitSessionSuccessResponseSchemaDTO } from '../../src/dtos/ingrid-shipping.dto';
 import { CustomError } from '../../src/libs/fastify/errors';
@@ -102,7 +102,7 @@ describe('ingrid-shipping.service', () => {
           mockCreateCheckoutSessionSuccessResponse,
         ),
       );
-      jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(type);
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(sessionType);
       jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cartWithoutCustomType);
       jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomType').mockResolvedValue(cart);
       jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomField').mockResolvedValue(cart);
@@ -161,7 +161,7 @@ describe('ingrid-shipping.service', () => {
           mockCreateCheckoutSessionSuccessResponse,
         ),
       );
-      jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(type);
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(sessionType);
       jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cart);
       jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomField').mockResolvedValue(cart);
 
@@ -193,7 +193,7 @@ describe('ingrid-shipping.service', () => {
           mockCreateCheckoutSessionSuccessResponse,
         ),
       );
-      jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(type);
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(sessionType);
       jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cartWithAdditionalCustomType);
       jest
         .spyOn(CommercetoolsApiClient.prototype, 'setCartCustomField')
@@ -225,7 +225,7 @@ describe('ingrid-shipping.service', () => {
           mockCreateCheckoutSessionAuthFailureResponse,
         ),
       );
-      jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(type);
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCustomType').mockResolvedValue(sessionType);
       jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cart);
       jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomType').mockResolvedValue(cart);
       jest.spyOn(CommercetoolsApiClient.prototype, 'setCartCustomField').mockResolvedValue(cart);

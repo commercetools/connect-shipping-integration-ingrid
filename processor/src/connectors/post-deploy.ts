@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
-import { handleCustomTypeAction, handleTaxCategoryAction } from './actions';
+import { handleCustomTypeAction, handleTaxCategoryAction, handleShippingCustomTypeAction } from './actions';
 
 dotenv.config();
 
@@ -35,10 +35,12 @@ async function postDeploy(_properties: Map<string, unknown>) {
   });
 
   const ingridCustomTypeKey = _properties.get('INGRID_SESSION_CUSTOM_TYPE_KEY') as string; // default: ingrid-session
+  const ingridShippingCustomTypeKey = _properties.get('INGRID_SHIPPING_CUSTOM_TYPE_KEY') as string; // default: ingrid-shipping
   const ingridTaxCategoryKey = _properties.get('INGRID_SPECIFIC_TAX_CATEGORY_KEY') as string; // default: ingrid-tax
 
   await Promise.all([
     handleCustomTypeAction(client, ingridCustomTypeKey),
+    handleShippingCustomTypeAction(client, ingridShippingCustomTypeKey),
     handleTaxCategoryAction(client, ingridTaxCategoryKey),
   ]);
 }

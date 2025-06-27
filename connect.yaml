@@ -39,6 +39,10 @@ deployAs:
           description: Key of TaxCategory to be used for shipping tax calculation
           required: false
           default: ingrid-tax
+        - key: INGRID_SHIPPING_CUSTOM_TYPE_KEY
+          description: Key of CustomType to store transport order ID after order has been created
+          required: false
+          default: ingrid-shipping
       securedConfiguration:
         - key: INGRID_API_KEY
           description: the key used to connect to the Ingrid instance
@@ -72,6 +76,10 @@ deployAs:
           description: Ingrid environment (STAGING or PRODUCTION)
           required: true
           default: STAGING
+        - key: INGRID_SHIPPING_CUSTOM_TYPE_KEY
+          description: Key of CustomType to store transport order ID after order has been created
+          required: false
+          default: ingrid-shipping
       securedConfiguration:
         - key: INGRID_API_KEY
           description: the key used to connect to the Ingrid instance
