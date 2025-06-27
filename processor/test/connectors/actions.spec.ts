@@ -1,7 +1,7 @@
 import { describe, test, expect, afterEach, jest, beforeEach } from '@jest/globals';
-import { additionalType, type } from '../mock/mock-type';
+import { additionalType, additionalShippingType, sessionType, shippingType } from '../mock/mock-type';
 import { CommercetoolsApiClient } from '../../src/clients/commercetools/api.client';
-import { handleCustomTypeAction, handleTaxCategoryAction } from '../../src/connectors/actions';
+import { handleCustomTypeAction, handleShippingCustomTypeAction, handleTaxCategoryAction } from '../../src/connectors/actions';
 import { appLogger } from '../../src/libs/logger';
 import { CustomError } from '../../src/libs/fastify/errors';
 import { TaxCategory, Type } from '@commercetools/platform-sdk';
@@ -29,7 +29,7 @@ describe('actions', () => {
   describe('handleCustomTypeAction', () => {
     test('should create new custom type when it does not exist', async () => {
       jest.spyOn(mockClient, 'checkIfCustomTypeExistsByKey').mockResolvedValue(false);
-      jest.spyOn(mockClient, 'createCustomTypeFieldDefinitionForIngridSessionId').mockResolvedValue(type);
+      jest.spyOn(mockClient, 'createCustomTypeFieldDefinitionForIngrid').mockResolvedValue(sessionType);
 
       const result = await handleCustomTypeAction(mockClient, 'ingrid-session');
 
@@ -57,7 +57,7 @@ describe('actions', () => {
       jest.spyOn(mockClient, 'checkIfCustomTypeExistsByKey').mockResolvedValue(true);
       jest.spyOn(mockClient, 'getCustomType').mockResolvedValue(additionalType);
       jest
-        .spyOn(mockClient, 'createIngridSessionIdFieldDefinitionOnType')
+        .spyOn(mockClient, 'createIngridCustomFieldDefinitionOnType')
         .mockResolvedValue(mockTypeWithIngridSessionId);
 
       const result = await handleCustomTypeAction(mockClient, 'dummy-type-key');
@@ -69,11 +69,11 @@ describe('actions', () => {
     });
 
     test('should update existing custom type when fieldDefinition is missing', async () => {
-      const typeWithoutFieldDefinition = { ...type, fieldDefinitions: [] };
+      const typeWithoutFieldDefinition = { ...sessionType, fieldDefinitions: [] };
 
       jest.spyOn(mockClient, 'checkIfCustomTypeExistsByKey').mockResolvedValue(true);
       jest.spyOn(mockClient, 'getCustomType').mockResolvedValue(typeWithoutFieldDefinition);
-      jest.spyOn(mockClient, 'createIngridSessionIdFieldDefinitionOnType').mockResolvedValue(type);
+      jest.spyOn(mockClient, 'createIngridCustomFieldDefinitionOnType').mockResolvedValue(sessionType);
 
       const result = await handleCustomTypeAction(mockClient, 'ingrid-session');
 
@@ -84,12 +84,12 @@ describe('actions', () => {
     });
 
     test('should throw error when updating existing custom type fails', async () => {
-      const typeWithoutFieldDefinition = { ...type, fieldDefinitions: [] };
+      const typeWithoutFieldDefinition = { ...sessionType, fieldDefinitions: [] };
 
       jest.spyOn(mockClient, 'checkIfCustomTypeExistsByKey').mockResolvedValue(true);
       jest.spyOn(mockClient, 'getCustomType').mockResolvedValue(typeWithoutFieldDefinition);
       // @ts-expect-error: mockResolvedValue is not a valid parameter
-      jest.spyOn(mockClient, 'createIngridSessionIdFieldDefinitionOnType').mockResolvedValue(null);
+      jest.spyOn(mockClient, 'createIngridCustomFieldDefinitionOnType').mockResolvedValue(null);
 
       await expect(handleCustomTypeAction(mockClient, 'ingrid-session-type-key')).rejects.toThrow(CustomError);
       await expect(handleCustomTypeAction(mockClient, 'ingrid-session-type-key')).rejects.toThrow(
@@ -100,11 +100,94 @@ describe('actions', () => {
     test('should throw error when custom type creation fails', async () => {
       jest.spyOn(mockClient, 'checkIfCustomTypeExistsByKey').mockResolvedValue(false);
       // @ts-expect-error: mockResolvedValue is not a valid parameter
-      jest.spyOn(mockClient, 'createCustomTypeFieldDefinitionForIngridSessionId').mockResolvedValue(null);
+      jest.spyOn(mockClient, 'createCustomTypeFieldDefinitionForIngrid').mockResolvedValue(null);
 
       await expect(handleCustomTypeAction(mockClient, 'ingrid-session')).rejects.toThrow(CustomError);
       await expect(handleCustomTypeAction(mockClient, 'ingrid-session')).rejects.toThrow(
         '[CUSTOM-TYPE ERROR]: Custom type with key ingrid-session is not created',
+      );
+    });
+  });
+
+  describe('handleShippingCustomTypeAction', () => {
+    test('should create new custom type when it does not exist', async () => {
+      jest.spyOn(mockClient, 'checkIfCustomTypeExistsByKey').mockResolvedValue(false);
+      jest.spyOn(mockClient, 'createCustomTypeFieldDefinitionForIngrid').mockResolvedValue(shippingType);
+
+      const result = await handleShippingCustomTypeAction(mockClient, 'ingrid-shipping');
+
+      expect(result).toBeDefined();
+      expect(appLogger.info).toHaveBeenCalledWith(
+        expect.stringMatching(/\[CUSTOM-TYPE CONTINUING\].*creating.*ingrid-shipping/),
+      );
+    });
+
+    test('should update existing custom type with existing fieldDefinition when ingridTransportOrderId field is missing', async () => {
+      const mockTypeWithIngridTransportOrderId: Type = {
+        ...additionalShippingType,
+        fieldDefinitions: [
+          ...additionalShippingType.fieldDefinitions,
+          {
+            name: 'ingridTransportOrderId',
+            label: { en: 'Ingrid Transport Order ID' },
+            required: true,
+            type: { name: 'String' },
+            inputHint: 'SingleLine',
+          },
+        ],
+      };
+
+      jest.spyOn(mockClient, 'checkIfCustomTypeExistsByKey').mockResolvedValue(true);
+      jest.spyOn(mockClient, 'getCustomType').mockResolvedValue(additionalShippingType);
+      jest
+        .spyOn(mockClient, 'createIngridCustomFieldDefinitionOnType')
+        .mockResolvedValue(mockTypeWithIngridTransportOrderId);
+
+      const result = await handleShippingCustomTypeAction(mockClient, 'dummy-type-key');
+
+      expect(result).toBe(mockTypeWithIngridTransportOrderId);
+      expect(appLogger.info).toHaveBeenCalledWith(
+        expect.stringMatching(/\[CUSTOM-TYPE NOT FOUND\].*does not have ingridTransportOrderId field/),
+      );
+    });
+
+    test('should update existing custom type when fieldDefinition is missing', async () => {
+      const typeWithoutFieldDefinition = { ...shippingType, fieldDefinitions: [] };
+
+      jest.spyOn(mockClient, 'checkIfCustomTypeExistsByKey').mockResolvedValue(true);
+      jest.spyOn(mockClient, 'getCustomType').mockResolvedValue(typeWithoutFieldDefinition);
+      jest.spyOn(mockClient, 'createIngridCustomFieldDefinitionOnType').mockResolvedValue(shippingType);
+
+      const result = await handleShippingCustomTypeAction(mockClient, 'ingrid-shipping');
+
+      expect(result).toBeDefined();
+      expect(appLogger.info).toHaveBeenCalledWith(
+        expect.stringMatching(/\[CUSTOM-TYPE NOT FOUND\].*does not have ingridTransportOrderId field/),
+      );
+    });
+
+    test('should throw error when updating existing custom type fails', async () => {
+      const typeWithoutFieldDefinition = { ...shippingType, fieldDefinitions: [] };
+
+      jest.spyOn(mockClient, 'checkIfCustomTypeExistsByKey').mockResolvedValue(true);
+      jest.spyOn(mockClient, 'getCustomType').mockResolvedValue(typeWithoutFieldDefinition);
+      // @ts-expect-error: mockResolvedValue is not a valid parameter
+      jest.spyOn(mockClient, 'createIngridCustomFieldDefinitionOnType').mockResolvedValue(null);
+
+      await expect(handleShippingCustomTypeAction(mockClient, 'ingrid-shipping-type-key')).rejects.toThrow(CustomError);
+      await expect(handleShippingCustomTypeAction(mockClient, 'ingrid-shipping-type-key')).rejects.toThrow(
+        '[CUSTOM-TYPE ERROR]: Custom type with key ingrid-shipping-type-key is not updated',
+      );
+    });
+
+    test('should throw error when custom type creation fails', async () => {
+      jest.spyOn(mockClient, 'checkIfCustomTypeExistsByKey').mockResolvedValue(false);
+      // @ts-expect-error: mockResolvedValue is not a valid parameter
+      jest.spyOn(mockClient, 'createCustomTypeFieldDefinitionForIngrid').mockResolvedValue(null);
+
+      await expect(handleShippingCustomTypeAction(mockClient, 'ingrid-shipping')).rejects.toThrow(CustomError);
+      await expect(handleShippingCustomTypeAction(mockClient, 'ingrid-shipping')).rejects.toThrow(
+        '[CUSTOM-TYPE ERROR]: Custom type with key ingrid-shipping is not created',
       );
     });
   });

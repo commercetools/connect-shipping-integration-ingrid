@@ -154,7 +154,7 @@ async function updateType(
     customType = await createType(client, customTypeOptions);
   }
   if (!ingridCustomField) {
-    appLogger.info(`[CUSTOM-TYPE NOT FOUND]: Custom type with key ${customTypeOptions.key} does not have ingridSessionId field`);
+    appLogger.info(`[CUSTOM-TYPE NOT FOUND]: Custom type with key ${customTypeOptions.key} does not have ${customTypeOptions.customFieldName} field`);
     customType = await createFieldDefinitionOnType(client, customType, customTypeOptions);
   }
   return customType;
