@@ -1,7 +1,24 @@
 # Shipping Integration Processor
 This module provides an application based on [commercetools Connect](https://docs.commercetools.com/connect), which performs task in asynchronous mode when order has been created in commercetools composable commerce.
 
-The event handler relies on subscription in commercetools composable commerce to listen to the order creation event. The handler receives the message from subscription with the created order details and therefore Ingrid session ID can be obtained. Then a request will be sent to Ingrid platform for Ingrid session completion. In case of success, the order shipment state is updated as `ready`, otherwise it will be updated as `canceled`. 
+The event handler relies on subscription in commercetools composable commerce to listen to the order creation event. The handler receives the message from subscription with the created order details and therefore Ingrid session ID can be obtained. Then a request will be sent to Ingrid platform for Ingrid session completion. In case of success, the order shipment state is updated as `ready`, otherwise it will be updated as `canceled`. In addition, transport order ID `tos_id` is obtained from the response of Ingrid session completion. The `tos_id` will be persisted into [shipping custom field of commercetools order](https://docs.commercetools.com/api/projects/orders#set-shipping-custom-type) with field name `ingridTransportOrderId` as below.
+
+```
+    ...
+
+    "shippingCustomFields": {
+        "type": {
+            "typeId": "type",
+            "id": <generated-custom-type-id-for-ingrid-shipping>
+        },
+        "fields": {
+            "ingridTransportOrderId": <01JYZT08QR0FE4Q10R9P6YM0QS>
+        }
+    },
+
+    ...
+
+```    
 
 The module also provides template scripts for post-deployment and pre-undeployment action. After deployment or before undeployment via connect service completed, customized actions can be performed based on users' needs.
 
