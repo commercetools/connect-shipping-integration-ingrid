@@ -5,7 +5,7 @@ import { cart } from '../../mock/mock-cart';
 import { mockAccessToken } from '../../mock/mock-authorization';
 import { appLogger } from '../../../src/libs/logger';
 import { CommercetoolsApiClient } from '../../../src/clients/commercetools/api.client';
-import { type } from '../../mock/mock-type';
+import { sessionType } from '../../mock/mock-type';
 import { TaxCategoryResourceIdentifier } from '@commercetools/platform-sdk';
 
 const mockServer = setupServer();
@@ -111,14 +111,14 @@ describe('commercetools api client', () => {
     test('should get custom type by key', async () => {
       mockServer.use(
         mockRequest('https://auth.test.de/', 'oauth/token', 200, mockAccessToken),
-        mockRequest('https://api.test.de/', 'dummy-project-key/types/key=test-type', 200, type),
+        mockRequest('https://api.test.de/', 'dummy-project-key/types/key=test-type', 200, sessionType),
       );
 
       const apiClient = new CommercetoolsApiClient(opt);
       const resp = await apiClient.getCustomType('test-type');
 
       expect(resp).toBeDefined();
-      expect(resp).toEqual(type);
+      expect(resp).toEqual(sessionType);
     });
   });
 

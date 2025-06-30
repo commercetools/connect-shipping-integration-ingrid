@@ -23,6 +23,8 @@ export const readConfiguration = () => {
     ingridEnvironment: process.env.INGRID_ENVIRONMENT as
       | 'STAGING'
       | 'PRODUCTION',
+    ingridShippingCustomTypeKey: process.env
+      .INGRID_SHIPPING_CUSTOM_TYPE_KEY as string,
   };
 
   const validationErrors = getValidateMessages(envValidators, envVars);

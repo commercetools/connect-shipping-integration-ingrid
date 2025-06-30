@@ -21,6 +21,15 @@ export const orderWithReadyShipmentState: Order = {
   ],
   origin: 'Customer',
   syncInfo: [],
+  shippingCustomFields: {
+    type: {
+      typeId: 'type',
+      id: '1a1142d7-c99a-40da-aca0-872d744817b1',
+    },
+    fields: {
+      ingridTransportOrderId: 'dummy-transport-order-id',
+    },
+  },
   orderState: 'Open',
   createdAt: '2025-01-01T00:00:00.000Z',
   lastModifiedAt: '2025-01-01T00:00:00.000Z',
