@@ -92,17 +92,19 @@ export const post = async (request: Request, response: Response) => {
       error.message += `Update commercetools cart shipment state as canceled. (orderId: ${orderId})`;
     throw error;
   }
+
+  responseObj.tosId = ingridResponse.session.delivery_groups[0]?.tos_id;
+  if (responseObj.tosId) {
+    logger.info(`Update transport order ID : ${responseObj?.tosId})`);
+    await setTransportOrderId(
+      readConfiguration().ingridShippingCustomTypeKey,
+      orderId,
+      commercetoolsOrder.version,
+      responseObj.tosId
+    );
+  }
+    
   if (responseObj.status === 'COMPLETE') {
-    if (ingridResponse.session.delivery_groups[0]?.tos_id) {
-      responseObj.tosId = ingridResponse.session.delivery_groups[0].tos_id;
-      logger.info(`Update transport order ID : ${responseObj?.tosId})`);
-      await setTransportOrderId(
-        readConfiguration().ingridShippingCustomTypeKey,
-        orderId,
-        commercetoolsOrder.version,
-        responseObj.tosId
-      );
-    }
     const updateOrderResult = await changeShipmentState(
       orderId,
       commercetoolsOrder.version,
