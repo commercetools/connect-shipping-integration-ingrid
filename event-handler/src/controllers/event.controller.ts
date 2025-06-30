@@ -103,7 +103,7 @@ export const post = async (request: Request, response: Response) => {
       responseObj.tosId
     );
   }
-    
+
   if (responseObj.status === 'COMPLETE') {
     const updateOrderResult = await changeShipmentState(
       orderId,
