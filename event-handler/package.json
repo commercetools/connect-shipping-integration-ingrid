@@ -49,7 +49,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@commercetools-backend/loggers": "^23.3.0",
+    "@commercetools-backend/loggers": "^24.2.1",
     "@commercetools/platform-sdk": "^8.11.0",
     "@commercetools/ts-client": "^3.3.1",
     "axios": "^1.10.0",
