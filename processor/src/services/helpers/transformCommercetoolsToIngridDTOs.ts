@@ -30,7 +30,7 @@ export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridC
   const payload: IngridCreateSessionRequestPayload = {
     cart: transformedCart,
     locales: [ctCart.locale!],
-    purchase_country: ctCart.country!,
+    purchase_country: ctCart.shippingAddress?.country ?? ctCart.country!,
     purchase_currency: ctCart.totalPrice.currencyCode,
   };
 
