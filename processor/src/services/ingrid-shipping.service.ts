@@ -113,7 +113,7 @@ export class IngridShippingService extends AbstractShippingService {
     }
 
     // transform Ingrid checkout session delivery groups to commercetools data types
-    const { billingAddress, deliveryAddress, customShippingMethod } =
+    const { billingAddress, deliveryAddress, customShippingMethod, extMethodId } =
       transformIngridDeliveryGroupsToCommercetoolsDataTypes(ingridCheckoutSession.session.delivery_groups);
 
     const updatedCart = await this.commercetoolsClient.updateCartWithAddressAndShippingMethod(
@@ -128,6 +128,10 @@ export class IngridShippingService extends AbstractShippingService {
         shippingRate: customShippingMethod.shippingRate,
         taxCategory: { key: ingridTaxCategoryKey, typeId: 'tax-category' },
       },
+      {
+        name: 'ingridExtMethodId',
+        value: extMethodId,
+      }
     );
 
     if (!updatedCart.taxedPrice?.totalGross) {

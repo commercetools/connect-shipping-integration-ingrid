@@ -90,6 +90,7 @@ export class CommercetoolsApiClient {
       shippingRate: ShippingRateDraft;
       taxCategory: TaxCategoryResourceIdentifier;
     },
+    customFieldPayload: { name: string; value: string },
   ): Promise<Cart> {
     const response = await this.client
       .carts()
@@ -101,6 +102,7 @@ export class CommercetoolsApiClient {
             { action: 'setShippingAddress', address: addresses.shippingAddress },
             { action: 'setBillingAddress', address: addresses.billingAddress },
             { action: 'setCustomShippingMethod', ...customShippingMethodPayload },
+            { action: 'setCustomField', name: customFieldPayload.name, value: customFieldPayload.value },
           ],
         },
       })
