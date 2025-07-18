@@ -207,7 +207,7 @@ async function createFieldDefinitionOnType(
   customTypeOptions: CustomTypeOptions,
 ): Promise<Type> {
   appLogger.info(
-    `[CUSTOM-TYPE CONTINUING]: Creating ${customTypeOptions.customField} field on custom type with key ${customTypeOptions.key}`,
+    `[CUSTOM-TYPE CONTINUING]: Creating custom field on custom type with key ${customTypeOptions.key} : ${JSON.stringify(customTypeOptions.customField)}`,
   );
   const updatedCustomType = await client.createIngridCustomFieldDefinitionOnType(customType, customTypeOptions);
 
