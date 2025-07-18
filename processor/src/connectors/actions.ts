@@ -167,7 +167,7 @@ async function updateType(client: CommercetoolsApiClient, customTypeOptions: Cus
     }
   });
 
-  appLogger.info('[CUSTOM-FIELD NOT FOUND] Missing custom fields : ', JSON.stringify(missingIngridCustomFields));
+  appLogger.info(`[CUSTOM-FIELD NOT FOUND] Missing custom fields : ${JSON.stringify(missingIngridCustomFields)}`);
 
   if (!customType.resourceTypeIds.includes(customTypeOptions.resourceType)) {
     appLogger.info(

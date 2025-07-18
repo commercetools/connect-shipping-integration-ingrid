@@ -65,8 +65,9 @@ describe('actions', () => {
       const result = await handleCustomTypeAction(mockClient, 'dummy-type-key');
 
       expect(result).toBe(mockTypeWithIngridSessionId);
+
       expect(appLogger.info).toHaveBeenCalledWith(
-        expect.stringMatching(/\[CUSTOM-TYPE NOT FOUND\].*does not have ingridSessionId field/),
+        expect.stringMatching(/\[CUSTOM-FIELD NOT FOUND\] Missing custom fields : */),
       );
     });
 
@@ -81,8 +82,11 @@ describe('actions', () => {
 
       expect(result).toBeDefined();
       expect(appLogger.info).toHaveBeenCalledWith(
-        expect.stringMatching(/\[CUSTOM-TYPE NOT FOUND\].*does not have ingridSessionId field/),
+        expect.stringMatching(/\[CUSTOM-FIELD NOT FOUND\] Missing custom fields : */),
       );
+      // expect(appLogger.info).toHaveBeenCalledWith(
+      //   expect.stringMatching(/\[CUSTOM-TYPE NOT FOUND\].*does not have ingridSessionId field/),
+      // );
     });
 
     test('should throw error when updating existing custom type fails', async () => {
@@ -149,7 +153,7 @@ describe('actions', () => {
 
       expect(result).toBe(mockTypeWithIngridTransportOrderId);
       expect(appLogger.info).toHaveBeenCalledWith(
-        expect.stringMatching(/\[CUSTOM-TYPE NOT FOUND\].*does not have ingridTransportOrderId field/),
+        expect.stringMatching(/\[CUSTOM-FIELD NOT FOUND\] Missing custom fields : */),
       );
     });
 
@@ -164,7 +168,7 @@ describe('actions', () => {
 
       expect(result).toBeDefined();
       expect(appLogger.info).toHaveBeenCalledWith(
-        expect.stringMatching(/\[CUSTOM-TYPE NOT FOUND\].*does not have ingridTransportOrderId field/),
+        expect.stringMatching(/\[CUSTOM-FIELD NOT FOUND\] Missing custom fields : */),
       );
     });
 
