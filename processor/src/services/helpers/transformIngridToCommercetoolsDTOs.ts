@@ -51,7 +51,7 @@ export const transformIngridDeliveryGroupsToCommercetoolsDataTypes = (
   const billingAddress = transformIngridAddressToCommercetoolsAddress(ingridDeliveryGroup.addresses.billing_address);
   const deliveryAddress = transformIngridAddressToCommercetoolsAddress(ingridDeliveryGroup.addresses.delivery_address);
   const customShippingMethod = transformIngridDeliveryGroupToCustomShippingMethod(ingridDeliveryGroup);
-  const extMethodId = ingridDeliveryGroup.shipping.carrier_product_id
+  const extMethodId = ingridDeliveryGroup.shipping.carrier_product_id;
   return { billingAddress, deliveryAddress, customShippingMethod, extMethodId };
 };
 

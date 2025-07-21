@@ -131,7 +131,7 @@ export class IngridShippingService extends AbstractShippingService {
       {
         name: 'ingridExtMethodId',
         value: extMethodId,
-      }
+      },
     );
 
     if (!updatedCart.taxedPrice?.totalGross) {

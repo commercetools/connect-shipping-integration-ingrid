@@ -150,8 +150,8 @@ describe('Helper Functions', () => {
             net_price: 800,
           },
           shipping: {
-            carrier_product_id: 'carrier-product-id'
-          }
+            carrier_product_id: 'carrier-product-id',
+          },
         } as IngridDeliveryGroup,
       ];
 
