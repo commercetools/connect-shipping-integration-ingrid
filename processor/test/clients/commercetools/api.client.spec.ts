@@ -58,7 +58,7 @@ describe('commercetools api client', () => {
         shippingRate: { price: { centAmount: 1000, currencyCode: 'USD' } },
         taxCategory,
       };
-
+      const customFieldPayload = { name: 'test-custom-field-name', value: 'test-custom-field-value' };
       mockServer.use(
         mockRequest('https://auth.test.de/', 'oauth/token', 200, mockAccessToken),
         mockRequest('https://api.test.de/', 'dummy-project-key/carts/dummy-cart-id', 200, cart),
@@ -70,8 +70,8 @@ describe('commercetools api client', () => {
         1,
         addresses,
         shippingMethodPayload,
+        customFieldPayload,
       );
-
       expect(resp).toBeDefined();
       expect(resp).toEqual(cart);
     });

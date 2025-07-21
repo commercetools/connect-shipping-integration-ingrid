@@ -2,7 +2,7 @@ import type { Type } from '@commercetools/platform-sdk';
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
 import { appLogger } from '../libs/logger';
 import { CustomError } from '../libs/fastify/errors';
-import type { CustomTypeOptions } from '../clients/commercetools/api.client';
+import { type CustomField, type CustomTypeOptions } from '../clients/commercetools/api.client';
 /**
  * Handles the creation and updating of a tax category in commercetools
  *
@@ -18,10 +18,12 @@ import type { CustomTypeOptions } from '../clients/commercetools/api.client';
  *   - false if the tax category could not be found or created
  */
 
+const INGRID_CUSTOM_FIELD_NAME_EXTERNAL_METHOD_ID = 'ingridExtMethodId';
 const INGRID_CUSTOM_FIELD_NAME_SESSION_ID = 'ingridSessionId';
 const INGRID_CUSTOM_FIELD_NAME_TRANSPORT_ORDER_ID = 'ingridTransportOrderId';
 const INGRID_CUSTOM_TYPE_RESOURCE_TYPE_ORDER = 'order';
 const INGRID_CUSTOM_TYPE_RESOURCE_TYPE_SHIPPING = 'shipping';
+const INGRID_CUSTOM_FIELD_LABEL_EXTERNAL_METHOD_ID = 'Ingrid External Method ID';
 const INGRID_CUSTOM_FIELD_LABEL_SESSION_ID = 'Ingrid Session ID';
 const INGRID_CUSTOM_FIELD_LABEL_TRANSPORT_ORDER_ID = 'Ingrid Transport Order ID';
 
@@ -77,8 +79,16 @@ export const handleCustomTypeAction = async (
     key,
     name: 'Ingrid Session ID',
     resourceType: INGRID_CUSTOM_TYPE_RESOURCE_TYPE_ORDER,
-    customFieldName: INGRID_CUSTOM_FIELD_NAME_SESSION_ID,
-    customFieldLabel: INGRID_CUSTOM_FIELD_LABEL_SESSION_ID,
+    customField: [
+      {
+        name: INGRID_CUSTOM_FIELD_NAME_SESSION_ID,
+        label: INGRID_CUSTOM_FIELD_LABEL_SESSION_ID,
+      },
+      {
+        name: INGRID_CUSTOM_FIELD_NAME_EXTERNAL_METHOD_ID,
+        label: INGRID_CUSTOM_FIELD_LABEL_EXTERNAL_METHOD_ID,
+      },
+    ],
   };
   if (ingridCustomTypeExists) {
     appLogger.info(`[CUSTOM-TYPE VALIDATING]: Custom type with key ${key}`);
@@ -121,8 +131,12 @@ export const handleShippingCustomTypeAction = async (
     key,
     name: 'Ingrid Shipping',
     resourceType: INGRID_CUSTOM_TYPE_RESOURCE_TYPE_SHIPPING,
-    customFieldName: INGRID_CUSTOM_FIELD_NAME_TRANSPORT_ORDER_ID,
-    customFieldLabel: INGRID_CUSTOM_FIELD_LABEL_TRANSPORT_ORDER_ID,
+    customField: [
+      {
+        name: INGRID_CUSTOM_FIELD_NAME_TRANSPORT_ORDER_ID,
+        label: INGRID_CUSTOM_FIELD_LABEL_TRANSPORT_ORDER_ID,
+      },
+    ],
   };
   if (ingridShippingCustomTypeExists) {
     appLogger.info(`[CUSTOM-TYPE VALIDATING]: Shipping custom type with key ${key}`);
@@ -140,17 +154,32 @@ export const handleShippingCustomTypeAction = async (
 
 async function updateType(client: CommercetoolsApiClient, customTypeOptions: CustomTypeOptions): Promise<Type> {
   let customType = await client.getCustomType(customTypeOptions.key);
-  const ingridCustomField = customType.fieldDefinitions.find(({ name }) => name === customTypeOptions.customFieldName);
+  appLogger.info(`[CUSTOM-TYPE]: Updating custom type ${customType.key}`);
+
+  // const ingridCustomField = customType.fieldDefinitions.find(({ name }) => name === customTypeOptions.customFieldName);
+  const requiredField = customTypeOptions.customField;
+  const requiredFieldNames = requiredField.map((field) => field.name);
+  const missingIngridCustomFields: CustomField[] = [];
+  requiredFieldNames.map((requiredFieldName) => {
+    const matchedIngridCustomField = customType.fieldDefinitions.find(({ name }) => name === requiredFieldName);
+    if (!matchedIngridCustomField) {
+      missingIngridCustomFields.push(requiredField.find((field) => field.name === requiredFieldName)!);
+    }
+  });
+
+  appLogger.info(`[CUSTOM-FIELD NOT FOUND] Missing custom fields : ${JSON.stringify(missingIngridCustomFields)}`);
+
   if (!customType.resourceTypeIds.includes(customTypeOptions.resourceType)) {
     appLogger.info(
       `[CUSTOM-TYPE NOT FOUND]: Custom type with key ${customTypeOptions.key} does not have ${customTypeOptions.resourceType} resource type`,
     );
     customType = await createType(client, customTypeOptions);
   }
-  if (!ingridCustomField) {
+  if (missingIngridCustomFields.length > 0) {
     appLogger.info(
-      `[CUSTOM-TYPE NOT FOUND]: Custom type with key ${customTypeOptions.key} does not have ${customTypeOptions.customFieldName} field`,
+      `[CUSTOM-FIELD NOT FOUND]: Custom type with key ${customTypeOptions.key} does not have required fields ${JSON.stringify(customTypeOptions.customField)}`,
     );
+    customTypeOptions.customField = missingIngridCustomFields;
     customType = await createFieldDefinitionOnType(client, customType, customTypeOptions);
   }
   return customType;
@@ -178,7 +207,7 @@ async function createFieldDefinitionOnType(
   customTypeOptions: CustomTypeOptions,
 ): Promise<Type> {
   appLogger.info(
-    `[CUSTOM-TYPE CONTINUING]: Creating ${customTypeOptions.customFieldName} field on custom type with key ${customTypeOptions.key}`,
+    `[CUSTOM-TYPE CONTINUING]: Creating custom field on custom type with key ${customTypeOptions.key} : ${JSON.stringify(customTypeOptions.customField)}`,
   );
   const updatedCustomType = await client.createIngridCustomFieldDefinitionOnType(customType, customTypeOptions);
 

@@ -65,8 +65,52 @@ describe('actions', () => {
       const result = await handleCustomTypeAction(mockClient, 'dummy-type-key');
 
       expect(result).toBe(mockTypeWithIngridSessionId);
+
       expect(appLogger.info).toHaveBeenCalledWith(
-        expect.stringMatching(/\[CUSTOM-TYPE NOT FOUND\].*does not have ingridSessionId field/),
+        expect.stringMatching(/\[CUSTOM-FIELD NOT FOUND\] Missing custom fields : */),
+      );
+    });
+
+    test('should update existing custom type with existing fieldDefinition and ingridSessionId but ingridExtMethodId field is missing', async () => {
+      const additionalTypeWithIngridSessionId: Type = {
+        ...additionalType,
+        fieldDefinitions: [
+          ...additionalType.fieldDefinitions,
+          {
+            name: 'ingridSessionId',
+            label: { en: 'Ingrid Session ID' },
+            required: true,
+            type: { name: 'String' },
+            inputHint: 'SingleLine',
+          },
+        ],
+      };
+      const mockTypeWithIngridExtMethodId: Type = {
+        ...additionalTypeWithIngridSessionId,
+        fieldDefinitions: [
+          ...additionalTypeWithIngridSessionId.fieldDefinitions,
+          {
+            name: 'ingridExtMethodId',
+            label: { en: 'Ingrid External Method ID' },
+            required: true,
+            type: { name: 'String' },
+            inputHint: 'SingleLine',
+          },
+        ],
+      };
+
+      jest.spyOn(mockClient, 'checkIfCustomTypeExistsByKey').mockResolvedValue(true);
+      jest.spyOn(mockClient, 'getCustomType').mockResolvedValue(additionalType);
+      jest
+        .spyOn(mockClient, 'createIngridCustomFieldDefinitionOnType')
+        .mockResolvedValue(mockTypeWithIngridExtMethodId);
+
+      const result = await handleCustomTypeAction(mockClient, 'dummy-type-key');
+
+      expect(result).toBe(mockTypeWithIngridExtMethodId);
+
+      expect(appLogger.info).toHaveBeenCalledWith(
+        expect.stringMatching(/\[CUSTOM-FIELD NOT FOUND\] Missing custom fields : */),
       );
     });
 
@@ -81,7 +125,7 @@ describe('actions', () => {
 
       expect(result).toBeDefined();
       expect(appLogger.info).toHaveBeenCalledWith(
-        expect.stringMatching(/\[CUSTOM-TYPE NOT FOUND\].*does not have ingridSessionId field/),
+        expect.stringMatching(/\[CUSTOM-FIELD NOT FOUND\] Missing custom fields : */),
       );
     });
 
@@ -149,7 +193,7 @@ describe('actions', () => {
 
       expect(result).toBe(mockTypeWithIngridTransportOrderId);
       expect(appLogger.info).toHaveBeenCalledWith(
-        expect.stringMatching(/\[CUSTOM-TYPE NOT FOUND\].*does not have ingridTransportOrderId field/),
+        expect.stringMatching(/\[CUSTOM-FIELD NOT FOUND\] Missing custom fields : */),
       );
     });
 
@@ -164,7 +208,7 @@ describe('actions', () => {
 
       expect(result).toBeDefined();
       expect(appLogger.info).toHaveBeenCalledWith(
-        expect.stringMatching(/\[CUSTOM-TYPE NOT FOUND\].*does not have ingridTransportOrderId field/),
+        expect.stringMatching(/\[CUSTOM-FIELD NOT FOUND\] Missing custom fields : */),
       );
     });
 

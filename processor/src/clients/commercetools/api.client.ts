@@ -8,6 +8,8 @@ import {
   type Cart,
   type Type,
   type TaxCategory,
+  TypeUpdateAction,
+  FieldDefinition,
 } from '@commercetools/platform-sdk';
 import {
   ClientBuilder,
@@ -17,13 +19,18 @@ import {
 } from '@commercetools/ts-client';
 import type { RequestContextData } from '../../libs/fastify/context';
 
+export type CustomField = {
+  name: string;
+  label: string;
+};
+
 export type CustomTypeOptions = {
   key: string;
   name: string;
   resourceType: string;
-  customFieldName: string;
-  customFieldLabel: string;
+  customField: CustomField[];
 };
+
 /**
  * Client for interacting with the Commercetools API
  *
@@ -83,6 +90,7 @@ export class CommercetoolsApiClient {
       shippingRate: ShippingRateDraft;
       taxCategory: TaxCategoryResourceIdentifier;
     },
+    customFieldPayload: { name: string; value: string },
   ): Promise<Cart> {
     const response = await this.client
       .carts()
@@ -94,6 +102,7 @@ export class CommercetoolsApiClient {
             { action: 'setShippingAddress', address: addresses.shippingAddress },
             { action: 'setBillingAddress', address: addresses.billingAddress },
             { action: 'setCustomShippingMethod', ...customShippingMethodPayload },
+            { action: 'setCustomField', name: customFieldPayload.name, value: customFieldPayload.value },
           ],
         },
       })
@@ -154,6 +163,17 @@ export class CommercetoolsApiClient {
 
   // only called within post-deploy (if custom type does not exist -> will override merchants existing custom type)
   public async createCustomTypeFieldDefinitionForIngrid(customTypeOptions: CustomTypeOptions): Promise<Type> {
+    const fieldDefinitions: FieldDefinition[] = customTypeOptions.customField.map((field) => ({
+      name: field.name,
+      label: {
+        en: field.label,
+      },
+      type: {
+        name: 'String',
+      },
+      required: false,
+    }));
+
     const response = await this.client
       .types()
       .post({
@@ -163,18 +183,7 @@ export class CommercetoolsApiClient {
             en: customTypeOptions.name,
           },
           resourceTypeIds: [customTypeOptions.resourceType],
-          fieldDefinitions: [
-            {
-              name: customTypeOptions.customFieldName,
-              label: {
-                en: customTypeOptions.customFieldLabel,
-              },
-              type: {
-                name: 'String',
-              },
-              required: false,
-            },
-          ],
+          fieldDefinitions,
         },
       })
       .execute();
@@ -196,27 +205,30 @@ export class CommercetoolsApiClient {
     type: Type,
     customTypeOptions: CustomTypeOptions,
   ): Promise<Type> {
+    const actions: TypeUpdateAction[] = [];
+    customTypeOptions.customField.forEach((field) => {
+      actions.push({
+        action: 'addFieldDefinition',
+        fieldDefinition: {
+          name: field.name,
+          label: {
+            en: field.label,
+          },
+          type: {
+            name: 'String',
+          },
+          required: false,
+        },
+      });
+    });
+
     const response = await this.client
       .types()
       .withKey({ key: type.key })
       .post({
         body: {
           version: type.version,
-          actions: [
-            {
-              action: 'addFieldDefinition',
-              fieldDefinition: {
-                name: customTypeOptions.customFieldName,
-                label: {
-                  en: customTypeOptions.customFieldLabel,
-                },
-                type: {
-                  name: 'String',
-                },
-                required: false,
-              },
-            },
-          ],
+          actions,
         },
       })
       .execute();

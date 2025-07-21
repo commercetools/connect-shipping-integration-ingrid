@@ -321,6 +321,10 @@ describe('ingrid-shipping.service', () => {
           shippingRate: expect.any(Object),
           taxCategory: expect.any(Object),
         }),
+        expect.objectContaining({
+          name: expect.any(String),
+          value: expect.any(String),
+        }),
       );
     });
 

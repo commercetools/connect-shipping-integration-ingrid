@@ -30,6 +30,7 @@ export const transformIngridDeliveryGroupsToCommercetoolsDataTypes = (
   billingAddress: BaseAddress;
   deliveryAddress: BaseAddress;
   customShippingMethod: CustomShippingMethod;
+  extMethodId: string;
 } => {
   if (ingridDeliveryGroups.length === 0) {
     throw new CustomError({
@@ -45,12 +46,13 @@ export const transformIngridDeliveryGroupsToCommercetoolsDataTypes = (
       httpErrorStatus: 500,
     });
   }
+
   const ingridDeliveryGroup = ingridDeliveryGroups[0]!;
   const billingAddress = transformIngridAddressToCommercetoolsAddress(ingridDeliveryGroup.addresses.billing_address);
   const deliveryAddress = transformIngridAddressToCommercetoolsAddress(ingridDeliveryGroup.addresses.delivery_address);
   const customShippingMethod = transformIngridDeliveryGroupToCustomShippingMethod(ingridDeliveryGroup);
-
-  return { billingAddress, deliveryAddress, customShippingMethod };
+  const extMethodId = ingridDeliveryGroup.shipping.carrier_product_id;
+  return { billingAddress, deliveryAddress, customShippingMethod, extMethodId };
 };
 
 /**

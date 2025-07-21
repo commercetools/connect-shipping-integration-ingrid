@@ -143,7 +143,7 @@ After depolyment of the Ingrid shipping connector, script is executed in order t
 - Cretae/Update `taxCategory` for shipmennt cost
 
 ### Custom Type for Ingrid
-If merchant has already maintained their own custom type for order resource in commercetools composable commerce, its key can be provided as an environment variable `INGRID_SESSION_CUSTOM_TYPE_KEY` during deployment. The post-deployment script then adds a custom field definition `ingridSessionId` into the specified `customType`. If the key of `customType` is not provided, the post-deploy script create a new `customType` for `order` resource during script execution.
+If merchant has already maintained their own custom type for order resource in commercetools composable commerce, its key can be provided as an environment variable `INGRID_SESSION_CUSTOM_TYPE_KEY` during deployment. The post-deployment script then adds custom field definitions `ingridSessionId` and `ingridExtMethodId` into the specified `customType`. If the key of `customType` is not provided, the post-deploy script create a new `customType` for `order` resource during script execution.
 
 The custom field definition `ingridSessionId` is essential to enable `cart` in commercetools composable commerce to store the Ingrid session ID.
 
