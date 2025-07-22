@@ -17,7 +17,7 @@
     "serve": "14.2.4"
   },
   "devDependencies": {
-    "@commercetools/checkout-browser-sdk": "^0.20.0",
+    "@commercetools/checkout-browser-sdk": "^1.0.0",
     "@commercetools/platform-sdk": "^8.12.1",
     "@commercetools/sdk-client": "^4.0.1",
     "@commercetools/sdk-middleware-auth": "^8.0.1",
