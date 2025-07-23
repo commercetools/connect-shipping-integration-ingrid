@@ -1,89 +1,29 @@
 deployAs:
-  - name: enabler
-    applicationType: assets
-  - name: processor
+  - name: merchant-center-custom-application
+    applicationType: merchant-center-custom-application
+    configuration:
+      standardConfiguration:
+        - key: CUSTOM_APPLICATION_ID
+          description: the mc application id
+          required: true
+          # CLOUD_IDENTIFIER can be in global config
+        - key: CLOUD_IDENTIFIER
+          description: the cloud identifier
+          default: "gcp-eu"
+        - key: ENTRY_POINT_URI_PATH
+          description: The entry point url
+          required: true
+        - key: PROXY_URI
+          description: uri of the service to send the proxy request to
+          required: true
+  - name: proxy
     applicationType: service
-    endpoint: /
-    scripts:
-      postDeploy: npm install && npm run connector:post-deploy
-      preUndeploy: npm install && npm run connector:pre-undeploy
+    endpoint: /proxy
     configuration:
       standardConfiguration:
-        - key: CTP_PROJECT_KEY
-          description: commercetools project key
-          required: true
-        - key: CTP_CLIENT_ID
-          description: commercetools client ID
-          required: true
-        - key: CTP_AUTH_URL
-          description: commercetools Auth URL
-          required: true
-          default: https://auth.europe-west1.gcp.commercetools.com
-        - key: CTP_API_URL
-          description: commercetools API URL
-          required: true
-          default: https://api.europe-west1.gcp.commercetools.com
-        - key: CTP_SESSION_URL
-          description: Session API URL
-          required: true
-          default: https://session.europe-west1.gcp.commercetools.com
-        - key: INGRID_ENVIRONMENT
-          description: Ingrid environment (STAGING or PRODUCTION)
-          required: true
-          default: STAGING
-        - key: INGRID_SESSION_CUSTOM_TYPE_KEY
-          description: Key of CustomType to store ingrid session inside cart
-          required: false
-          default: ingrid-session
-        - key: INGRID_SPECIFIC_TAX_CATEGORY_KEY
-          description: Key of TaxCategory to be used for shipping tax calculation
-          required: false
-          default: ingrid-tax
-        - key: INGRID_SHIPPING_CUSTOM_TYPE_KEY
-          description: Key of CustomType to store transport order ID after order has been created
-          required: false
-          default: ingrid-shipping
+        - key: CLOUD_IDENTIFIER
+          description: Cloud identifier
+          default: gcp-eu
       securedConfiguration:
-        - key: INGRID_API_KEY
-          description: the key used to connect to the Ingrid instance
-          required: true
-        - key: CTP_CLIENT_SECRET
-          description: commercetools client secret
-          required: true
-  - name: event-handler
-    applicationType: event
-    endpoint: /
-    scripts:
-      postDeploy: npm install && npm run connector:post-deploy
-      preUndeploy: npm install && npm run connector:pre-undeploy
-    configuration:
-      standardConfiguration:
-        - key: CTP_PROJECT_KEY
-          description: commercetools project key
-          required: true
-        - key: CTP_CLIENT_ID
-          description: commercetools client ID
-          required: true
-        - key: CTP_AUTH_URL
-          description: commercetools Auth URL
-          required: true
-          default: https://auth.europe-west1.gcp.commercetools.com
-        - key: CTP_API_URL
-          description: commercetools API URL
-          required: true
-          default: https://api.europe-west1.gcp.commercetools.com
-        - key: INGRID_ENVIRONMENT
-          description: Ingrid environment (STAGING or PRODUCTION)
-          required: true
-          default: STAGING
-        - key: INGRID_SHIPPING_CUSTOM_TYPE_KEY
-          description: Key of CustomType to store transport order ID after order has been created
-          required: false
-          default: ingrid-shipping
-      securedConfiguration:
-        - key: INGRID_API_KEY
-          description: the key used to connect to the Ingrid instance
-          required: true
-        - key: CTP_CLIENT_SECRET
-          description: commercetools client secret
-          required: true
+        - key: SECURE
+          description: secret value
