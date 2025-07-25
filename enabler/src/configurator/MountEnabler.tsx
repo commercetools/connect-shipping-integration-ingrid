@@ -10,6 +10,7 @@ import type {
 const ingridElementId = "enablerContainer";
 import { paymentFlow, close } from '@commercetools/checkout-browser-sdk';
 import cartStore from "./stores/cartStore";
+
 const MountEnabler = memo(function MountEnabler() {
   const [showEnabler, setShowEnabler] = useState(false);
   const [showPaymentButton, setShowPaymentButton] = useState(false);
@@ -63,7 +64,7 @@ const MountEnabler = memo(function MountEnabler() {
     });
   }
 
-  const initEnabler = async () => {
+  const initEnabler = async (): Promise<ShippingComponent> => {
  
     const enabler = await import(import.meta.env.VITE_ENABLER_URL)
       .then(({Enabler}) => {
@@ -110,7 +111,7 @@ const MountEnabler = memo(function MountEnabler() {
         if (componentResult) {
           setComponent(componentResult);
           componentResult.mount(ingridElementId);
-          componentResult.init(session.id);
+          componentResult.init();
         }
       };
       mountComponent();
