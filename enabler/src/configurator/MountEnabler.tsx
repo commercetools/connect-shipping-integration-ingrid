@@ -10,6 +10,7 @@ import type {
 const ingridElementId = "enablerContainer";
 import { paymentFlow, close } from '@commercetools/checkout-browser-sdk';
 import cartStore from "./stores/cartStore";
+import shippingComponentStore from "./stores/shippingComponentStore";
 
 const MountEnabler = memo(function MountEnabler() {
   const [showEnabler, setShowEnabler] = useState(false);
@@ -20,7 +21,12 @@ const MountEnabler = memo(function MountEnabler() {
     cocoSessionStore.getSnapshot
   );
 
-  const [component, setComponent] = useState<ShippingComponent | null>(null);
+  const component = useSyncExternalStore(
+    shippingComponentStore.subscribe,
+    shippingComponentStore.getSnapshot
+  );
+
+  // const [component, setComponent] = useState<ShippingComponent | null>(null);
   const showMessage = (message: string) => {
     const resultMessageEle = document.getElementById("result-message")
     if (resultMessageEle)
@@ -65,7 +71,8 @@ const MountEnabler = memo(function MountEnabler() {
   }
 
   const initEnabler = async (): Promise<ShippingComponent> => {
- 
+    console.log(import.meta.env.VITE_ENABLER_URL)
+    console.log(import.meta.env.VITE_PROCESSOR_URL)
     const enabler = await import(import.meta.env.VITE_ENABLER_URL)
       .then(({Enabler}) => {
         const enabler = new Enabler({
@@ -109,7 +116,7 @@ const MountEnabler = memo(function MountEnabler() {
       const mountComponent = async () => {
         const componentResult = await initEnabler();
         if (componentResult) {
-          setComponent(componentResult);
+          // setComponent(componentResult);
           componentResult.mount(ingridElementId);
           componentResult.init();
         }

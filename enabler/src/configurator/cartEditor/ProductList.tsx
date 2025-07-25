@@ -4,6 +4,7 @@ import CountryCurrencyLanguageStore from "../stores/countryCurrencyLanguageStore
 import cartStore from "../stores/cartStore";
 import { PriceComponent } from "./PriceComponent";
 import loadingStore from "../stores/loadingStore";
+import shippingComponentStore from "../stores/shippingComponentStore";
 
 type ProductListProps = {
   products: ProductProjection[];
@@ -19,6 +20,12 @@ export const ProductList = memo(function ProductList({
     loadingStore.subscribe,
     loadingStore.getSnapshot
   );
+
+  const shippingComponent = useSyncExternalStore(
+    shippingComponentStore.subscribe,
+    shippingComponentStore.getSnapshot
+  );
+
   return (
     <ul className="standard-font">
       {products.map((product) => (
@@ -32,6 +39,12 @@ export const ProductList = memo(function ProductList({
                 type: "ADD_ITEM",
                 sku: product.masterVariant.sku || "",
               });
+
+              if (shippingComponent) {
+                console.log("shipping component has been mounted, updating shipping");
+                // shippingComponent.update();
+              }
+              
             }}
           >
             Add to cart

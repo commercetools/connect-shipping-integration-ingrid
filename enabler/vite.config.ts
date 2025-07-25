@@ -41,4 +41,17 @@ export default defineConfig({
       fileName: (format) => `connector-enabler.${format}.js`,
     },
   },
+  server: {
+    cors: {
+      origin: true, // Allow all origins in development
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+    },
+    headers: {
+      'Access-Control-Allow-Origin': 'http://localhost:3000',
+      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    }
+  }
 });
