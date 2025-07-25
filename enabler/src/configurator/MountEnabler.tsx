@@ -116,7 +116,10 @@ const MountEnabler = memo(function MountEnabler() {
       const mountComponent = async () => {
         const componentResult = await initEnabler();
         if (componentResult) {
-          // setComponent(componentResult);
+          shippingComponentStore.dispatch({
+            type: "SET_COMPONENT",
+            payload: componentResult
+          });
           componentResult.mount(ingridElementId);
           componentResult.init();
         }

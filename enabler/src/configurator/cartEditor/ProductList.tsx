@@ -1,5 +1,5 @@
 import type { ProductProjection } from "@commercetools/platform-sdk";
-import { memo, useSyncExternalStore } from "react";
+import { memo, useEffect, useSyncExternalStore } from "react";
 import CountryCurrencyLanguageStore from "../stores/countryCurrencyLanguageStore";
 import cartStore from "../stores/cartStore";
 import { PriceComponent } from "./PriceComponent";
@@ -26,6 +26,14 @@ export const ProductList = memo(function ProductList({
     shippingComponentStore.getSnapshot
   );
 
+  useEffect(() => {
+    if (shippingComponent) {
+      // Component is now available, you can use it here
+      console.log('Shipping component is ready');
+    }
+  }, [shippingComponent]);
+
+
   return (
     <ul className="standard-font">
       {products.map((product) => (
@@ -39,10 +47,10 @@ export const ProductList = memo(function ProductList({
                 type: "ADD_ITEM",
                 sku: product.masterVariant.sku || "",
               });
-
+              console.log("shipping component has been mounted");
               if (shippingComponent) {
-                console.log("shipping component has been mounted, updating shipping");
-                // shippingComponent.update();
+                console.log("shipping component has been mounted, updating cart to ingrid shipping component");
+                shippingComponent.update();
               }
               
             }}
