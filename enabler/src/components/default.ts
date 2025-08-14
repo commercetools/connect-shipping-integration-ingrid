@@ -38,9 +38,9 @@ export class DefaultComponent implements ShippingComponent {
     this.clientDOMElementId = elementId;
   }
 
-  async init(voucherCode?: string) {
+  async init(voucherCode?: string[]) {
     try {
-      const requestBody: { voucherCode?: string } = {}
+      const requestBody: { voucherCode?: string[] } = {}
       if (voucherCode) {
         requestBody.voucherCode = voucherCode;
       }
@@ -108,7 +108,6 @@ export class DefaultComponent implements ShippingComponent {
       const response = await fetch(this.processorUrl + "/sessions/update", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           "X-Session-Id": this.sessionId,
         },
       });

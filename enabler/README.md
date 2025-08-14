@@ -64,7 +64,7 @@ enablerComponent.mount(elementIdForIngridWidget);
 To trigger Ingrid delivery session initialization
 
 ```typescript
-enablerComponent.init(session.id); // pass commercetools checkout session ID
+enablerComponent.init(); 
 ```
 
 Currently the connector synchronizesthe latest delivery options from Ingrid to commercetools composable commerce at the moment user interacts with Ingrid widget. Enabler component triggers update function when Ingrid events are captured in client side. For details of Ingrid event capture, please refer to the [guide of Ingrid frontend integration](https://developer.ingrid.com/delivery_checkout/frontend_integration/index.html).

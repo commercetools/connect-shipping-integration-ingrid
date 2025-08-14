@@ -23,7 +23,6 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
     '/sessions/init',
     {
       preHandler: [opts.sessionHeaderAuthenticationHook.authenticate()],
-
       schema: {
         body: InitSessionRequestSchema,
         response: {
@@ -33,7 +32,6 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
     },
 
     async (request, reply) => {
-      console.log(request.body);
       const voucherCode = request.body?.voucherCode;
       const { data } = await opts.shippingService.init(voucherCode);
       return reply.status(200).send(data);

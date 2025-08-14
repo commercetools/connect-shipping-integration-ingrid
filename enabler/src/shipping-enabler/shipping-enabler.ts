@@ -45,7 +45,7 @@ export interface ShippingComponent {
   /**
    * init the shipping.
    */
-  init(voucherCode?: string): void;
+  init(voucherCode?: string[]): void;
 
   /**
    * update the shipping.

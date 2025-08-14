@@ -18,7 +18,7 @@ import type {
  */
 export const transformCommercetoolsCartToIngridPayload = (
   ctCart: Cart,
-  voucherCode?: string,
+  voucherCode?: string[],
 ): IngridCreateSessionRequestPayload => {
   if (ctCart.lineItems.length === 0) {
     throw new CustomError({
@@ -68,7 +68,7 @@ export const transformCommercetoolsCartToIngridPayload = (
  *
  * @returns {IngridCart} ingrid cart
  */
-const transformCommercetoolsCartToIngridCart = (ctCart: Cart, voucherCode?: string): IngridCart => {
+const transformCommercetoolsCartToIngridCart = (ctCart: Cart, voucherCode?: string[]): IngridCart => {
   const totalLineItemsDiscount = calculateTotalLineItemsDiscount(ctCart.lineItems);
 
   // on current items, discountOnTotalPrice is undefined
@@ -82,9 +82,11 @@ const transformCommercetoolsCartToIngridCart = (ctCart: Cart, voucherCode?: stri
     items: lineItems,
     cart_id: ctCart.id,
   };
-  if (voucherCode) {
-    ingridCart.vouchers = [voucherCode];
+  console.log(voucherCode);
+  if (voucherCode && voucherCode.length > 0) {
+    ingridCart.vouchers = voucherCode;
   }
+  console.log(ingridCart);
   return ingridCart;
 };
 

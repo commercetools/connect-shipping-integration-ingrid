@@ -3,7 +3,7 @@ import { type Static, Type } from '@sinclair/typebox';
 /* Session Request Schemas */
 export const InitSessionRequestSchema = Type.Union([
   Type.Object({
-    voucherCode: Type.Optional(Type.String()),
+    voucherCode: Type.Optional(Type.Array(Type.String())),
   }),
   Type.Null(),
 ]);

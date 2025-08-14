@@ -110,8 +110,12 @@ const MountEnabler = memo(function MountEnabler() {
         const ingridVoucherCode = (document.getElementById("ingrid-voucher-input") as HTMLInputElement | null)?.value;
         if (componentResult) {
           setComponent(componentResult);
+          const voucherCodes: string[] = [];
+          if (ingridVoucherCode) {
+            voucherCodes.push(ingridVoucherCode);
+          }
           componentResult.mount(ingridElementId);
-          componentResult.init(ingridVoucherCode);
+          componentResult.init(voucherCodes);
         }
       };
       mountComponent();
