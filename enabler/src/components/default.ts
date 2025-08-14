@@ -39,15 +39,20 @@ export class DefaultComponent implements ShippingComponent {
   }
 
   async init(voucherCode?: string) {
+    console.log('init')
     try {
+      const requestBody: { voucherCode?: string } = {}
+      if (voucherCode) {
+        requestBody.voucherCode = voucherCode;
+      }
+      console.log("init requestBody", requestBody);
       const response = await fetch(this.processorUrl + "/sessions/init", {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           "X-Session-Id": this.sessionId,
         },
-        body: JSON.stringify({
-          voucherCode,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       const data = await response.json();

@@ -1,14 +1,15 @@
 import type { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import {
+  // InitSessionRequestSchema,
   InitSessionResponseSchema,
   type InitSessionResponseSchemaDTO,
   type InitSessionRequestSchemaDTO,
   UpdateSessionResponseSchema,
   type UpdateSessionResponseSchemaDTO,
+  InitSessionRequestSchema,
 } from '../dtos/ingrid-shipping.dto';
 import { IngridShippingService } from '../services/ingrid-shipping.service';
 import { SessionHeaderAuthenticationHook } from '../libs/auth/hooks';
-import { Type } from '@sinclair/typebox';
 
 type ShippingRoutesOptions = {
   shippingService: IngridShippingService;
@@ -25,12 +26,7 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
       preHandler: [opts.sessionHeaderAuthenticationHook.authenticate()],
 
       schema: {
-        body: {
-          type: 'object',
-          properties: {
-            voucherCode: Type.String(),
-          },
-        },
+        body: InitSessionRequestSchema,
         response: {
           200: InitSessionResponseSchema,
         },
@@ -38,6 +34,7 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
     },
 
     async (request, reply) => {
+      console.log(request.body);
       const voucherCode = request.body?.voucherCode;
       const { data } = await opts.shippingService.init(voucherCode);
       return reply.status(200).send(data);

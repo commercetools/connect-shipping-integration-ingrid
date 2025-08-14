@@ -56,7 +56,7 @@ export class IngridShippingService extends AbstractShippingService {
       customType.id,
     );
 
-    appLogger.info(`[SUCCESS]: Ingrid session with ID ${ingridSessionId} initiated.`);
+    appLogger.info(`[SUCCESS]: Ingrid session with ID ${ingridCheckoutSession.session.checkout_session_id} initiated.`);
 
     return {
       data: {
