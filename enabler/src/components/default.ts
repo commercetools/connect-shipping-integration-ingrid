@@ -38,13 +38,18 @@ export class DefaultComponent implements ShippingComponent {
     this.clientDOMElementId = elementId;
   }
 
-  async init() {
+  async init(voucherCode?: string) {
+    console.log(`voucherCode`);
+    console.log(voucherCode);
     try {
       const response = await fetch(this.processorUrl + "/sessions/init", {
         method: "POST",
         headers: {
           "X-Session-Id": this.sessionId,
         },
+        body: JSON.stringify({
+          voucherCode,
+        }),
       });
 
       const data = await response.json();
@@ -95,13 +100,16 @@ export class DefaultComponent implements ShippingComponent {
     }
   }
 
-  async update() {
+  async update(voucherCode?: string) {
     try {
       const response = await fetch(this.processorUrl + "/sessions/update", {
         method: "POST",
         headers: {
           "X-Session-Id": this.sessionId,
         },
+        body : JSON.stringify({ 
+          voucherCode,
+        }),
       });
       const data = await response.json();
       if (!data.success) {

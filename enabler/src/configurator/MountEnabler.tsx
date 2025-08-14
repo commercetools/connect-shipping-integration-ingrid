@@ -107,10 +107,11 @@ const MountEnabler = memo(function MountEnabler() {
     if (showEnabler && session) {
       const mountComponent = async () => {
         const componentResult = await initEnabler();
+        const ingridVoucherCode = (document.getElementById("ingrid-voucher-input") as HTMLInputElement | null)?.value;
         if (componentResult) {
           setComponent(componentResult);
           componentResult.mount(ingridElementId);
-          componentResult.init(session.id);
+          componentResult.init(ingridVoucherCode);
         }
       };
       mountComponent();
