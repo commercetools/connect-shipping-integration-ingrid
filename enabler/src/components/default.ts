@@ -44,7 +44,6 @@ export class DefaultComponent implements ShippingComponent {
       if (voucherCode) {
         requestBody.voucherCode = voucherCode;
       }
-      console.log("init requestBody", requestBody);
       const response = await fetch(this.processorUrl + "/sessions/init", {
         method: "POST",
         headers: {

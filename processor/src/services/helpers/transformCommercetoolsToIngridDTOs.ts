@@ -82,11 +82,9 @@ const transformCommercetoolsCartToIngridCart = (ctCart: Cart, voucherCode?: stri
     items: lineItems,
     cart_id: ctCart.id,
   };
-  console.log(voucherCode);
   if (voucherCode && voucherCode.length > 0) {
     ingridCart.vouchers = voucherCode;
   }
-  console.log(ingridCart);
   return ingridCart;
 };
 
