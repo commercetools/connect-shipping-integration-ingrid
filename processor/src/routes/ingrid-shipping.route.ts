@@ -1,12 +1,11 @@
 import type { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import {
-  // InitSessionRequestSchema,
+  InitSessionRequestSchema,
   InitSessionResponseSchema,
   type InitSessionResponseSchemaDTO,
   type InitSessionRequestSchemaDTO,
   UpdateSessionResponseSchema,
   type UpdateSessionResponseSchemaDTO,
-  InitSessionRequestSchema,
 } from '../dtos/ingrid-shipping.dto';
 import { IngridShippingService } from '../services/ingrid-shipping.service';
 import { SessionHeaderAuthenticationHook } from '../libs/auth/hooks';

@@ -50,7 +50,7 @@ export interface ShippingComponent {
   /**
    * update the shipping.
    */
-  update(voucherCode?: string): void;
+  update(): void;
 }
 
 /**

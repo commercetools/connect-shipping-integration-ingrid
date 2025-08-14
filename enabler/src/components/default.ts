@@ -39,7 +39,6 @@ export class DefaultComponent implements ShippingComponent {
   }
 
   async init(voucherCode?: string) {
-    console.log('init')
     try {
       const requestBody: { voucherCode?: string } = {}
       if (voucherCode) {
@@ -103,16 +102,15 @@ export class DefaultComponent implements ShippingComponent {
     }
   }
 
-  async update(voucherCode?: string) {
+  async update() {
     try {
+ 
       const response = await fetch(this.processorUrl + "/sessions/update", {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           "X-Session-Id": this.sessionId,
         },
-        body : JSON.stringify({ 
-          voucherCode,
-        }),
       });
       const data = await response.json();
       if (!data.success) {

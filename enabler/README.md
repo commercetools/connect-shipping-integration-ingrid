@@ -99,8 +99,7 @@ async init() {
 Alternatively, it is supported to synchronize the latest delivery options from Ingrid to commercetools composable commerce from checkout page actions
 
 ```typescript
-enablerComponent.update(session.id); // pass commercetools checkout session ID
-```
+enablerComponent.update(); 
 
 ## Getting Started
 
