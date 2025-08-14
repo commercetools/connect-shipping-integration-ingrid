@@ -297,6 +297,7 @@ export type IngridCart = {
   items: IngridCartItem[];
   cart_id: string;
   groups?: unknown[];
+  vouchers?: string[];
 };
 
 /**

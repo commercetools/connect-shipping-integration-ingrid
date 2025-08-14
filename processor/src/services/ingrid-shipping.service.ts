@@ -26,7 +26,8 @@ export class IngridShippingService extends AbstractShippingService {
    *
    * @returns {Promise<InitSessionResponse>} Returns the commercetools cart id, Ingrid session id and Ingrid checkout session html snippet
    */
-  public async init(): Promise<InitSessionResponse> {
+  public async init(voucherCode?: string): Promise<InitSessionResponse> {
+    appLogger.info(`init Ingrid session with voucherCode: ${voucherCode}`);
     const ingridSessionCustomTypeKey = getConfig().keyOfIngridSessionCustomType;
     const customType = await this.commercetoolsClient.getCustomType(ingridSessionCustomTypeKey);
 
@@ -43,7 +44,7 @@ export class IngridShippingService extends AbstractShippingService {
 
     const ctCart = await this.commercetoolsClient.getCartById(getCartIdFromContext());
     const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
-    const ingridCheckoutPayload = transformCommercetoolsCartToIngridPayload(ctCart);
+    const ingridCheckoutPayload = transformCommercetoolsCartToIngridPayload(ctCart, voucherCode);
 
     const ingridCheckoutSession = ingridSessionId
       ? await this.ingridClient.getCheckoutSession(ingridSessionId)

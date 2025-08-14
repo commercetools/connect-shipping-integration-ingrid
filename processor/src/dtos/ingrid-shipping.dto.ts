@@ -1,9 +1,9 @@
 import { type Static, Type } from '@sinclair/typebox';
 
 /* Session Request Schemas */
-export const sessionRequestSchema = Type.Union([
+export const InitSessionRequestSchema = Type.Union([
   Type.Object({
-    sessionId: Type.Optional(Type.String()),
+    voucherCode: Type.Optional(Type.String()),
   }),
   Type.Null(),
 ]);
@@ -27,8 +27,8 @@ const UpdateSessionSuccessResponseSchema = Type.Object({
 
 export const UpdateSessionResponseSchema = Type.Union([UpdateSessionSuccessResponseSchema]);
 
-/* Session Request DTOs */
-export type sessionRequestSchemaDTO = Static<typeof sessionRequestSchema>;
+/* Init Session Request DTOs */
+export type InitSessionRequestSchemaDTO = Static<typeof InitSessionRequestSchema>;
 
 /* Init Session DTOs */
 export type InitSessionSuccessResponseSchemaDTO = Static<typeof InitSessionSuccessResponseSchema>;

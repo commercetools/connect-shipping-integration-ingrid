@@ -16,7 +16,10 @@ import type {
  *
  * @throws {CustomError} When cart is empty
  */
-export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridCreateSessionRequestPayload => {
+export const transformCommercetoolsCartToIngridPayload = (
+  ctCart: Cart,
+  voucherCode?: string,
+): IngridCreateSessionRequestPayload => {
   if (ctCart.lineItems.length === 0) {
     throw new CustomError({
       message: 'Cart is empty',
@@ -25,7 +28,7 @@ export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridC
     });
   }
 
-  const transformedCart = transformCommercetoolsCartToIngridCart(ctCart);
+  const transformedCart = transformCommercetoolsCartToIngridCart(ctCart, voucherCode);
 
   const payload: IngridCreateSessionRequestPayload = {
     cart: transformedCart,
@@ -54,6 +57,7 @@ export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridC
 
     payload.prefill_delivery_address = deliveryAddress;
   }
+
   return payload;
 };
 
@@ -64,7 +68,7 @@ export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridC
  *
  * @returns {IngridCart} ingrid cart
  */
-const transformCommercetoolsCartToIngridCart = (ctCart: Cart): IngridCart => {
+const transformCommercetoolsCartToIngridCart = (ctCart: Cart, voucherCode?: string): IngridCart => {
   const totalLineItemsDiscount = calculateTotalLineItemsDiscount(ctCart.lineItems);
 
   // on current items, discountOnTotalPrice is undefined
@@ -72,12 +76,16 @@ const transformCommercetoolsCartToIngridCart = (ctCart: Cart): IngridCart => {
 
   const lineItems = transformCommercetoolsLineItemsToIngridCartItems(ctCart.lineItems, ctCart.locale!);
 
-  return {
+  const ingridCart: IngridCart = {
     total_value: ctCart.taxedPrice?.totalGross.centAmount ?? ctCart.totalPrice.centAmount, // use "taxedPrice.totalGross" because Ingrid accepts tax inclusive price.
     total_discount: totalDiscount,
     items: lineItems,
     cart_id: ctCart.id,
   };
+  if (voucherCode) {
+    ingridCart.vouchers = [voucherCode];
+  }
+  return ingridCart;
 };
 
 /**

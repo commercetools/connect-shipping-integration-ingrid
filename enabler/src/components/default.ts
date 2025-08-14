@@ -39,8 +39,6 @@ export class DefaultComponent implements ShippingComponent {
   }
 
   async init(voucherCode?: string) {
-    console.log(`voucherCode`);
-    console.log(voucherCode);
     try {
       const response = await fetch(this.processorUrl + "/sessions/init", {
         method: "POST",
