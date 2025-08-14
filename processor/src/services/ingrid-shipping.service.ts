@@ -43,12 +43,10 @@ export class IngridShippingService extends AbstractShippingService {
     }
 
     const ctCart = await this.commercetoolsClient.getCartById(getCartIdFromContext());
-    const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
+    // const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
     const ingridCheckoutPayload = transformCommercetoolsCartToIngridPayload(ctCart, voucherCode);
 
-    const ingridCheckoutSession = ingridSessionId
-      ? await this.ingridClient.getCheckoutSession(ingridSessionId)
-      : await this.ingridClient.createCheckoutSession(ingridCheckoutPayload);
+    const ingridCheckoutSession = await this.ingridClient.createCheckoutSession(ingridCheckoutPayload);
 
     const updatedCart = await this.updateCartWithIngridSessionId(
       ctCart,
@@ -76,7 +74,7 @@ export class IngridShippingService extends AbstractShippingService {
    *
    * @returns {Promise<UpdateSessionResponse>} Returns the commercetools cart id and Ingrid session id
    */
-  public async update(): Promise<UpdateSessionResponse> {
+  public async update(voucherCode?: string[]): Promise<UpdateSessionResponse> {
     const ingridTaxCategoryKey = getConfig().taxCategoryKey;
 
     // get commercetools cart
@@ -157,7 +155,7 @@ export class IngridShippingService extends AbstractShippingService {
     if (ingridTotalValue !== commercetoolsTotalTaxedValue) {
       // we assume that the updated cart now has taxed prices
       const updatedIngridCheckoutSessionPayload: IngridUpdateSessionRequestPayload = {
-        ...transformCommercetoolsCartToIngridPayload(updatedCart),
+        ...transformCommercetoolsCartToIngridPayload(updatedCart, voucherCode),
         checkout_session_id: ingridSessionId,
       };
 

@@ -70,7 +70,6 @@ const MountEnabler = memo(function MountEnabler() {
         const enabler = new Enabler({
           processorUrl: import.meta.env.VITE_PROCESSOR_URL,
           sessionId: session?.id,
-    
           onInitCompleted: (result: ShippingInitResult) => {
             console.log("onInitCompleted", { result });
             if (result.isSuccess) {

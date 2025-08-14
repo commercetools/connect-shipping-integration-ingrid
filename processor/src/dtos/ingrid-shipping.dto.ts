@@ -8,6 +8,13 @@ export const InitSessionRequestSchema = Type.Union([
   Type.Null(),
 ]);
 
+export const UpdateSessionRequestSchema = Type.Union([
+  Type.Object({
+    voucherCode: Type.Optional(Type.Array(Type.String())),
+  }),
+  Type.Null(),
+]);
+
 /* Init Session Schemas */
 const InitSessionSuccessResponseSchema = Type.Object({
   success: Type.Boolean(),
@@ -33,6 +40,9 @@ export type InitSessionRequestSchemaDTO = Static<typeof InitSessionRequestSchema
 /* Init Session DTOs */
 export type InitSessionSuccessResponseSchemaDTO = Static<typeof InitSessionSuccessResponseSchema>;
 export type InitSessionResponseSchemaDTO = Static<typeof InitSessionResponseSchema>;
+
+/* Update Session Request DTOs */
+export type UpdateSessionRequestSchemaDTO = Static<typeof UpdateSessionRequestSchema>;
 
 /* Update Session DTOs */
 export type UpdateSessionSuccessResponseSchemaDTO = Static<typeof UpdateSessionSuccessResponseSchema>;
