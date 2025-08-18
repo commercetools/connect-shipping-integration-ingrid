@@ -161,6 +161,9 @@ flowchart TD
 4. The `eventHandler` sends request with the the Ingrid session ID to Ingrid platform to complete the delivery session.
 5. The `eventHandler` change the shipment state inside the cart to either `ready` or `canceled` based on the result of delivery session completion.
 
+## Important Notes
+- The connector supports Ingrid voucher codes input. If voucher codes are inputted or modified in the merchant checkout page after Ingrid shipping component has been rendered, it is necessary to reinvoke init() provided by the Enabler. For details about Enabler functions, please read [Usage](./enabler/README.md#usage)
+
 ## Prerequisite
 
 #### 1. commercetools composable commerce API client
