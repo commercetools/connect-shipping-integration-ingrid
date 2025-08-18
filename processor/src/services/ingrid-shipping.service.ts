@@ -96,8 +96,6 @@ export class IngridShippingService extends AbstractShippingService {
         checkout_session_id: ingridCheckoutSession.session.checkout_session_id,
       };
       ingridCheckoutSession = await this.ingridClient.updateCheckoutSession(updatedIngridCheckoutSessionPayload);
-      console.log('Ingrid session updated with existing voucher codes');
-      console.log(ingridCheckoutSession.session.cart.vouchers);
     }
 
     return ingridCheckoutSession;

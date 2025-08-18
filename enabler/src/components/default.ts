@@ -102,7 +102,6 @@ export class DefaultComponent implements ShippingComponent {
 
   async update(voucherCodes? : string[]) {
     try {
-      console.log("Updating shipping options with voucher code:", voucherCodes);
       const response = await fetch(this.processorUrl + "/sessions/update", {
         method: "POST",
         headers: {
