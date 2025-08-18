@@ -45,12 +45,12 @@ export interface ShippingComponent {
   /**
    * init the shipping.
    */
-  init(sessionId: string): void;
+  init(voucherCodes?: string[]): void;
 
   /**
    * update the shipping.
    */
-  update(): void;
+  update(voucherCodes?: string[]): void;
 }
 
 /**

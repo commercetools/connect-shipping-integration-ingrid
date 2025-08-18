@@ -64,13 +64,13 @@ enablerComponent.mount(elementIdForIngridWidget);
 To trigger Ingrid delivery session initialization
 
 ```typescript
-enablerComponent.init(session.id); // pass commercetools checkout session ID
+enablerComponent.init(voucherCodes); 
 ```
 
 Currently the connector synchronizesthe latest delivery options from Ingrid to commercetools composable commerce at the moment user interacts with Ingrid widget. Enabler component triggers update function when Ingrid events are captured in client side. For details of Ingrid event capture, please refer to the [guide of Ingrid frontend integration](https://developer.ingrid.com/delivery_checkout/frontend_integration/index.html).
 
 ```typescript
-async init() {
+async init(voucherCodes: string[]) {
 
     // Trigger Ingrid delivery session initialization
     ...
@@ -81,14 +81,14 @@ async init() {
             if(!(meta as DataChangedMeta).initial_load) {
               console.log("data_changed: data", data);
               console.log("data_changed: meta", meta);
-              this.update();
+              this.update(voucherCodes);
             }
         });
         api.on("summary_changed", (data, meta) => {
             if((meta as SummaryChangedMeta).delivery_address_changed) {
               console.log("summary_changed: data", data);
               console.log("summary_changed: meta", meta);
-              this.update();
+              this.update(voucherCodes);
             }
         });
 
@@ -99,8 +99,7 @@ async init() {
 Alternatively, it is supported to synchronize the latest delivery options from Ingrid to commercetools composable commerce from checkout page actions
 
 ```typescript
-enablerComponent.update(session.id); // pass commercetools checkout session ID
-```
+enablerComponent.update(); 
 
 ## Getting Started
 

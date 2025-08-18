@@ -38,13 +38,19 @@ export class DefaultComponent implements ShippingComponent {
     this.clientDOMElementId = elementId;
   }
 
-  async init() {
+  async init(voucherCodes?: string[]) {
     try {
+      const requestBody: { voucherCodes?: string[] } = {}
+      if (voucherCodes) {
+        requestBody.voucherCodes = voucherCodes;
+      }
       const response = await fetch(this.processorUrl + "/sessions/init", {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           "X-Session-Id": this.sessionId,
         },
+        body: JSON.stringify(requestBody),
       });
 
       const data = await response.json();
@@ -55,9 +61,8 @@ export class DefaultComponent implements ShippingComponent {
       const clientElement = document.querySelector(
         `#${this.clientDOMElementId}`
       );
-
+     
       if (data.success && clientElement) {
-        
         clientElement.insertAdjacentHTML("afterbegin", data.ingridHtml);
         replaceScriptNode(clientElement);
 
@@ -67,14 +72,14 @@ export class DefaultComponent implements ShippingComponent {
             if(!(meta as DataChangedMeta).initial_load) {
               console.log("data_changed: data", data);
               console.log("data_changed: meta", meta);
-              this.update();
+              this.update(voucherCodes);
             }
           });
           api.on("summary_changed", (data, meta) => {
             if((meta as SummaryChangedMeta).delivery_address_changed) {
               console.log("summary_changed: data", data);
               console.log("summary_changed: meta", meta);
-              this.update();
+              this.update(voucherCodes);
             }
           });
 
@@ -95,13 +100,15 @@ export class DefaultComponent implements ShippingComponent {
     }
   }
 
-  async update() {
+  async update(voucherCodes? : string[]) {
     try {
       const response = await fetch(this.processorUrl + "/sessions/update", {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           "X-Session-Id": this.sessionId,
         },
+        body: JSON.stringify({ voucherCodes }),
       });
       const data = await response.json();
       if (!data.success) {

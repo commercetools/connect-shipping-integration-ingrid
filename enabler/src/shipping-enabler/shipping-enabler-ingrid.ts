@@ -26,20 +26,6 @@ export class IngridShippingEnabler implements ShippingEnabler {
   private static _Setup = async (
     options: EnablerOptions
   ): Promise<{ baseOptions: BaseOptions }> => {
-    // Fetch SDK config from processor if needed, for example:
-
-    // const configResponse = await fetch(instance.processorUrl + '/config', {
-    //   method: 'GET',
-    //   headers: { 'Content-Type': 'application/json', 'X-Session-Id': options.sessionId },
-    // });
-
-    // const configJson = await configResponse.json();
-
-    // const sdkOptions = {
-    //   // environment: configJson.environment,
-    //   environment: "test",
-    // };
-
     return Promise.resolve({
       baseOptions: {
         processorUrl: options.processorUrl,

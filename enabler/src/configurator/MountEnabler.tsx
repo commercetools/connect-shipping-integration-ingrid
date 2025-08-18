@@ -70,7 +70,6 @@ const MountEnabler = memo(function MountEnabler() {
         const enabler = new Enabler({
           processorUrl: import.meta.env.VITE_PROCESSOR_URL,
           sessionId: session?.id,
-    
           onInitCompleted: (result: ShippingInitResult) => {
             console.log("onInitCompleted", { result });
             if (result.isSuccess) {
@@ -107,10 +106,15 @@ const MountEnabler = memo(function MountEnabler() {
     if (showEnabler && session) {
       const mountComponent = async () => {
         const componentResult = await initEnabler();
+        const ingridVoucherCode = (document.getElementById("ingrid-voucher-input") as HTMLInputElement | null)?.value;
         if (componentResult) {
           setComponent(componentResult);
+          const voucherCodes: string[] = [];
+          if (ingridVoucherCode) {
+            voucherCodes.push(ingridVoucherCode);
+          }
           componentResult.mount(ingridElementId);
-          componentResult.init(session.id);
+          componentResult.init(voucherCodes);
         }
       };
       mountComponent();

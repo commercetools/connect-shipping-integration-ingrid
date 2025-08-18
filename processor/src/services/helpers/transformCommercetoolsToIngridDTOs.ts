@@ -16,7 +16,10 @@ import type {
  *
  * @throws {CustomError} When cart is empty
  */
-export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridCreateSessionRequestPayload => {
+export const transformCommercetoolsCartToIngridPayload = (
+  ctCart: Cart,
+  voucherCodes?: string[],
+): IngridCreateSessionRequestPayload => {
   if (ctCart.lineItems.length === 0) {
     throw new CustomError({
       message: 'Cart is empty',
@@ -25,7 +28,8 @@ export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridC
     });
   }
 
-  const transformedCart = transformCommercetoolsCartToIngridCart(ctCart);
+  const transformedCart = transformCommercetoolsCartToIngridCart(ctCart, voucherCodes);
+
   const payload: IngridCreateSessionRequestPayload = {
     cart: transformedCart,
     locales: [ctCart.locale!],
@@ -53,6 +57,7 @@ export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridC
 
     payload.prefill_delivery_address = deliveryAddress;
   }
+
   return payload;
 };
 
@@ -63,19 +68,23 @@ export const transformCommercetoolsCartToIngridPayload = (ctCart: Cart): IngridC
  *
  * @returns {IngridCart} ingrid cart
  */
-const transformCommercetoolsCartToIngridCart = (ctCart: Cart): IngridCart => {
+const transformCommercetoolsCartToIngridCart = (ctCart: Cart, voucherCodes?: string[]): IngridCart => {
   const totalLineItemsDiscount = calculateTotalLineItemsDiscount(ctCart.lineItems);
 
   // on current items, discountOnTotalPrice is undefined
   const totalDiscount = (ctCart.discountOnTotalPrice?.discountedAmount.centAmount ?? 0) + totalLineItemsDiscount;
 
   const lineItems = transformCommercetoolsLineItemsToIngridCartItems(ctCart.lineItems, ctCart.locale!);
-  return {
+  const ingridCart: IngridCart = {
     total_value: deductShippingCostFromCartTotalPrice(ctCart),
     total_discount: totalDiscount,
     items: lineItems,
     cart_id: ctCart.id,
   };
+  if (voucherCodes && voucherCodes.length > 0) {
+    ingridCart.vouchers = voucherCodes;
+  }
+  return ingridCart;
 };
 
 const deductShippingCostFromCartTotalPrice = (ctCart: Cart): number => {

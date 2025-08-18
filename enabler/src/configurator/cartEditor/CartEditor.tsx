@@ -77,9 +77,19 @@ function CartEditor() {
                   }
                 }
               >
-              Apply direct discount %
+              Apply direct discount % in decimal format (1000 represents 10.00% discount). 
               </button>
               <input type="text" id="direct-discount-input" />
+  
+              <br/><br/>
+            </div>
+          )}
+          {cart && (
+            <div> 
+              <br/>
+              Ingrid Voucher Code
+              <br/>
+              <input id="ingrid-voucher-input" type="text"  />
               <br/><br/>
             </div>
           )}

@@ -1,8 +1,12 @@
 import type { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import {
+  InitSessionRequestSchema,
   InitSessionResponseSchema,
   type InitSessionResponseSchemaDTO,
+  type InitSessionRequestSchemaDTO,
+  UpdateSessionRequestSchema,
   UpdateSessionResponseSchema,
+  type UpdateSessionRequestSchemaDTO,
   type UpdateSessionResponseSchemaDTO,
 } from '../dtos/ingrid-shipping.dto';
 import { IngridShippingService } from '../services/ingrid-shipping.service';
@@ -15,39 +19,45 @@ type ShippingRoutesOptions = {
 
 export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPluginOptions & ShippingRoutesOptions) => {
   fastify.post<{
+    Body: InitSessionRequestSchemaDTO;
     Reply: InitSessionResponseSchemaDTO;
   }>(
     '/sessions/init',
     {
       preHandler: [opts.sessionHeaderAuthenticationHook.authenticate()],
       schema: {
+        body: InitSessionRequestSchema,
         response: {
           200: InitSessionResponseSchema,
         },
       },
     },
 
-    async (_, reply) => {
-      const { data } = await opts.shippingService.init();
+    async (request, reply) => {
+      const voucherCodes = request.body?.voucherCodes;
+      const { data } = await opts.shippingService.init(voucherCodes);
       return reply.status(200).send(data);
     },
   );
 
   fastify.post<{
+    Body: UpdateSessionRequestSchemaDTO;
     Reply: UpdateSessionResponseSchemaDTO;
   }>(
     '/sessions/update',
     {
       preHandler: [opts.sessionHeaderAuthenticationHook.authenticate()],
       schema: {
+        body: UpdateSessionRequestSchema,
         response: {
           200: UpdateSessionResponseSchema,
         },
       },
     },
 
-    async (_, reply) => {
-      const { data } = await opts.shippingService.update();
+    async (request, reply) => {
+      const voucherCodes = request.body?.voucherCodes;
+      const { data } = await opts.shippingService.update(voucherCodes);
       return reply.status(200).send(data);
     },
   );
