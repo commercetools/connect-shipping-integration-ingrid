@@ -38,11 +38,11 @@ export class DefaultComponent implements ShippingComponent {
     this.clientDOMElementId = elementId;
   }
 
-  async init(voucherCode?: string[]) {
+  async init(voucherCodes?: string[]) {
     try {
-      const requestBody: { voucherCode?: string[] } = {}
-      if (voucherCode) {
-        requestBody.voucherCode = voucherCode;
+      const requestBody: { voucherCodes?: string[] } = {}
+      if (voucherCodes) {
+        requestBody.voucherCodes = voucherCodes;
       }
       const response = await fetch(this.processorUrl + "/sessions/init", {
         method: "POST",
@@ -72,14 +72,14 @@ export class DefaultComponent implements ShippingComponent {
             if(!(meta as DataChangedMeta).initial_load) {
               console.log("data_changed: data", data);
               console.log("data_changed: meta", meta);
-              this.update(voucherCode);
+              this.update(voucherCodes);
             }
           });
           api.on("summary_changed", (data, meta) => {
             if((meta as SummaryChangedMeta).delivery_address_changed) {
               console.log("summary_changed: data", data);
               console.log("summary_changed: meta", meta);
-              this.update(voucherCode);
+              this.update(voucherCodes);
             }
           });
 
@@ -100,16 +100,16 @@ export class DefaultComponent implements ShippingComponent {
     }
   }
 
-  async update(voucherCode? : string[]) {
+  async update(voucherCodes? : string[]) {
     try {
-      console.log("Updating shipping options with voucher code:", voucherCode);
+      console.log("Updating shipping options with voucher code:", voucherCodes);
       const response = await fetch(this.processorUrl + "/sessions/update", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-Session-Id": this.sessionId,
         },
-        body: JSON.stringify({ voucherCode }),
+        body: JSON.stringify({ voucherCodes }),
       });
       const data = await response.json();
       if (!data.success) {

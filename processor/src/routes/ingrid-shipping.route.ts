@@ -34,8 +34,8 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
     },
 
     async (request, reply) => {
-      const voucherCode = request.body?.voucherCode;
-      const { data } = await opts.shippingService.init(voucherCode);
+      const voucherCodes = request.body?.voucherCodes;
+      const { data } = await opts.shippingService.init(voucherCodes);
       return reply.status(200).send(data);
     },
   );
@@ -56,8 +56,8 @@ export const shippingRoutes = async (fastify: FastifyInstance, opts: FastifyPlug
     },
 
     async (request, reply) => {
-      const voucherCode = request.body?.voucherCode;
-      const { data } = await opts.shippingService.update(voucherCode);
+      const voucherCodes = request.body?.voucherCodes;
+      const { data } = await opts.shippingService.update(voucherCodes);
       return reply.status(200).send(data);
     },
   );
