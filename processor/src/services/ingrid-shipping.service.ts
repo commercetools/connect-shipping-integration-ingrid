@@ -78,16 +78,15 @@ export class IngridShippingService extends AbstractShippingService {
   ): Promise<IngridGetSessionResponse | IngridUpdateSessionResponse> {
     let ingridCheckoutSession = await this.ingridClient.getCheckoutSession(ingridSessionId);
     const existingVoucherCodesInSession = ingridCheckoutSession.session.cart.vouchers;
-
     const isVoucherCodesUnchanged =
-      Array.isArray(existingVoucherCodesInSession) &&
-      Array.isArray(voucherCodes) &&
-      existingVoucherCodesInSession.length === voucherCodes.length &&
-      existingVoucherCodesInSession
-        .slice()
-        .sort()
-        .every((code, idx) => code === voucherCodes.slice().sort()[idx]);
-
+      (!existingVoucherCodesInSession && !voucherCodes) ||
+      (Array.isArray(existingVoucherCodesInSession) &&
+        Array.isArray(voucherCodes) &&
+        existingVoucherCodesInSession.length === voucherCodes.length &&
+        existingVoucherCodesInSession
+          .slice()
+          .sort()
+          .every((code, idx) => code === voucherCodes.slice().sort()[idx]));
     if (!isVoucherCodesUnchanged) {
       const updatedIngridCheckoutSessionPayload: IngridUpdateSessionRequestPayload = {
         cart: {
