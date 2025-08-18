@@ -75,9 +75,8 @@ const transformCommercetoolsCartToIngridCart = (ctCart: Cart, voucherCode?: stri
   const totalDiscount = (ctCart.discountOnTotalPrice?.discountedAmount.centAmount ?? 0) + totalLineItemsDiscount;
 
   const lineItems = transformCommercetoolsLineItemsToIngridCartItems(ctCart.lineItems, ctCart.locale!);
-
   const ingridCart: IngridCart = {
-    total_value: ctCart.taxedPrice?.totalGross.centAmount ?? ctCart.totalPrice.centAmount, // use "taxedPrice.totalGross" because Ingrid accepts tax inclusive price.
+    total_value: deductShippingCostFromCartTotalPrice(ctCart),
     total_discount: totalDiscount,
     items: lineItems,
     cart_id: ctCart.id,
@@ -86,6 +85,12 @@ const transformCommercetoolsCartToIngridCart = (ctCart: Cart, voucherCode?: stri
     ingridCart.vouchers = voucherCode;
   }
   return ingridCart;
+};
+
+const deductShippingCostFromCartTotalPrice = (ctCart: Cart): number => {
+  const shippingCost = ctCart.shippingInfo?.price.centAmount ?? 0;
+  const totalCartPrice = ctCart.taxedPrice?.totalGross.centAmount ?? ctCart.totalPrice.centAmount; // use "taxedPrice.totalGross" because Ingrid accepts tax inclusive price.
+  return totalCartPrice - shippingCost;
 };
 
 /**
