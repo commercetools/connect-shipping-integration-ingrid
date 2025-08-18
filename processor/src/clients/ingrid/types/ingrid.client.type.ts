@@ -516,8 +516,8 @@ export type IngridUpdateSessionRequestPayload = {
   locales?: string[];
   meta?: Record<string, unknown>;
   prefill_delivery_address?: IngridDeliveryAddress;
-  purchase_country: string;
-  purchase_currency: string;
+  purchase_country?: string;
+  purchase_currency?: string;
   search_address?: IngridSearchAddress;
 };
 

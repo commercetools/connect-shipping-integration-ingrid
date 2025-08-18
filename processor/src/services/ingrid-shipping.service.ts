@@ -11,7 +11,11 @@ import {
 import { getConfig } from '../config';
 import type { Cart } from '@commercetools/platform-sdk';
 import type { InitSessionResponse, UpdateSessionResponse } from './types/ingrid-shipping.type';
-import { IngridUpdateSessionRequestPayload } from '../clients/ingrid/types/ingrid.client.type';
+import {
+  IngridGetSessionResponse,
+  IngridUpdateSessionRequestPayload,
+  IngridUpdateSessionResponse,
+} from '../clients/ingrid/types/ingrid.client.type';
 
 export class IngridShippingService extends AbstractShippingService {
   constructor(commercetoolsClient: CommercetoolsApiClient, ingridClient: IngridApiClient) {
@@ -26,8 +30,8 @@ export class IngridShippingService extends AbstractShippingService {
    *
    * @returns {Promise<InitSessionResponse>} Returns the commercetools cart id, Ingrid session id and Ingrid checkout session html snippet
    */
-  public async init(voucherCode?: string[]): Promise<InitSessionResponse> {
-    appLogger.info(`init Ingrid session with voucherCode: ${voucherCode}`);
+  public async init(voucherCodes?: string[]): Promise<InitSessionResponse> {
+    appLogger.info(`init Ingrid session with voucherCode: ${voucherCodes}`);
     const ingridSessionCustomTypeKey = getConfig().keyOfIngridSessionCustomType;
     const customType = await this.commercetoolsClient.getCustomType(ingridSessionCustomTypeKey);
 
@@ -43,10 +47,12 @@ export class IngridShippingService extends AbstractShippingService {
     }
 
     const ctCart = await this.commercetoolsClient.getCartById(getCartIdFromContext());
-    // const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
-    const ingridCheckoutPayload = transformCommercetoolsCartToIngridPayload(ctCart, voucherCode);
+    const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
+    const ingridCheckoutPayload = transformCommercetoolsCartToIngridPayload(ctCart, voucherCodes);
 
-    const ingridCheckoutSession = await this.ingridClient.createCheckoutSession(ingridCheckoutPayload);
+    const ingridCheckoutSession = ingridSessionId
+      ? await this.refreshIngridSessionWithLatestVoucherCodes(ingridSessionId, voucherCodes)
+      : await this.ingridClient.createCheckoutSession(ingridCheckoutPayload);
 
     const updatedCart = await this.updateCartWithIngridSessionId(
       ctCart,
@@ -64,6 +70,38 @@ export class IngridShippingService extends AbstractShippingService {
         ingridSessionId: ingridCheckoutSession.session.checkout_session_id,
       },
     };
+  }
+
+  private async refreshIngridSessionWithLatestVoucherCodes(
+    ingridSessionId: string,
+    voucherCodes?: string[],
+  ): Promise<IngridGetSessionResponse | IngridUpdateSessionResponse> {
+    let ingridCheckoutSession = await this.ingridClient.getCheckoutSession(ingridSessionId);
+    const existingVoucherCodesInSession = ingridCheckoutSession.session.cart.vouchers;
+
+    const isVoucherCodesUnchanged =
+      Array.isArray(existingVoucherCodesInSession) &&
+      Array.isArray(voucherCodes) &&
+      existingVoucherCodesInSession.length === voucherCodes.length &&
+      existingVoucherCodesInSession
+        .slice()
+        .sort()
+        .every((code, idx) => code === voucherCodes.slice().sort()[idx]);
+
+    if (!isVoucherCodesUnchanged) {
+      const updatedIngridCheckoutSessionPayload: IngridUpdateSessionRequestPayload = {
+        cart: {
+          ...ingridCheckoutSession.session.cart,
+          vouchers: voucherCodes,
+        },
+        checkout_session_id: ingridCheckoutSession.session.checkout_session_id,
+      };
+      ingridCheckoutSession = await this.ingridClient.updateCheckoutSession(updatedIngridCheckoutSessionPayload);
+      console.log('Ingrid session updated with existing voucher codes');
+      console.log(ingridCheckoutSession.session.cart.vouchers);
+    }
+
+    return ingridCheckoutSession;
   }
 
   /**
