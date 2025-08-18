@@ -79,14 +79,14 @@ export class IngridShippingService extends AbstractShippingService {
     let ingridCheckoutSession = await this.ingridClient.getCheckoutSession(ingridSessionId);
     const existingVoucherCodesInSession = ingridCheckoutSession.session.cart.vouchers;
     const isVoucherCodesUnchanged =
-      (!existingVoucherCodesInSession && !voucherCodes) ||
+      (!existingVoucherCodesInSession && !voucherCodes) || // both are undefined or null are considered unchanged
       (Array.isArray(existingVoucherCodesInSession) &&
         Array.isArray(voucherCodes) &&
         existingVoucherCodesInSession.length === voucherCodes.length &&
         existingVoucherCodesInSession
           .slice()
           .sort()
-          .every((code, idx) => code === voucherCodes.slice().sort()[idx]));
+          .every((code, idx) => code === voucherCodes.slice().sort()[idx])); // All elements match in both arrays are considered unchanged
     if (!isVoucherCodesUnchanged) {
       const updatedIngridCheckoutSessionPayload: IngridUpdateSessionRequestPayload = {
         cart: {
