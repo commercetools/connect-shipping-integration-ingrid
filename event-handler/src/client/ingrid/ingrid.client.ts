@@ -26,10 +26,10 @@ export default class IngridApiClient {
         payload
       );
       return response.data as IngridCompleteSessionResponse;
-    } catch (error: Error | any) {
+    } catch (error: unknown) {
       throw new CustomError(
         202,
-        `Failed to complete session on Ingrid. ${error.message} `,
+        `Failed to complete session on Ingrid. ${error instanceof Error ? error.message : String(error)}`,
         {
           cause: error instanceof Error ? error : new Error(String(error)),
         }

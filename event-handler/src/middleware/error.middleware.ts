@@ -4,8 +4,9 @@ import { logger } from '../utils/logger.utils';
 
 export const errorMiddleware: ErrorRequestHandler = (
   error: Error,
-  _: Request,
+  _req: Request,
   res: Response,
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   _next: (err?: Error) => void
 ) => {
   const isDevelopment = process.env.NODE_ENV === 'development';
