@@ -80,7 +80,7 @@ describe('Event Controller', () => {
       mockOrderId
     );
 
-    const mockCommercetoolsGetOrders = mockApiRootOrderResponse({
+    const mockOrder = {
       body: {
         cart: {
           obj: {
@@ -91,8 +91,11 @@ describe('Event Controller', () => {
             },
           },
         },
+        orderNumber: 'test-order-number',
       },
-    });
+    };
+
+    const mockCommercetoolsGetOrders = mockApiRootOrderResponse(mockOrder);
     (createApiRoot as MockFn).mockReturnValue({
       orders: mockCommercetoolsGetOrders,
     });
@@ -146,7 +149,7 @@ describe('Event Controller', () => {
       IngridApiClient.prototype.completeCheckoutSession
     ).toHaveBeenCalledWith({
       checkout_session_id: mockIngridSessionId,
-      external_id: mockOrderId,
+      external_id: mockOrder?.body?.orderNumber,
     });
 
     expect(logger.info).toHaveBeenCalledWith(
@@ -165,7 +168,7 @@ describe('Event Controller', () => {
       orderId: mockOrderId,
     });
 
-    const mockCommercetoolsGetOrders = mockApiRootOrderResponse({
+    const mockOrder = {
       body: {
         cart: {
           obj: {
@@ -174,8 +177,11 @@ describe('Event Controller', () => {
             },
           },
         },
+        id: 'test-order-id',
+        orderNumber: 'test-order-number',
       },
-    });
+    };
+    const mockCommercetoolsGetOrders = mockApiRootOrderResponse(mockOrder);
 
     (createApiRoot as MockFn).mockReturnValue({
       orders: mockCommercetoolsGetOrders,
@@ -187,7 +193,9 @@ describe('Event Controller', () => {
 
     await expect(
       post(mockRequest as Request, mockResponse as Response)
-    ).rejects.toThrow('Bad request. Ingrid session ID not found');
+    ).rejects.toThrow(
+      `Ingrid session ID not found for the order with ID ${mockOrder.body.id}.`
+    );
   });
 
   it('should throw error when PubSub validation fails', async () => {
@@ -232,6 +240,7 @@ describe('Event Controller', () => {
             },
           },
         },
+        orderNumber: 'test-order-number',
       },
     });
 
@@ -300,6 +309,7 @@ describe('Event Controller', () => {
             },
           },
         },
+        orderNumber: 'test-order-number',
       },
     });
 
@@ -383,7 +393,7 @@ describe('Event Controller', () => {
 
     // Mock createApiRoot get order response with missing ingridSessionId
     // Mock createApiRoot get order response
-    const mockCommercetoolsGetOrders = mockApiRootOrderResponse({
+    const mockOrder = {
       body: {
         id: mockOrderId,
         version: mockVersion,
@@ -396,8 +406,11 @@ describe('Event Controller', () => {
             },
           },
         },
+
+        orderNumber: 'test-order-number',
       },
-    });
+    };
+    const mockCommercetoolsGetOrders = mockApiRootOrderResponse(mockOrder);
 
     (createApiRoot as MockFn).mockReturnValue({
       orders: mockCommercetoolsGetOrders,
@@ -406,7 +419,9 @@ describe('Event Controller', () => {
     // Execute test
     await expect(
       post(mockRequest as Request, mockResponse as Response)
-    ).rejects.toThrow('Bad request. Ingrid session ID not found');
+    ).rejects.toThrow(
+      `Ingrid session ID not found for the order with ID ${mockOrder.body.id}.`
+    );
   });
 
   // Test for handling RESOURCE_CREATED_MESSAGE

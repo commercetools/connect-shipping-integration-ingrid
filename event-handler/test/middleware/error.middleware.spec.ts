@@ -127,7 +127,7 @@ describe('Error Middleware', () => {
       error.message,
       error
     );
-    expect(mockResponse.status).toHaveBeenCalledWith(500);
+    expect(mockResponse.status).toHaveBeenCalledWith(202);
     expect(mockResponse.send).toHaveBeenCalledWith({
       message: 'Something went wrong',
     });
@@ -150,7 +150,7 @@ describe('Error Middleware', () => {
       error.message,
       error
     );
-    expect(mockResponse.status).toHaveBeenCalledWith(500);
+    expect(mockResponse.status).toHaveBeenCalledWith(202);
     expect(mockResponse.send).toHaveBeenCalledWith({
       message: 'Internal server error',
     });

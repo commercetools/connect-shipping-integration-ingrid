@@ -17,6 +17,7 @@ interface MockGetOrderResponse {
         };
       };
     };
+    orderNumber?: string;
   };
 }
 
