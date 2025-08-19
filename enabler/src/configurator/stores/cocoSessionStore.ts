@@ -2,6 +2,15 @@ import cartStore from "./cartStore";
 import loadingStore from "./loadingStore";
 import Store from "./Store";
 
+const generateOrderNumber = () => {
+  const date = new Date();
+  const year = date.getFullYear().toString().slice(-2);
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const randomPart = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+  return `${year}${month}${day}-${randomPart}`; // e.g. "231001-1234"
+}
+
 function createToken() {
   return fetch(`${import.meta.env.VITE_CTP_AUTH_URL}/oauth/token`, {
     method: "POST",
@@ -38,6 +47,7 @@ async function createSession(cartId: string) {
         },
         metadata: {
           applicationKey: import.meta.env.VITE_CTP_APPLICATION_KEY ?? "",
+          futureOrderNumber: generateOrderNumber(),
         }
       }),
     }
@@ -114,6 +124,8 @@ cartStore.subscribe(() => {
         .finally(() => loadingStore.dispatch("DONE"));
     }
   }
-});
+  
 
+});
+  
 export default cocoSessionStore;
