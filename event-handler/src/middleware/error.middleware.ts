@@ -5,27 +5,31 @@ import { logger } from '../utils/logger.utils';
 export const errorMiddleware: ErrorRequestHandler = (
   error: Error,
   _: Request,
-  res: Response
+  res: Response,
+  _next: (err?: Error) => void
 ) => {
   const isDevelopment = process.env.NODE_ENV === 'development';
-
   logger.error(error.message, error);
 
   if (error instanceof CustomError) {
-    res.status(error.statusCode as number).json({
-      message: error.message,
-      errors: error.errors,
-      stack: isDevelopment ? error.stack : undefined,
-    });
-
-    return;
+    res
+      .status(error.statusCode as number)
+      .json({
+        message: error.message,
+        errors: error.errors,
+        cause: error.cause,
+        stack: isDevelopment ? error.stack : undefined,
+      })
+      .send({
+        message: error.message,
+      });
+  } else {
+    res
+      .status(202)
+      .send(
+        isDevelopment
+          ? { message: error.message }
+          : { message: 'Internal server error' }
+      );
   }
-
-  res
-    .status(500)
-    .send(
-      isDevelopment
-        ? { message: error.message }
-        : { message: 'Internal server error' }
-    );
 };
