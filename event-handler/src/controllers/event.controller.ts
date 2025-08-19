@@ -13,7 +13,6 @@ import {
 } from '../client/commercetools/update.client';
 import { SHIPMENT_STATE } from '../client/commercetools/types/commercetools.client.type';
 import type { IngridCompleteSessionResponse } from '../client/ingrid/types/ingrid.client.type';
-
 /**
  * Exposed event POST endpoint.
  * Receives the Pub/Sub message and works with it
@@ -53,7 +52,10 @@ export const post = async (request: Request, response: Response) => {
     commercetoolsOrder.cart?.obj?.custom?.fields?.ingridSessionId;
 
   if (!ingridSessionId) {
-    throw new CustomError(400, 'Bad request. Ingrid session ID not found');
+    throw new CustomError(
+      202,
+      ` Ingrid session ID not found for the order with ID ${commercetoolsOrder.id}.`
+    );
   }
 
   const apiSecret = readConfiguration().ingridApiKey;
@@ -68,7 +70,7 @@ export const post = async (request: Request, response: Response) => {
 
   const payLoad: IngridCompleteSessionRequestPayload = {
     checkout_session_id: ingridSessionId,
-    external_id: orderId,
+    external_id: commercetoolsOrder.orderNumber,
   };
   type ResponseObjType = {
     ingridSessionId: string;
@@ -88,15 +90,19 @@ export const post = async (request: Request, response: Response) => {
       commercetoolsOrder.version,
       SHIPMENT_STATE.CANCELED
     );
-    if (error instanceof CustomError)
+    if (error instanceof CustomError) {
       error.message += `Update commercetools cart shipment state as canceled. (orderId: ${orderId})`;
+    }
     throw error;
   }
 
   responseObj.tosId = ingridResponse.session.delivery_groups[0]?.tos_id;
+  let updatedCommercetoolsOrder;
   if (responseObj.tosId) {
-    logger.info(`Update transport order ID : ${responseObj?.tosId})`);
-    await setTransportOrderId(
+    logger.info(
+      `Update transport order ID for the order ID ${commercetoolsOrder.id}: ${responseObj?.tosId})`
+    );
+    updatedCommercetoolsOrder = await setTransportOrderId(
       readConfiguration().ingridShippingCustomTypeKey,
       orderId,
       commercetoolsOrder.version,
@@ -107,6 +113,7 @@ export const post = async (request: Request, response: Response) => {
   if (responseObj.status === 'COMPLETE') {
     const updateOrderResult = await changeShipmentState(
       orderId,
+      // updatedCommercetoolsOrder ? updatedCommercetoolsOrder.version : commercetoolsOrder.version,
       commercetoolsOrder.version,
       SHIPMENT_STATE.READY
     );
@@ -119,7 +126,9 @@ export const post = async (request: Request, response: Response) => {
   } else {
     const updateOrderResult = await changeShipmentState(
       orderId,
-      commercetoolsOrder.version,
+      updatedCommercetoolsOrder
+        ? updatedCommercetoolsOrder.version
+        : commercetoolsOrder.version,
       SHIPMENT_STATE.CANCELED
     );
     logger.info(
