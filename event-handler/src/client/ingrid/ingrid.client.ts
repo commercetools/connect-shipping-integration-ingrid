@@ -26,10 +26,14 @@ export default class IngridApiClient {
         payload
       );
       return response.data as IngridCompleteSessionResponse;
-    } catch (error) {
-      throw new CustomError(400, 'Failed to complete session on Ingrid.', {
-        cause: error instanceof Error ? error : new Error(String(error)),
-      });
+    } catch (error: unknown) {
+      throw new CustomError(
+        202,
+        `Failed to complete session on Ingrid. ${error instanceof Error ? error.message : String(error)}`,
+        {
+          cause: error instanceof Error ? error : new Error(String(error)),
+        }
+      );
     }
   }
 }
