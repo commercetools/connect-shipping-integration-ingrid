@@ -113,7 +113,9 @@ export const post = async (request: Request, response: Response) => {
   if (responseObj.status === 'COMPLETE') {
     const updateOrderResult = await changeShipmentState(
       orderId,
-      updatedCommercetoolsOrder ? updatedCommercetoolsOrder.version : commercetoolsOrder.version,
+      updatedCommercetoolsOrder
+        ? updatedCommercetoolsOrder.version
+        : commercetoolsOrder.version,
       SHIPMENT_STATE.READY
     );
     logger.info(
