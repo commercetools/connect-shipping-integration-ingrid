@@ -92,7 +92,7 @@ export const post = async (request: Request, response: Response) => {
     let updatedCommercetoolsOrder;
     if (transportOrderId) {
       logger.info(
-        `Update transport order ID for the order ID ${commercetoolsOrder.id}: ${transportOrderId})`
+        `Update transport order ID for the order ID ${commercetoolsOrder.id}: ${transportOrderId}.`
       );
       updatedCommercetoolsOrder = await setTransportOrderId(
         readConfiguration().ingridShippingCustomTypeKey,
@@ -131,7 +131,10 @@ export const post = async (request: Request, response: Response) => {
       );
     }
     if (!completeCheckoutSessionError)
-      return response.status(204).send(ingridResponse);
+      return response.status(204).send({
+        ingridSessionId: ingridResponse?.session.checkout_session_id,
+        status: ingridResponse?.session.status,
+      });
   }
   throw completeCheckoutSessionError;
 };
