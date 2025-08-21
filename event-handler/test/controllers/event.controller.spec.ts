@@ -92,6 +92,7 @@ describe('Event Controller', () => {
           },
         },
         orderNumber: 'test-order-number',
+        id: mockOrderId,
       },
     };
 
@@ -156,7 +157,10 @@ describe('Event Controller', () => {
       'processing shipping session completion for order ID : test-order-id'
     );
     expect(logger.info).toHaveBeenCalledWith(
-      'complete ingrid session successfully : {"ingridSessionId":"test-session-id","status":"COMPLETE","tosId":"dummy-tos-id"}'
+      `Update transport order ID for the order ID ${mockOrderId}: dummy-tos-id.`
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.stringContaining('complete ingrid session successfully')
     );
   });
 

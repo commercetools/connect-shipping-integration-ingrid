@@ -72,7 +72,7 @@ describe('Error Middleware', () => {
       customError
     );
     expect(mockResponse.status).toHaveBeenCalledWith(400);
-    expect(mockResponse.json).toHaveBeenCalledWith({
+    expect(mockResponse.send).toHaveBeenCalledWith({
       message: 'Bad Request',
       errors: [errorItem],
       stack: 'Stack trace',
@@ -103,7 +103,7 @@ describe('Error Middleware', () => {
       customError
     );
     expect(mockResponse.status).toHaveBeenCalledWith(400);
-    expect(mockResponse.json).toHaveBeenCalledWith({
+    expect(mockResponse.send).toHaveBeenCalledWith({
       message: 'Bad Request',
       errors: [errorItem],
       stack: undefined,

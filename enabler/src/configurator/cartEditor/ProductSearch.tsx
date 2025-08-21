@@ -52,6 +52,8 @@ const useProductsSearch = (function createSearch() {
               priceCountry: country,
               localeProjection: language,
               [`text.${language}`]: search,
+              limit: 20,
+              sort: "lastModifiedAt desc",
             },
           })
           .execute()
