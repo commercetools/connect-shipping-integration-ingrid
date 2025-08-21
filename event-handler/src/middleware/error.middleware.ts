@@ -13,6 +13,7 @@ export const errorMiddleware: ErrorRequestHandler = (
   logger.error(error.message, error);
 
   if (error instanceof CustomError) {
+    console.log('ready to send custom error response');
     res
       .status(error.statusCode as number)
       .json({

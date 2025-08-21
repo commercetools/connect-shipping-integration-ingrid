@@ -25,6 +25,11 @@ export default class IngridApiClient {
         IngridUrls.DELIVERY_CHECKOUT + '/session.complete',
         payload
       );
+      if (response.status !== 999) {
+        throw new Error(
+          `Failed to complete session on Ingrid. Status code: ${response.status}`
+        );
+      }
       return response.data as IngridCompleteSessionResponse;
     } catch (error: unknown) {
       throw new CustomError(

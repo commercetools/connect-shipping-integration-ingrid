@@ -72,72 +72,66 @@ export const post = async (request: Request, response: Response) => {
     checkout_session_id: ingridSessionId,
     external_id: commercetoolsOrder.orderNumber,
   };
-  type ResponseObjType = {
-    ingridSessionId: string;
-    status: string;
-    tosId?: string;
-  };
 
-  const responseObj: ResponseObjType = { ingridSessionId: '', status: '' };
-  let ingridResponse: IngridCompleteSessionResponse;
+  let ingridResponse: IngridCompleteSessionResponse | undefined = undefined;
+  let completeCheckoutSessionError: Error | undefined = undefined;
+  
   try {
     ingridResponse = await ingridClient.completeCheckoutSession(payLoad);
-    responseObj.ingridSessionId = ingridResponse.session.checkout_session_id;
-    responseObj.status = ingridResponse.session.status;
   } catch (error) {
-    await changeShipmentState(
-      orderId,
-      commercetoolsOrder.version,
-      SHIPMENT_STATE.CANCELED
-    );
     if (error instanceof CustomError) {
-      error.message += `Update commercetools cart shipment state as canceled. (orderId: ${orderId})`;
+      logger.error(
+        `Error while completing ingrid session for order ID ${orderId}: ${error.message}`
+      );
     }
-    throw error;
+    completeCheckoutSessionError = error as Error;
   }
-
-  responseObj.tosId = ingridResponse.session.delivery_groups[0]?.tos_id;
-  let updatedCommercetoolsOrder;
-  if (responseObj.tosId) {
-    logger.info(
-      `Update transport order ID for the order ID ${commercetoolsOrder.id}: ${responseObj?.tosId})`
-    );
-    updatedCommercetoolsOrder = await setTransportOrderId(
-      readConfiguration().ingridShippingCustomTypeKey,
-      orderId,
-      commercetoolsOrder.version,
-      responseObj.tosId
-    );
+  
+  if (ingridResponse || completeCheckoutSessionError) {
+    const transportOrderId = ingridResponse?.session.delivery_groups[0]?.tos_id;
+    let updatedCommercetoolsOrder;
+    if (transportOrderId) {
+      logger.info(
+        `Update transport order ID for the order ID ${commercetoolsOrder.id}: ${transportOrderId})`
+      );
+      updatedCommercetoolsOrder = await setTransportOrderId(
+        readConfiguration().ingridShippingCustomTypeKey,
+        orderId,
+        commercetoolsOrder.version,
+        transportOrderId
+      );
+    }
+    if (ingridResponse?.session.status === 'COMPLETE') {
+      const updateOrderResult = await changeShipmentState(
+        orderId,
+        updatedCommercetoolsOrder
+          ? updatedCommercetoolsOrder.version
+          : commercetoolsOrder.version,
+        SHIPMENT_STATE.READY
+      );
+      logger.info(
+        `complete ingrid session successfully with transport order ID ${transportOrderId}: ${JSON.stringify(ingridResponse)}`
+      );
+      logger.info(
+        `Update commercetools cart shipment state as ready. (orderId: ${updateOrderResult.id})`
+      );
+    } else {
+      const updateOrderResult = await changeShipmentState(
+        orderId,
+        updatedCommercetoolsOrder
+          ? updatedCommercetoolsOrder.version
+          : commercetoolsOrder.version,
+        SHIPMENT_STATE.CANCELED
+      );
+      logger.info(
+        `complete ingrid session failed with transport order ID ${transportOrderId}: ${JSON.stringify(ingridResponse)}`
+      );
+      logger.info(
+        `Update commercetools cart shipment state as canceled. (orderId: ${updateOrderResult.id})`
+      );
+    }
+    if (!completeCheckoutSessionError)
+      return response.status(204).send(ingridResponse);
   }
-
-  if (responseObj.status === 'COMPLETE') {
-    const updateOrderResult = await changeShipmentState(
-      orderId,
-      updatedCommercetoolsOrder
-        ? updatedCommercetoolsOrder.version
-        : commercetoolsOrder.version,
-      SHIPMENT_STATE.READY
-    );
-    logger.info(
-      `complete ingrid session successfully : ${JSON.stringify(responseObj)}`
-    );
-    logger.info(
-      `Update commercetools cart shipment state as ready. (orderId: ${updateOrderResult.id})`
-    );
-  } else {
-    const updateOrderResult = await changeShipmentState(
-      orderId,
-      updatedCommercetoolsOrder
-        ? updatedCommercetoolsOrder.version
-        : commercetoolsOrder.version,
-      SHIPMENT_STATE.CANCELED
-    );
-    logger.info(
-      `complete ingrid session failed : ${JSON.stringify(responseObj)}`
-    );
-    logger.info(
-      `Update commercetools cart shipment state as canceled. (orderId: ${updateOrderResult.id})`
-    );
-  }
-  return response.status(204).send(responseObj);
+  throw completeCheckoutSessionError;
 };
