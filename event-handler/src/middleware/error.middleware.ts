@@ -14,17 +14,12 @@ export const errorMiddleware: ErrorRequestHandler = (
 
   if (error instanceof CustomError) {
     console.log('ready to send custom error response');
-    res
-      .status(error.statusCode as number)
-      .json({
-        message: error.message,
-        errors: error.errors,
-        cause: error.cause,
-        stack: isDevelopment ? error.stack : undefined,
-      })
-      .send({
-        message: error.message,
-      });
+    res.status(error.statusCode as number).send({
+      message: error.message,
+      errors: error.errors,
+      cause: error.cause,
+      stack: isDevelopment ? error.stack : undefined,
+    });
   } else {
     res
       .status(202)

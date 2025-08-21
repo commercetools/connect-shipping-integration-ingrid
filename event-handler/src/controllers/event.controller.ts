@@ -75,7 +75,7 @@ export const post = async (request: Request, response: Response) => {
 
   let ingridResponse: IngridCompleteSessionResponse | undefined = undefined;
   let completeCheckoutSessionError: Error | undefined = undefined;
-  
+
   try {
     ingridResponse = await ingridClient.completeCheckoutSession(payLoad);
   } catch (error) {
@@ -86,7 +86,7 @@ export const post = async (request: Request, response: Response) => {
     }
     completeCheckoutSessionError = error as Error;
   }
-  
+
   if (ingridResponse || completeCheckoutSessionError) {
     const transportOrderId = ingridResponse?.session.delivery_groups[0]?.tos_id;
     let updatedCommercetoolsOrder;
