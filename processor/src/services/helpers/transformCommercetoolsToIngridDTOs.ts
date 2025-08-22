@@ -125,17 +125,14 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
     price: item.taxedPrice?.totalGross.centAmount ?? item.price.value.centAmount, // use "taxedPrice.totalGross" because Ingrid accepts tax inclusive price.
     quantity: item.quantity,
     sku: item.variant.sku!,
-  }
-  console.log(` === === transformCommercetoolsLineItemToIngridCartItem === `);
-  console.log(ingridCartItem);
-  return ingridCartItem
+  };
+  return ingridCartItem;
 };
 
 const transformCommercetoolsLineItemToIngridCartItemWithCustomFields = (fields: FieldContainer): string[] => {
   const result = Object.entries(fields).map(([key, value]) => `${key}=${value}`);
-  console.log(result);
   return result;
-}
+};
 /**
  * Get image url
  *
