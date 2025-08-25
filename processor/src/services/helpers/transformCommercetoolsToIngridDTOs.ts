@@ -57,7 +57,6 @@ export const transformCommercetoolsCartToIngridPayload = (
 
     payload.prefill_delivery_address = deliveryAddress;
   }
-
   return payload;
 };
 
@@ -80,6 +79,7 @@ const transformCommercetoolsCartToIngridCart = (ctCart: Cart, voucherCodes?: str
     total_discount: totalDiscount,
     items: lineItems,
     cart_id: ctCart.id,
+    attributes: transformCommercetoolsCustomFieldsToIngridCustomFields(ctCart.custom?.fields ?? {}),
   };
   if (voucherCodes && voucherCodes.length > 0) {
     ingridCart.vouchers = voucherCodes;
@@ -118,7 +118,7 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
   const lineItemDiscount = calculateLineItemDiscount(item);
   const ingridCartItem: IngridCartItem = {
     // item.custom.fields may be undefined
-    attributes: transformCommercetoolsLineItemToIngridCartItemWithCustomFields(item.custom?.fields ?? {}),
+    attributes: transformCommercetoolsCustomFieldsToIngridCustomFields(item.custom?.fields ?? {}),
     discount: lineItemDiscount,
     image_url: imageUrl,
     name: item.name[locale]!,
@@ -126,10 +126,11 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
     quantity: item.quantity,
     sku: item.variant.sku!,
   };
+
   return ingridCartItem;
 };
 
-const transformCommercetoolsLineItemToIngridCartItemWithCustomFields = (fields: FieldContainer): string[] => {
+const transformCommercetoolsCustomFieldsToIngridCustomFields = (fields: FieldContainer): string[] => {
   const result = Object.entries(fields).map(([key, value]) => `${key}=${value}`);
   return result;
 };
