@@ -141,4 +141,39 @@ describe('transformCommercetoolsToIngridDTOs', () => {
     const payload = transformCommercetoolsCartToIngridPayload(cartWithDiscount);
     expect(payload.cart.total_discount).toEqual(1099); // 500 (cart discount) + 599 (line item discount)
   });
+
+  test('transformCommercetoolsLineItemToIngridCartItemWithCustomFields', async () => {
+    const lineItem = cart.lineItems[0];
+    if (!lineItem) {
+      throw new Error('Test setup error: cart.lineItems[0] is undefined');
+    }
+    const cartWithLineItemCustomFields: Cart = {
+      ...cart,
+      lineItems: [
+        {
+          ...lineItem,
+          custom: {
+            type: {
+              typeId: 'type',
+              id: '678941e6-ffcd-42d6-815e-3eb6fe798a94',
+            },
+            fields: {
+              blockedDeliveryCountries: 'UK',
+              numberOfItemsInStock: 10,
+              isOutOfStock: false,
+              expectedDeliveryDate: '2023-10-01T00:00:00Z',
+            },
+          },
+        },
+      ],
+    };
+    const result = transformCommercetoolsCartToIngridPayload(cartWithLineItemCustomFields);
+
+    expect(result.cart.items[0].attributes).toBeDefined();
+    expect(result.cart.items[0].attributes?.length).toStrictEqual(4);
+    expect(result.cart.items[0].attributes?.[0]).toStrictEqual('blockedDeliveryCountries=UK');
+    expect(result.cart.items[0].attributes?.[1]).toStrictEqual('numberOfItemsInStock=10');
+    expect(result.cart.items[0].attributes?.[2]).toStrictEqual('isOutOfStock=false');
+    expect(result.cart.items[0].attributes?.[3]).toStrictEqual('expectedDeliveryDate=2023-10-01T00:00:00Z');
+  });
 });

@@ -1,5 +1,5 @@
 import { CustomError } from '../../libs/fastify/errors';
-import type { Cart, LineItem } from '@commercetools/platform-sdk';
+import type { Cart, FieldContainer, LineItem } from '@commercetools/platform-sdk';
 import type {
   IngridCreateSessionRequestPayload,
   IngridDeliveryAddress,
@@ -116,10 +116,9 @@ const transformCommercetoolsLineItemsToIngridCartItems = (items: LineItem[], loc
 const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: string): IngridCartItem => {
   const imageUrl = getImageUrl(item);
   const lineItemDiscount = calculateLineItemDiscount(item);
-
-  return {
+  const ingridCartItem: IngridCartItem = {
     // item.custom.fields may be undefined
-    attributes: [JSON.stringify(item.custom?.fields) || ''],
+    attributes: transformCommercetoolsLineItemToIngridCartItemWithCustomFields(item.custom?.fields ?? {}),
     discount: lineItemDiscount,
     image_url: imageUrl,
     name: item.name[locale]!,
@@ -127,8 +126,13 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
     quantity: item.quantity,
     sku: item.variant.sku!,
   };
+  return ingridCartItem;
 };
 
+const transformCommercetoolsLineItemToIngridCartItemWithCustomFields = (fields: FieldContainer): string[] => {
+  const result = Object.entries(fields).map(([key, value]) => `${key}=${value}`);
+  return result;
+};
 /**
  * Get image url
  *
