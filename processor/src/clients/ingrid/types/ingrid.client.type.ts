@@ -298,6 +298,7 @@ export type IngridCart = {
   cart_id: string;
   groups?: unknown[];
   vouchers?: string[];
+  attributes?: string[];
 };
 
 /**
