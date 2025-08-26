@@ -105,15 +105,7 @@ const transformIngridDeliveryGroupToCustomShippingMethod = (
 const transformDependantFields = (ingridDeliveryGroup: IngridDeliveryGroup): string | undefined => {
   const deliveryType = ingridDeliveryGroup.shipping.delivery_type;
   if (deliveryType === 'pickup' || deliveryType === 'instore') {
-    const { external_id } = ingridDeliveryGroup.addresses.location;
-    if (!external_id) {
-      throw new CustomError({
-        message: `Pickup point ID is not set even though delivery type is ${deliveryType}`,
-        code: 'PICKUP_POINT_ID_NOT_SET',
-        httpErrorStatus: 400,
-      });
-    }
-    return external_id;
+    return ingridDeliveryGroup.addresses.location.external_id;
   }
   return undefined;
 };
