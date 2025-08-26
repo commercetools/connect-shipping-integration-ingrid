@@ -116,6 +116,12 @@ const transformCommercetoolsLineItemsToIngridCartItems = (items: LineItem[], loc
 const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: string): IngridCartItem => {
   const imageUrl = getImageUrl(item);
   const lineItemDiscount = calculateLineItemDiscount(item);
+
+  const weight = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'weight')?.value;
+  const height = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'height')?.value;
+  const width = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'width')?.value;
+  const length = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'length')?.value;
+
   const ingridCartItem: IngridCartItem = {
     // item.custom.fields may be undefined
     attributes: transformCommercetoolsCustomFieldsToIngridCustomFields(item.custom?.fields ?? {}),
@@ -125,8 +131,13 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
     price: item.taxedPrice?.totalGross.centAmount ?? item.price.value.centAmount, // use "taxedPrice.totalGross" because Ingrid accepts tax inclusive price.
     quantity: item.quantity,
     sku: item.variant.sku!,
+    weight,
+    dimensions: {
+      height,
+      width,
+      length,
+    },
   };
-
   return ingridCartItem;
 };
 
