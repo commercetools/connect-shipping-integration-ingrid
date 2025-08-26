@@ -70,7 +70,7 @@ describe('commercetools api client', () => {
         1,
         addresses,
         shippingMethodPayload,
-        customFieldPayload,
+        [customFieldPayload],
       );
       expect(resp).toBeDefined();
       expect(resp).toEqual(cart);

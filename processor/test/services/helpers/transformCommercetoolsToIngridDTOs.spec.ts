@@ -169,11 +169,11 @@ describe('transformCommercetoolsToIngridDTOs', () => {
     };
     const result = transformCommercetoolsCartToIngridPayload(cartWithLineItemCustomFields);
 
-    expect(result.cart.items[0].attributes).toBeDefined();
-    expect(result.cart.items[0].attributes?.length).toStrictEqual(4);
-    expect(result.cart.items[0].attributes?.[0]).toStrictEqual('blockedDeliveryCountries=UK');
-    expect(result.cart.items[0].attributes?.[1]).toStrictEqual('numberOfItemsInStock=10');
-    expect(result.cart.items[0].attributes?.[2]).toStrictEqual('isOutOfStock=false');
-    expect(result.cart.items[0].attributes?.[3]).toStrictEqual('expectedDeliveryDate=2023-10-01T00:00:00Z');
+    expect(result.cart.items[0]?.attributes).toBeDefined();
+    expect(result.cart.items[0]?.attributes?.length).toStrictEqual(4);
+    expect(result.cart.items[0]?.attributes?.[0]).toStrictEqual('blockedDeliveryCountries=UK');
+    expect(result.cart.items[0]?.attributes?.[1]).toStrictEqual('numberOfItemsInStock=10');
+    expect(result.cart.items[0]?.attributes?.[2]).toStrictEqual('isOutOfStock=false');
+    expect(result.cart.items[0]?.attributes?.[3]).toStrictEqual('expectedDeliveryDate=2023-10-01T00:00:00Z');
   });
 });

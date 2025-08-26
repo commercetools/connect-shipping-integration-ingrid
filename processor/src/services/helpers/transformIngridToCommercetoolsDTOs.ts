@@ -31,6 +31,7 @@ export const transformIngridDeliveryGroupsToCommercetoolsDataTypes = (
   deliveryAddress: BaseAddress;
   customShippingMethod: CustomShippingMethod;
   extMethodId: string;
+  pickupPointId: string | undefined;
 } => {
   if (ingridDeliveryGroups.length === 0) {
     throw new CustomError({
@@ -52,7 +53,8 @@ export const transformIngridDeliveryGroupsToCommercetoolsDataTypes = (
   const deliveryAddress = transformIngridAddressToCommercetoolsAddress(ingridDeliveryGroup.addresses.delivery_address);
   const customShippingMethod = transformIngridDeliveryGroupToCustomShippingMethod(ingridDeliveryGroup);
   const extMethodId = ingridDeliveryGroup.shipping.carrier_product_id;
-  return { billingAddress, deliveryAddress, customShippingMethod, extMethodId };
+  const pickupPointId = transformDependantFields(ingridDeliveryGroup);
+  return { billingAddress, deliveryAddress, customShippingMethod, extMethodId, pickupPointId };
 };
 
 /**
@@ -98,4 +100,20 @@ const transformIngridDeliveryGroupToCustomShippingMethod = (
     },
   };
   return customShippingMethod;
+};
+
+const transformDependantFields = (ingridDeliveryGroup: IngridDeliveryGroup): string | undefined => {
+  const deliveryType = ingridDeliveryGroup.shipping.delivery_type;
+  if (deliveryType === 'pickup' || deliveryType === 'instore') {
+    const { external_id } = ingridDeliveryGroup.addresses.location;
+    if (!external_id) {
+      throw new CustomError({
+        message: `Pickup point ID is not set even though delivery type is ${deliveryType}`,
+        code: 'PICKUP_POINT_ID_NOT_SET',
+        httpErrorStatus: 400,
+      });
+    }
+    return external_id;
+  }
+  return undefined;
 };
