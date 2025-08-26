@@ -138,6 +138,7 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
       length,
     },
   };
+
   return ingridCartItem;
 };
 
