@@ -4,7 +4,12 @@ import { IngridShippingService } from '../../src/services/ingrid-shipping.servic
 import { AbstractShippingService } from '../../src/services/abstract-shipping.service';
 import { IngridApiClient } from '../../src/clients/ingrid/ingrid.client';
 import { CommercetoolsApiClient } from '../../src/clients/commercetools/api.client';
-import { IngridBasePath, IngridUrls, IngridEnvironment, IngridDeliveryGroup } from '../../src/clients/ingrid/types/ingrid.client.type';
+import {
+  IngridBasePath,
+  IngridUrls,
+  IngridEnvironment,
+  IngridDeliveryGroup,
+} from '../../src/clients/ingrid/types/ingrid.client.type';
 import {
   mockCreateCheckoutSessionSuccessResponse,
   mockCreateCheckoutSessionAuthFailureResponse,
@@ -374,12 +379,14 @@ describe('ingrid-shipping.service', () => {
         }),
       }));
 
-      const deliveryGroups: IngridDeliveryGroup[] = mockIngridCheckoutSessionWithAddresses.session.delivery_groups.map(group =>  {
-        group.shipping.delivery_type = 'pickup';
-        group.addresses.location.external_id='dummy-pickup-point-id'
-        return group;
-      });
-      
+      const deliveryGroups: IngridDeliveryGroup[] = mockIngridCheckoutSessionWithAddresses.session.delivery_groups.map(
+        (group) => {
+          group.shipping.delivery_type = 'pickup';
+          group.addresses.location.external_id = 'dummy-pickup-point-id';
+          return group;
+        },
+      );
+
       if (!deliveryGroup?.addresses?.billing_address || !deliveryGroup?.addresses?.delivery_address) {
         throw new Error('Mock data is missing required address information');
       }
@@ -426,19 +433,18 @@ describe('ingrid-shipping.service', () => {
         }),
         [
           expect.objectContaining({
-            name: "ingridExtMethodId",
-            value: "MPC",
+            name: 'ingridExtMethodId',
+            value: 'MPC',
           }),
           expect.objectContaining({
-            name: "ingridPickupPointId",
-            value: "dummy-pickup-point-id",
+            name: 'ingridPickupPointId',
+            value: 'dummy-pickup-point-id',
           }),
-          
         ],
       );
     });
 
-    test.skip('should update cart with delivery addons from Ingrid session', async () => {
+    test('should update cart with delivery addons from Ingrid session', async () => {
       const deliveryGroup = mockIngridCheckoutSessionWithAddresses.session.delivery_groups[0];
       if (!deliveryGroup?.addresses?.billing_address || !deliveryGroup?.addresses?.delivery_address) {
         throw new Error('Mock data is missing required address information');
@@ -478,11 +484,13 @@ describe('ingrid-shipping.service', () => {
         }),
       }));
 
-      const deliveryGroups: IngridDeliveryGroup[] = mockIngridCheckoutSessionWithAddresses.session.delivery_groups.map(group =>  {
-        group.shipping.delivery_addons = [{ id: 'dummy-addon-id', external_addon_id: 'dummy-external-addon-id' }];
-        return group;
-      });
-      
+      const deliveryGroups: IngridDeliveryGroup[] = mockIngridCheckoutSessionWithAddresses.session.delivery_groups.map(
+        (group) => {
+          group.shipping.delivery_addons = [{ id: 'dummy-addon-id', external_addon_id: 'dummy-external-addon-id' }];
+          return group;
+        },
+      );
+
       if (!deliveryGroup?.addresses?.billing_address || !deliveryGroup?.addresses?.delivery_address) {
         throw new Error('Mock data is missing required address information');
       }
@@ -529,12 +537,16 @@ describe('ingrid-shipping.service', () => {
         }),
         [
           expect.objectContaining({
-            name: "ingridExtMethodId",
-            value: "MPC",
+            name: 'ingridExtMethodId',
+            value: 'MPC',
           }),
           expect.objectContaining({
-            name: "ingridDeliveryAddons",
-            value: "{\"id\":\"dummy-addon-id\",\"external_addon_id\":\"dummy-external-addon-id\"}",
+            name: 'ingridPickupPointId',
+            value: 'dummy-pickup-point-id',
+          }),
+          expect.objectContaining({
+            name: 'ingridDeliveryAddons',
+            value: '{"id":"dummy-addon-id","external_addon_id":"dummy-external-addon-id"}',
           }),
         ],
       );
