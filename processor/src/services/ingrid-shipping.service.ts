@@ -147,7 +147,7 @@ export class IngridShippingService extends AbstractShippingService {
     }
 
     // transform Ingrid checkout session delivery groups to commercetools data types
-    const { billingAddress, deliveryAddress, customShippingMethod, extMethodId, pickupPointId } =
+    const { billingAddress, deliveryAddress, customShippingMethod, extMethodId, pickupPointId, instaboxToken } =
       transformIngridDeliveryGroupsToCommercetoolsDataTypes(ingridCheckoutSession.session.delivery_groups);
 
     const customFieldsPayload = [
@@ -160,6 +160,12 @@ export class IngridShippingService extends AbstractShippingService {
       customFieldsPayload.push({
         name: 'ingridPickupPointId',
         value: pickupPointId,
+      });
+    }
+    if (instaboxToken) {
+      customFieldsPayload.push({
+        name: 'ingridInstaboxToken',
+        value: instaboxToken,
       });
     }
 

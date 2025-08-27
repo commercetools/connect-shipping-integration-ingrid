@@ -22,12 +22,14 @@ const INGRID_CUSTOM_FIELD_NAME_EXTERNAL_METHOD_ID = 'ingridExtMethodId';
 const INGRID_CUSTOM_FIELD_NAME_SESSION_ID = 'ingridSessionId';
 const INGRID_CUSTOM_FIELD_NAME_TRANSPORT_ORDER_ID = 'ingridTransportOrderId';
 const INGRID_CUSTOM_FIELD_NAME_PICKUP_POINT_ID = 'ingridPickupPointId';
+const INGRID_CUSTOM_FIELD_NAME_INSTABOX_TOKEN = 'ingridInstaboxToken';
 const INGRID_CUSTOM_TYPE_RESOURCE_TYPE_ORDER = 'order';
 const INGRID_CUSTOM_TYPE_RESOURCE_TYPE_SHIPPING = 'shipping';
 const INGRID_CUSTOM_FIELD_LABEL_EXTERNAL_METHOD_ID = 'Ingrid External Method ID';
 const INGRID_CUSTOM_FIELD_LABEL_SESSION_ID = 'Ingrid Session ID';
 const INGRID_CUSTOM_FIELD_LABEL_TRANSPORT_ORDER_ID = 'Ingrid Transport Order ID';
 const INGRID_CUSTOM_FIELD_LABEL_PICKUP_POINT_ID = 'Ingrid Pickup Point ID';
+const INGRID_CUSTOM_FIELD_LABEL_INSTABOX_TOKEN = 'Ingrid Instabox Token';
 
 export const handleTaxCategoryAction = async (client: CommercetoolsApiClient, key: string): Promise<boolean> => {
   const taxCategoryExists = await client.checkIfTaxCategoryExistsByKey(key);
@@ -93,6 +95,10 @@ export const handleCustomTypeAction = async (
       {
         name: INGRID_CUSTOM_FIELD_NAME_PICKUP_POINT_ID,
         label: INGRID_CUSTOM_FIELD_LABEL_PICKUP_POINT_ID,
+      },
+      {
+        name: INGRID_CUSTOM_FIELD_NAME_INSTABOX_TOKEN,
+        label: INGRID_CUSTOM_FIELD_LABEL_INSTABOX_TOKEN,
       },
     ],
   };

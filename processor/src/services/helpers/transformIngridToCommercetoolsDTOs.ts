@@ -32,6 +32,7 @@ export const transformIngridDeliveryGroupsToCommercetoolsDataTypes = (
   customShippingMethod: CustomShippingMethod;
   extMethodId: string;
   pickupPointId: string | undefined;
+  instaboxToken: string | undefined;
 } => {
   if (ingridDeliveryGroups.length === 0) {
     throw new CustomError({
@@ -54,7 +55,8 @@ export const transformIngridDeliveryGroupsToCommercetoolsDataTypes = (
   const customShippingMethod = transformIngridDeliveryGroupToCustomShippingMethod(ingridDeliveryGroup);
   const extMethodId = ingridDeliveryGroup.shipping.carrier_product_id;
   const pickupPointId = transformDependantFields(ingridDeliveryGroup);
-  return { billingAddress, deliveryAddress, customShippingMethod, extMethodId, pickupPointId };
+  const instaboxToken = (ingridDeliveryGroup.shipping.meta?.['isb.availability_token'] as string) ?? undefined;
+  return { billingAddress, deliveryAddress, customShippingMethod, extMethodId, pickupPointId, instaboxToken };
 };
 
 /**
@@ -105,7 +107,7 @@ const transformIngridDeliveryGroupToCustomShippingMethod = (
 const transformDependantFields = (ingridDeliveryGroup: IngridDeliveryGroup): string | undefined => {
   const deliveryType = ingridDeliveryGroup.shipping.delivery_type;
   if (deliveryType === 'pickup' || deliveryType === 'instore') {
-    return ingridDeliveryGroup.addresses.location.external_id;
+    return ingridDeliveryGroup.addresses.location?.external_id ?? undefined;
   }
   return undefined;
 };
