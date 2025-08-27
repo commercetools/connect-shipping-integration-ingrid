@@ -499,3 +499,323 @@ export const mockIngridCheckoutSessionWithoutAddresses: IngridGetSessionResponse
   },
   html_snippet: '<div>mock-html-snippet</div>',
 };
+
+export const mockIngridCheckoutSessionWithDeliveryAddons: IngridGetSessionResponse = {
+  session: {
+    checkout_session_id: 'mock-ingrid-session-id',
+    status: 'active',
+    updated_at: '2023-01-01T00:00:00Z',
+    cart: {
+      total_value: 2599,
+      total_discount: 0,
+      items: [],
+      cart_id: 'mock-cart-id',
+    },
+    delivery_groups: [
+      {
+        items: [
+          {
+            sku: 'SKU12345',
+            quantity: 1,
+            shipping_date: {
+              category_tags: [],
+              start: '2023-01-01T00:00:00Z',
+              end: '2023-01-02T00:00:00Z',
+            },
+            site_external_id: 'site-1',
+          },
+        ],
+        shipping: {
+          addons: [],
+          carrier: 'standard',
+          carrier_product_id: 'MPC',
+          delivery_addons: [{ id: 'dummy-addon-id', external_addon_id: 'dummy-external-addon-id' }],
+          delivery_type: 'pickup',
+          meta: {},
+          product: 'standard',
+          route: {
+            shipping_legs: [],
+          },
+          supports: {
+            courier_instructions: false,
+            customer_number: false,
+            door_code: false,
+            search: false,
+          },
+          warehouse: {
+            address: {
+              address_lines: ['Nynäsvägen 96'],
+              city: 'Handen',
+              postal_code: '13635',
+              country: 'SE',
+              apartment_number: '',
+              name: 'Warehouse',
+              street: 'Nynäsvägen',
+              street_number: '96',
+            },
+          },
+        },
+        pricing: {
+          currency: 'SEK',
+          price: 2500,
+          price_components: [
+            {
+              id: 'shipping-1',
+              type: 'PRICE_COMPONENT_TYPE_SHIPPING',
+              value: 2500,
+            },
+          ],
+        },
+        selection: {
+          auto_selected: false,
+          selected_by: 'customer',
+          selected_by_type: 'manual',
+        },
+        addresses: {
+          billing_address: {
+            first_name: 'John',
+            last_name: 'Doe',
+            street: '123 Main St',
+            apartment_number: '1',
+            street_number: '1',
+            city: 'New York',
+            country: 'US',
+            postal_code: '10001',
+            phone: '1234567890',
+            email: 'john.doe@example.com',
+            external_id: '1234567890',
+            address_lines: ['123 Main St'],
+          },
+          customer: {
+            name: 'John Doe',
+            address_lines: ['123 Main St'],
+            apartment_number: '1',
+            city: 'New York',
+            country: 'US',
+            email: 'john.doe@example.com',
+            phone: '1234567890',
+            postal_code: '10001',
+            street: '123 Main St',
+            street_number: '1',
+          },
+          delivery_address: {
+            first_name: 'John',
+            last_name: 'Doe',
+            street: '123 Main St',
+            apartment_number: '1',
+            street_number: '1',
+            city: 'New York',
+            country: 'US',
+            postal_code: '10001',
+            phone: '1234567890',
+            email: 'john.doe@example.com',
+            external_id: '1234567890',
+            address_lines: ['123 Main St'],
+          },
+          // @ts-expect-error: should not be empty but could happen if update() is not properly implemented
+          location: {
+            external_id: '1234567890',
+          },
+          search_address: {
+            address_lines: ['123 Main St'],
+            apartment_number: '1',
+            city: 'New York',
+            country: 'US',
+            postal_code: '10001',
+            street: '123 Main St',
+            street_number: '1',
+            name: 'dummy-name',
+          },
+        },
+        category: {
+          id: 'pickup-point-delivery-eaa0c8e00d054f2cbf26a3dc7fa88a9a',
+          name: 'Pickup point delivery',
+          presented_category_name: 'Leverans till ombud',
+          base_price: 2500,
+          custom_text: '',
+          custom_warning_text: '',
+          tags: [],
+        },
+        delivery_time: {
+          pickup_from_merchant: {
+            earliest: '2025-02-04T00:00:00+01:00',
+            latest: '2025-02-04T00:00:00+01:00',
+          },
+          customer_delivery_promise: {
+            earliest: '2025-02-04T00:00:00+01:00',
+            latest: '2025-02-05T00:00:00+01:00',
+          },
+          carrier_delivery_promise: {
+            earliest: '2025-02-04T00:00:00+01:00',
+            latest: '2025-02-05T00:00:00+01:00',
+          },
+        },
+        group_id: 'group-1',
+        header: 'Pickup Delivery',
+        tos_id: 'tos-1',
+      },
+    ],
+    purchase_country: 'SE',
+  },
+  html_snippet: '<div>mock-html-snippet</div>',
+};
+
+export const mockIngridCheckoutSessionWithInstaboxToken: IngridGetSessionResponse = {
+  session: {
+    checkout_session_id: 'mock-ingrid-session-id',
+    status: 'active',
+    updated_at: '2023-01-01T00:00:00Z',
+    cart: {
+      total_value: 2599,
+      total_discount: 0,
+      items: [],
+      cart_id: 'mock-cart-id',
+    },
+    delivery_groups: [
+      {
+        items: [
+          {
+            sku: 'SKU12345',
+            quantity: 1,
+            shipping_date: {
+              category_tags: [],
+              start: '2023-01-01T00:00:00Z',
+              end: '2023-01-02T00:00:00Z',
+            },
+            site_external_id: 'site-1',
+          },
+        ],
+        shipping: {
+          addons: [],
+          carrier: 'standard',
+          carrier_product_id: 'MPC',
+          delivery_addons: [],
+          delivery_type: 'pickup',
+          meta: { 'isb.availability_token': 'dummy-instabox-availability-token' },
+          product: 'standard',
+          route: {
+            shipping_legs: [],
+          },
+          supports: {
+            courier_instructions: false,
+            customer_number: false,
+            door_code: false,
+            search: false,
+          },
+          warehouse: {
+            address: {
+              address_lines: ['Nynäsvägen 96'],
+              city: 'Handen',
+              postal_code: '13635',
+              country: 'SE',
+              apartment_number: '',
+              name: 'Warehouse',
+              street: 'Nynäsvägen',
+              street_number: '96',
+            },
+          },
+        },
+        pricing: {
+          currency: 'SEK',
+          price: 2500,
+          price_components: [
+            {
+              id: 'shipping-1',
+              type: 'PRICE_COMPONENT_TYPE_SHIPPING',
+              value: 2500,
+            },
+          ],
+        },
+        selection: {
+          auto_selected: false,
+          selected_by: 'customer',
+          selected_by_type: 'manual',
+        },
+        addresses: {
+          billing_address: {
+            first_name: 'John',
+            last_name: 'Doe',
+            street: '123 Main St',
+            apartment_number: '1',
+            street_number: '1',
+            city: 'New York',
+            country: 'US',
+            postal_code: '10001',
+            phone: '1234567890',
+            email: 'john.doe@example.com',
+            external_id: '1234567890',
+            address_lines: ['123 Main St'],
+          },
+          customer: {
+            name: 'John Doe',
+            address_lines: ['123 Main St'],
+            apartment_number: '1',
+            city: 'New York',
+            country: 'US',
+            email: 'john.doe@example.com',
+            phone: '1234567890',
+            postal_code: '10001',
+            street: '123 Main St',
+            street_number: '1',
+          },
+          delivery_address: {
+            first_name: 'John',
+            last_name: 'Doe',
+            street: '123 Main St',
+            apartment_number: '1',
+            street_number: '1',
+            city: 'New York',
+            country: 'US',
+            postal_code: '10001',
+            phone: '1234567890',
+            email: 'john.doe@example.com',
+            external_id: '1234567890',
+            address_lines: ['123 Main St'],
+          },
+          // @ts-expect-error: should not be empty but could happen if update() is not properly implemented
+          location: {
+            external_id: '1234567890',
+          },
+          search_address: {
+            address_lines: ['123 Main St'],
+            apartment_number: '1',
+            city: 'New York',
+            country: 'US',
+            postal_code: '10001',
+            street: '123 Main St',
+            street_number: '1',
+            name: 'dummy-name',
+          },
+        },
+        category: {
+          id: 'pickup-point-delivery-eaa0c8e00d054f2cbf26a3dc7fa88a9a',
+          name: 'Pickup point delivery',
+          presented_category_name: 'Leverans till ombud',
+          base_price: 2500,
+          custom_text: '',
+          custom_warning_text: '',
+          tags: [],
+        },
+        delivery_time: {
+          pickup_from_merchant: {
+            earliest: '2025-02-04T00:00:00+01:00',
+            latest: '2025-02-04T00:00:00+01:00',
+          },
+          customer_delivery_promise: {
+            earliest: '2025-02-04T00:00:00+01:00',
+            latest: '2025-02-05T00:00:00+01:00',
+          },
+          carrier_delivery_promise: {
+            earliest: '2025-02-04T00:00:00+01:00',
+            latest: '2025-02-05T00:00:00+01:00',
+          },
+        },
+        group_id: 'group-1',
+        header: 'Pickup Delivery',
+        tos_id: 'tos-1',
+      },
+    ],
+    purchase_country: 'SE',
+  },
+  html_snippet: '<div>mock-html-snippet</div>',
+};
