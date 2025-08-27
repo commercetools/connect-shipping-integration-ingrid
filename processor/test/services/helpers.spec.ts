@@ -4,7 +4,10 @@ import {
   transformIngridDeliveryGroupsToCommercetoolsDataTypes,
 } from '../../src/services/helpers';
 import { CustomError } from '../../src/libs/fastify/errors';
-import type { IngridDeliveryGroup } from '../../src/clients/ingrid/types/ingrid.client.type';
+import type {
+  IngridDeliveryGroup,
+  IngridDeliveryGroupShipping,
+} from '../../src/clients/ingrid/types/ingrid.client.type';
 
 describe('Helper Functions', () => {
   describe('transformCommercetoolsCartToIngridPayload', () => {
@@ -200,6 +203,90 @@ describe('Helper Functions', () => {
 
       const result = transformIngridDeliveryGroupsToCommercetoolsDataTypes(deliveryGroupWithPickupPointId);
       expect(result.pickupPointId).toBe('1234567890');
+    });
+
+    test('should handle carrier-specific delivery group for instabox', () => {
+      const deliveryGroupWithInstaboxToken: IngridDeliveryGroup[] = [
+        {
+          addresses: {
+            billing_address: {
+              first_name: 'John',
+              last_name: 'Doe',
+              street: 'Main St',
+              street_number: '123',
+              postal_code: '12345',
+              city: 'New York',
+              country: 'US',
+              phone: '1234567890',
+              email: 'john@example.com',
+            },
+            delivery_address: {
+              first_name: 'John',
+              last_name: 'Doe',
+              street: 'Main St',
+              street_number: '123',
+              postal_code: '12345',
+              city: 'New York',
+              country: 'US',
+              phone: '1234567890',
+              email: 'john@example.com',
+            },
+          },
+          location: {},
+          category: { name: 'Standard Shipping' },
+          pricing: { currency: 'USD', price: 1000 },
+          shipping: {
+            carrier_product_id: 'carrier-product-id',
+            delivery_type: 'pickup',
+            carrier: 'Instabox',
+            meta: { 'isb.availability_token': '1234567890' },
+          },
+        } as unknown as IngridDeliveryGroup,
+      ];
+
+      const result = transformIngridDeliveryGroupsToCommercetoolsDataTypes(deliveryGroupWithInstaboxToken);
+      expect(result.instaboxToken).toBe('1234567890');
+    });
+
+    test('should handle present meta data even if it is not instabox', () => {
+      const deliveryGroupWithInstaboxToken: IngridDeliveryGroup[] = [
+        {
+          addresses: {
+            billing_address: {
+              first_name: 'John',
+              last_name: 'Doe',
+              street: 'Main St',
+              street_number: '123',
+              postal_code: '12345',
+              city: 'New York',
+              country: 'US',
+              phone: '1234567890',
+              email: 'john@example.com',
+            },
+            delivery_address: {
+              first_name: 'John',
+              last_name: 'Doe',
+              street: 'Main St',
+              street_number: '123',
+              postal_code: '12345',
+              city: 'New York',
+              country: 'US',
+              phone: '1234567890',
+              email: 'john@example.com',
+            },
+          },
+          category: { name: 'Standard Shipping' },
+          pricing: { currency: 'USD', price: 1000 },
+          shipping: {
+            carrier_product_id: 'carrier-product-id',
+            delivery_type: 'pickup',
+            meta: { 'some.unknown.meta': 'meta-string-data' },
+          },
+        } as unknown as IngridDeliveryGroup,
+      ];
+
+      const result = transformIngridDeliveryGroupsToCommercetoolsDataTypes(deliveryGroupWithInstaboxToken);
+      expect(result.instaboxToken).toBeUndefined();
     });
   });
 });
