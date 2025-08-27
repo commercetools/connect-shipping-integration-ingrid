@@ -91,7 +91,7 @@ export class CommercetoolsApiClient {
       shippingRate: ShippingRateDraft;
       taxCategory: TaxCategoryResourceIdentifier;
     },
-    customFieldsPayload: { name: string; value: string }[],
+    customFieldsPayload: { name: string; value: string | undefined }[],
   ): Promise<Cart> {
     const actions: CartUpdateAction[] = customFieldsPayload.map((customField) => ({
       action: 'setCustomField',

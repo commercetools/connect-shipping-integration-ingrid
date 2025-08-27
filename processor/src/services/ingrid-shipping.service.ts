@@ -117,6 +117,8 @@ export class IngridShippingService extends AbstractShippingService {
 
     // get Ingrid session id
     const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
+    const ingridPickupPointIdFromCocoCart = ctCart.custom?.fields?.ingridPickupPointId;
+    const ingridInstaboxTokenFromCocoCart = ctCart.custom?.fields?.ingridInstaboxToken;
 
     if (!ingridSessionId) {
       appLogger.error(
@@ -150,19 +152,23 @@ export class IngridShippingService extends AbstractShippingService {
     const { billingAddress, deliveryAddress, customShippingMethod, extMethodId, pickupPointId, instaboxToken } =
       transformIngridDeliveryGroupsToCommercetoolsDataTypes(ingridCheckoutSession.session.delivery_groups);
 
-    const customFieldsPayload = [
+    const customFieldsPayload: { name: string; value: string | undefined }[] = [
       {
         name: 'ingridExtMethodId',
         value: extMethodId,
       },
     ];
-    if (pickupPointId) {
+    if (ingridPickupPointIdFromCocoCart || pickupPointId) {
+      // replace/remove existing pickup point ID in case it has already existed in commercetools cart
+      // add pickup point ID in case it is not existing in commercetools cart
       customFieldsPayload.push({
         name: 'ingridPickupPointId',
         value: pickupPointId,
       });
     }
-    if (instaboxToken) {
+    if (ingridInstaboxTokenFromCocoCart || instaboxToken) {
+      // replace/remove existing instabox availability token in case it has already existed in commercetools cart
+      // add instabox availability token in case it is not existing in commercetools cart
       customFieldsPayload.push({
         name: 'ingridInstaboxToken',
         value: instaboxToken,
