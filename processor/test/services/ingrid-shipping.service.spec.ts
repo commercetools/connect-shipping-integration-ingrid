@@ -549,6 +549,7 @@ describe('ingrid-shipping.service', () => {
             value: '{"id":"dummy-addon-id","external_addon_id":"dummy-external-addon-id"}',
           }),
         ],
+
       );
     });
 
@@ -637,6 +638,8 @@ describe('ingrid-shipping.service', () => {
       // Verify that updateCheckoutSession was called
       expect(updateSessionSpy).toHaveBeenCalled();
     });
+
+    
 
     test('should throw error when cart has no taxed price', async () => {
       // Mock getting cart with Ingrid session

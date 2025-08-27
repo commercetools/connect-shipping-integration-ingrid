@@ -57,7 +57,6 @@ export const transformCommercetoolsCartToIngridPayload = (
 
     payload.prefill_delivery_address = deliveryAddress;
   }
-
   return payload;
 };
 
@@ -80,6 +79,7 @@ const transformCommercetoolsCartToIngridCart = (ctCart: Cart, voucherCodes?: str
     total_discount: totalDiscount,
     items: lineItems,
     cart_id: ctCart.id,
+    attributes: transformCommercetoolsCustomFieldsToIngridCustomFields(ctCart.custom?.fields ?? {}),
   };
   if (voucherCodes && voucherCodes.length > 0) {
     ingridCart.vouchers = voucherCodes;
@@ -116,20 +116,33 @@ const transformCommercetoolsLineItemsToIngridCartItems = (items: LineItem[], loc
 const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: string): IngridCartItem => {
   const imageUrl = getImageUrl(item);
   const lineItemDiscount = calculateLineItemDiscount(item);
+
+  const weight = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'weight')?.value;
+  const height = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'height')?.value;
+  const width = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'width')?.value;
+  const length = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'length')?.value;
+
   const ingridCartItem: IngridCartItem = {
     // item.custom.fields may be undefined
-    attributes: transformCommercetoolsLineItemToIngridCartItemWithCustomFields(item.custom?.fields ?? {}),
+    attributes: transformCommercetoolsCustomFieldsToIngridCustomFields(item.custom?.fields ?? {}),
     discount: lineItemDiscount,
     image_url: imageUrl,
     name: item.name[locale]!,
     price: item.taxedPrice?.totalGross.centAmount ?? item.price.value.centAmount, // use "taxedPrice.totalGross" because Ingrid accepts tax inclusive price.
     quantity: item.quantity,
     sku: item.variant.sku!,
+    weight,
+    dimensions: {
+      height,
+      width,
+      length,
+    },
   };
+
   return ingridCartItem;
 };
 
-const transformCommercetoolsLineItemToIngridCartItemWithCustomFields = (fields: FieldContainer): string[] => {
+const transformCommercetoolsCustomFieldsToIngridCustomFields = (fields: FieldContainer): string[] => {
   const result = Object.entries(fields).map(([key, value]) => `${key}=${value}`);
   return result;
 };

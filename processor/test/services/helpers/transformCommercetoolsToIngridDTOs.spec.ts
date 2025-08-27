@@ -142,6 +142,58 @@ describe('transformCommercetoolsToIngridDTOs', () => {
     expect(payload.cart.total_discount).toEqual(1099); // 500 (cart discount) + 599 (line item discount)
   });
 
+  test('transformCommercetoolsLineItemToIngridCartItemWithProductDimension', async () => {
+    const lineItem = cart.lineItems[0];
+    if (!lineItem) {
+      throw new Error('Test setup error: cart.lineItems[0] is undefined');
+    }
+    const cartWithLineItemCustomFields: Cart = {
+      ...cart,
+      lineItems: [
+        {
+          ...lineItem,
+          variant: {
+            ...lineItem.variant,
+            attributes: [
+              { name: 'height', value: 10 },
+              { name: 'width', value: 20 },
+              { name: 'length', value: 30 },
+            ],
+          },
+        },
+      ],
+    };
+    const result = transformCommercetoolsCartToIngridPayload(cartWithLineItemCustomFields);
+
+    expect(result.cart.items[0].dimensions).toBeDefined();
+    expect(result.cart.items[0].dimensions?.length).toStrictEqual(30);
+    expect(result.cart.items[0].dimensions?.height).toStrictEqual(10);
+    expect(result.cart.items[0].dimensions?.width).toStrictEqual(20);
+  });
+
+  test('transformCommercetoolsLineItemToIngridCartItemWithProductWeight', async () => {
+    const lineItem = cart.lineItems[0];
+    if (!lineItem) {
+      throw new Error('Test setup error: cart.lineItems[0] is undefined');
+    }
+    const cartWithLineItemCustomFields: Cart = {
+      ...cart,
+      lineItems: [
+        {
+          ...lineItem,
+          variant: {
+            ...lineItem.variant,
+            attributes: [{ name: 'weight', value: 10000 }],
+          },
+        },
+      ],
+    };
+    const result = transformCommercetoolsCartToIngridPayload(cartWithLineItemCustomFields);
+
+    expect(result.cart.items[0].weight).toBeDefined();
+    expect(result.cart.items[0].weight).toStrictEqual(10000);
+  });
+
   test('transformCommercetoolsLineItemToIngridCartItemWithCustomFields', async () => {
     const lineItem = cart.lineItems[0];
     if (!lineItem) {

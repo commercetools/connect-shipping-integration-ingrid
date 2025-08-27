@@ -119,6 +119,8 @@ export class IngridShippingService extends AbstractShippingService {
     const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
     const ingridPickupPointIdFromCocoCart = ctCart.custom?.fields?.ingridPickupPointId;
     const ingridDeliveryAddonsFromCocoCart = ctCart.custom?.fields?.ingridDeliveryAddons;
+    const ingridInstaboxTokenFromCocoCart = ctCart.custom?.fields?.ingridInstaboxToken;
+
     if (!ingridSessionId) {
       appLogger.error(
         `[ERROR]: Failed to update composable commerce platform, Ingrid session ID on cart with ID "${ctCart.id}" not found.`,
@@ -148,8 +150,16 @@ export class IngridShippingService extends AbstractShippingService {
     }
 
     // transform Ingrid checkout session delivery groups to commercetools data types
-    const { billingAddress, deliveryAddress, customShippingMethod, extMethodId, pickupPointId, deliveryAddons } =
-      transformIngridDeliveryGroupsToCommercetoolsDataTypes(ingridCheckoutSession.session.delivery_groups);
+
+    const {
+      billingAddress,
+      deliveryAddress,
+      customShippingMethod,
+      extMethodId,
+      pickupPointId,
+      deliveryAddons,
+      instaboxToken,
+    } = transformIngridDeliveryGroupsToCommercetoolsDataTypes(ingridCheckoutSession.session.delivery_groups);
 
     const customFieldsPayload = [
       {
@@ -172,6 +182,15 @@ export class IngridShippingService extends AbstractShippingService {
       customFieldsPayload.push({
         name: 'ingridDeliveryAddons',
         value: deliveryAddons,
+      });
+    }
+
+    if (ingridInstaboxTokenFromCocoCart || instaboxToken) {
+      // replace/remove existing instabox availability token in case it has already existed in commercetools cart
+      // add instabox availability token in case it is not existing in commercetools cart
+      customFieldsPayload.push({
+        name: 'ingridInstaboxToken',
+        value: instaboxToken,
       });
     }
 

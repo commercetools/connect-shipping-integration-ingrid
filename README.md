@@ -164,6 +164,8 @@ flowchart TD
 ## Important Notes
 - The connector supports Ingrid voucher codes input. If voucher codes are inputted or modified in the merchant checkout page after Ingrid shipping component has been rendered, it is necessary to reinvoke init() provided by the Enabler. For details about Enabler functions, please read [Usage](./enabler/README.md#usage)
 
+- To support the cart item dimension and weight, the connector supposes the dimension can be obtained as product variant attributes `height`, `weight` and `length` in millimeter unit from commercetools project, while the weight is supposed to be found as product variant attribute `weight` in gram unit.
+
 ## Prerequisite
 
 #### 1. commercetools composable commerce API client
