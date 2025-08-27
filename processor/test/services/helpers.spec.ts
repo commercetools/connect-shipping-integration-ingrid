@@ -4,10 +4,7 @@ import {
   transformIngridDeliveryGroupsToCommercetoolsDataTypes,
 } from '../../src/services/helpers';
 import { CustomError } from '../../src/libs/fastify/errors';
-import type {
-  IngridDeliveryGroup,
-  IngridDeliveryGroupShipping,
-} from '../../src/clients/ingrid/types/ingrid.client.type';
+import type { IngridDeliveryGroup } from '../../src/clients/ingrid/types/ingrid.client.type';
 
 describe('Helper Functions', () => {
   describe('transformCommercetoolsCartToIngridPayload', () => {
