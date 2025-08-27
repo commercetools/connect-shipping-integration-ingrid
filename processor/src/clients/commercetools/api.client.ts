@@ -10,6 +10,7 @@ import {
   type TaxCategory,
   TypeUpdateAction,
   FieldDefinition,
+  CartUpdateAction,
 } from '@commercetools/platform-sdk';
 import {
   ClientBuilder,
@@ -90,8 +91,13 @@ export class CommercetoolsApiClient {
       shippingRate: ShippingRateDraft;
       taxCategory: TaxCategoryResourceIdentifier;
     },
-    customFieldPayload: { name: string; value: string },
+    customFieldsPayload: { name: string; value: string }[],
   ): Promise<Cart> {
+    const actions: CartUpdateAction[] = customFieldsPayload.map((customField) => ({
+      action: 'setCustomField',
+      name: customField.name,
+      value: customField.value,
+    }));
     const response = await this.client
       .carts()
       .withId({ ID: cartId })
@@ -102,7 +108,7 @@ export class CommercetoolsApiClient {
             { action: 'setShippingAddress', address: addresses.shippingAddress },
             { action: 'setBillingAddress', address: addresses.billingAddress },
             { action: 'setCustomShippingMethod', ...customShippingMethodPayload },
-            { action: 'setCustomField', name: customFieldPayload.name, value: customFieldPayload.value },
+            ...actions,
           ],
         },
       })

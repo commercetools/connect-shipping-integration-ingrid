@@ -372,7 +372,9 @@ export const mockIngridCheckoutSessionWithAddresses: IngridGetSessionResponse = 
             address_lines: ['123 Main St'],
           },
           // @ts-expect-error: should not be empty but could happen if update() is not properly implemented
-          location: {},
+          location: {
+            external_id: '1234567890',
+          },
           search_address: {
             address_lines: ['123 Main St'],
             apartment_number: '1',
