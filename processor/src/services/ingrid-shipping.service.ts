@@ -117,7 +117,8 @@ export class IngridShippingService extends AbstractShippingService {
 
     // get Ingrid session id
     const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
-
+    const ingridPickupPointIdFromCocoCart = ctCart.custom?.fields?.ingridPickupPointId;
+    const ingridDeliveryAddonsFromCocoCart = ctCart.custom?.fields?.ingridDeliveryAddons;
     if (!ingridSessionId) {
       appLogger.error(
         `[ERROR]: Failed to update composable commerce platform, Ingrid session ID on cart with ID "${ctCart.id}" not found.`,
@@ -147,7 +148,7 @@ export class IngridShippingService extends AbstractShippingService {
     }
 
     // transform Ingrid checkout session delivery groups to commercetools data types
-    const { billingAddress, deliveryAddress, customShippingMethod, extMethodId, pickupPointId } =
+    const { billingAddress, deliveryAddress, customShippingMethod, extMethodId, pickupPointId, deliveryAddons } =
       transformIngridDeliveryGroupsToCommercetoolsDataTypes(ingridCheckoutSession.session.delivery_groups);
 
     const customFieldsPayload = [
@@ -156,10 +157,21 @@ export class IngridShippingService extends AbstractShippingService {
         value: extMethodId,
       },
     ];
-    if (pickupPointId) {
+    if (ingridPickupPointIdFromCocoCart || pickupPointId) {
+      // replace/remove existing pickup point ID in case it has already existed in commercetools cart
+      // add pickup point ID in case it is not existing in commercetools cart
       customFieldsPayload.push({
         name: 'ingridPickupPointId',
         value: pickupPointId,
+      });
+    }
+
+    if (ingridDeliveryAddonsFromCocoCart || deliveryAddons) {
+      // replace/remove existing addons in case it has already existed in commercetools cart
+      // add addons in case it is not existing in commercetools cart
+      customFieldsPayload.push({
+        name: 'ingridDeliveryAddons',
+        value: deliveryAddons,
       });
     }
 

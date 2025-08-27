@@ -30,8 +30,9 @@ export const transformIngridDeliveryGroupsToCommercetoolsDataTypes = (
   billingAddress: BaseAddress;
   deliveryAddress: BaseAddress;
   customShippingMethod: CustomShippingMethod;
-  extMethodId: string;
+  extMethodId: string | undefined;
   pickupPointId: string | undefined;
+  deliveryAddons: string | undefined;
 } => {
   if (ingridDeliveryGroups.length === 0) {
     throw new CustomError({
@@ -54,7 +55,8 @@ export const transformIngridDeliveryGroupsToCommercetoolsDataTypes = (
   const customShippingMethod = transformIngridDeliveryGroupToCustomShippingMethod(ingridDeliveryGroup);
   const extMethodId = ingridDeliveryGroup.shipping.carrier_product_id;
   const pickupPointId = transformDependantFields(ingridDeliveryGroup);
-  return { billingAddress, deliveryAddress, customShippingMethod, extMethodId, pickupPointId };
+  const deliveryAddons: string | undefined = transformDeliveryAddons(ingridDeliveryGroup);
+  return { billingAddress, deliveryAddress, customShippingMethod, extMethodId, pickupPointId, deliveryAddons };
 };
 
 /**
@@ -108,4 +110,11 @@ const transformDependantFields = (ingridDeliveryGroup: IngridDeliveryGroup): str
     return ingridDeliveryGroup.addresses.location.external_id;
   }
   return undefined;
+};
+
+const transformDeliveryAddons = (ingridDeliveryGroup: IngridDeliveryGroup): string | undefined => {
+  const ingridDeliveryAddons = ingridDeliveryGroup.shipping.delivery_addons;
+  if (!ingridDeliveryAddons) return undefined;
+
+  return ingridDeliveryAddons.map((addon) => JSON.stringify(addon)).join(',');
 };
