@@ -4,17 +4,14 @@ import { IngridShippingService } from '../../src/services/ingrid-shipping.servic
 import { AbstractShippingService } from '../../src/services/abstract-shipping.service';
 import { IngridApiClient } from '../../src/clients/ingrid/ingrid.client';
 import { CommercetoolsApiClient } from '../../src/clients/commercetools/api.client';
-import {
-  IngridBasePath,
-  IngridUrls,
-  IngridEnvironment,
-  IngridDeliveryGroup,
-} from '../../src/clients/ingrid/types/ingrid.client.type';
+import { IngridBasePath, IngridUrls, IngridEnvironment } from '../../src/clients/ingrid/types/ingrid.client.type';
 import {
   mockCreateCheckoutSessionSuccessResponse,
   mockCreateCheckoutSessionAuthFailureResponse,
   mockIngridCheckoutSessionWithAddresses,
   mockIngridCheckoutSessionWithoutAddresses,
+  mockIngridCheckoutSessionWithDeliveryAddons,
+  mockIngridCheckoutSessionWithInstaboxToken,
 } from '../mock/mock-ingrid-client-objects';
 import {
   cart,
@@ -379,14 +376,6 @@ describe('ingrid-shipping.service', () => {
         }),
       }));
 
-      const deliveryGroups: IngridDeliveryGroup[] = mockIngridCheckoutSessionWithAddresses.session.delivery_groups.map(
-        (group) => {
-          group.shipping.delivery_type = 'pickup';
-          group.addresses.location.external_id = 'dummy-pickup-point-id';
-          return group;
-        },
-      );
-
       if (!deliveryGroup?.addresses?.billing_address || !deliveryGroup?.addresses?.delivery_address) {
         throw new Error('Mock data is missing required address information');
       }
@@ -398,7 +387,7 @@ describe('ingrid-shipping.service', () => {
           status: 'active',
           updated_at: '2021-01-01T00:00:00.000Z',
           cart: mockIngridCheckoutSessionWithAddresses.session.cart,
-          delivery_groups: deliveryGroups,
+          delivery_groups: mockIngridCheckoutSessionWithAddresses.session.delivery_groups,
           purchase_country: 'DE',
           // ... other session properties
         },
@@ -438,14 +427,14 @@ describe('ingrid-shipping.service', () => {
           }),
           expect.objectContaining({
             name: 'ingridPickupPointId',
-            value: 'dummy-pickup-point-id',
+            value: '1234567890',
           }),
         ],
       );
     });
 
     test('should update cart with delivery addons from Ingrid session', async () => {
-      const deliveryGroup = mockIngridCheckoutSessionWithAddresses.session.delivery_groups[0];
+      const deliveryGroup = mockIngridCheckoutSessionWithDeliveryAddons.session.delivery_groups[0];
       if (!deliveryGroup?.addresses?.billing_address || !deliveryGroup?.addresses?.delivery_address) {
         throw new Error('Mock data is missing required address information');
       }
@@ -462,7 +451,7 @@ describe('ingrid-shipping.service', () => {
       // Mock getting Ingrid checkout session
       jest
         .spyOn(IngridApiClient.prototype, 'getCheckoutSession')
-        .mockResolvedValue(mockIngridCheckoutSessionWithAddresses);
+        .mockResolvedValue(mockIngridCheckoutSessionWithDeliveryAddons);
 
       // Mock updating cart with addresses and shipping method
       jest
@@ -484,13 +473,6 @@ describe('ingrid-shipping.service', () => {
         }),
       }));
 
-      const deliveryGroups: IngridDeliveryGroup[] = mockIngridCheckoutSessionWithAddresses.session.delivery_groups.map(
-        (group) => {
-          group.shipping.delivery_addons = [{ id: 'dummy-addon-id', external_addon_id: 'dummy-external-addon-id' }];
-          return group;
-        },
-      );
-
       if (!deliveryGroup?.addresses?.billing_address || !deliveryGroup?.addresses?.delivery_address) {
         throw new Error('Mock data is missing required address information');
       }
@@ -501,14 +483,14 @@ describe('ingrid-shipping.service', () => {
           checkout_session_id: 'mock-ingrid-session-id',
           status: 'active',
           updated_at: '2021-01-01T00:00:00.000Z',
-          cart: mockIngridCheckoutSessionWithAddresses.session.cart,
-          delivery_groups: deliveryGroups,
+          cart: mockIngridCheckoutSessionWithDeliveryAddons.session.cart,
+          delivery_groups: mockIngridCheckoutSessionWithDeliveryAddons.session.delivery_groups,
           purchase_country: 'DE',
           // ... other session properties
         },
         html_snippet: '<div>Ingrid Checkout</div>',
       });
-
+      console.log('=== should update cart with delivery addons from Ingrid session ===');
       const result = await shippingService.update();
 
       expect(result.data).toEqual({
@@ -542,14 +524,13 @@ describe('ingrid-shipping.service', () => {
           }),
           expect.objectContaining({
             name: 'ingridPickupPointId',
-            value: 'dummy-pickup-point-id',
+            value: '1234567890',
           }),
           expect.objectContaining({
             name: 'ingridDeliveryAddons',
             value: '{"id":"dummy-addon-id","external_addon_id":"dummy-external-addon-id"}',
           }),
         ],
-
       );
     });
 
@@ -639,7 +620,106 @@ describe('ingrid-shipping.service', () => {
       expect(updateSessionSpy).toHaveBeenCalled();
     });
 
-    
+    test('should update cart with instabox availability token from Ingrid session', async () => {
+      const deliveryGroup = mockIngridCheckoutSessionWithInstaboxToken.session.delivery_groups[0];
+      if (!deliveryGroup?.addresses?.billing_address || !deliveryGroup?.addresses?.delivery_address) {
+        throw new Error('Mock data is missing required address information');
+      }
+
+      // Mock getting cart with Ingrid session
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue({
+        ...cart,
+        custom: {
+          type: { typeId: 'type', id: 'type-id' },
+          fields: { ingridSessionId: 'mock-ingrid-session-id' },
+        },
+      });
+
+      // Mock getting Ingrid checkout session
+      jest
+        .spyOn(IngridApiClient.prototype, 'getCheckoutSession')
+        .mockResolvedValue(mockIngridCheckoutSessionWithInstaboxToken);
+
+      // Mock updating cart with addresses and shipping method
+      jest
+        .spyOn(CommercetoolsApiClient.prototype, 'updateCartWithAddressAndShippingMethod')
+        .mockResolvedValue(cartWithShippingAddress);
+
+      // Mock the transformCommercetoolsCartToIngridPayload function for the update case
+      jest.mock('../../src/services/helpers/transformCommercetoolsToIngridDTOs', () => ({
+        transformCommercetoolsCartToIngridPayload: jest.fn().mockReturnValue({
+          cart: {
+            items: [{ id: 'item-1', quantity: 1 }],
+            total_value: 2599,
+            total_discount: 0,
+            cart_id: 'cart-id',
+          },
+          locales: ['de-DE'],
+          purchase_country: 'DE',
+          purchase_currency: 'EUR',
+        }),
+      }));
+
+      if (!deliveryGroup?.addresses?.billing_address || !deliveryGroup?.addresses?.delivery_address) {
+        throw new Error('Mock data is missing required address information');
+      }
+
+      // Mock the updateCheckoutSession method
+      jest.spyOn(IngridApiClient.prototype, 'updateCheckoutSession').mockResolvedValue({
+        session: {
+          checkout_session_id: 'mock-ingrid-session-id',
+          status: 'active',
+          updated_at: '2021-01-01T00:00:00.000Z',
+          cart: mockIngridCheckoutSessionWithInstaboxToken.session.cart,
+          delivery_groups: mockIngridCheckoutSessionWithInstaboxToken.session.delivery_groups,
+          purchase_country: 'DE',
+          // ... other session properties
+        },
+        html_snippet: '<div>Ingrid Checkout</div>',
+      });
+
+      const result = await shippingService.update();
+
+      expect(result.data).toEqual({
+        success: true,
+        cartVersion: cart.version,
+        ingridSessionId: 'mock-ingrid-session-id',
+      });
+
+      expect(CommercetoolsApiClient.prototype.updateCartWithAddressAndShippingMethod).toHaveBeenCalledWith(
+        cart.id,
+        cart.version,
+        {
+          billingAddress: expect.objectContaining({
+            firstName: deliveryGroup.addresses.billing_address.first_name,
+            lastName: deliveryGroup.addresses.billing_address.last_name,
+          }),
+          shippingAddress: expect.objectContaining({
+            firstName: deliveryGroup.addresses.delivery_address.first_name,
+            lastName: deliveryGroup.addresses.delivery_address.last_name,
+          }),
+        },
+        expect.objectContaining({
+          shippingMethodName: expect.any(String),
+          shippingRate: expect.any(Object),
+          taxCategory: expect.any(Object),
+        }),
+        [
+          expect.objectContaining({
+            name: 'ingridExtMethodId',
+            value: 'MPC',
+          }),
+          expect.objectContaining({
+            name: 'ingridPickupPointId',
+            value: '1234567890',
+          }),
+          expect.objectContaining({
+            name: 'ingridInstaboxToken',
+            value: 'dummy-instabox-availability-token',
+          }),
+        ],
+      );
+    });
 
     test('should throw error when cart has no taxed price', async () => {
       // Mock getting cart with Ingrid session

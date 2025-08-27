@@ -161,7 +161,7 @@ export class IngridShippingService extends AbstractShippingService {
       instaboxToken,
     } = transformIngridDeliveryGroupsToCommercetoolsDataTypes(ingridCheckoutSession.session.delivery_groups);
 
-    const customFieldsPayload = [
+    const customFieldsPayload: { name: string; value: string | undefined }[] = [
       {
         name: 'ingridExtMethodId',
         value: extMethodId,
@@ -175,7 +175,6 @@ export class IngridShippingService extends AbstractShippingService {
         value: pickupPointId,
       });
     }
-
     if (ingridDeliveryAddonsFromCocoCart || deliveryAddons) {
       // replace/remove existing addons in case it has already existed in commercetools cart
       // add addons in case it is not existing in commercetools cart
@@ -184,7 +183,6 @@ export class IngridShippingService extends AbstractShippingService {
         value: deliveryAddons,
       });
     }
-
     if (ingridInstaboxTokenFromCocoCart || instaboxToken) {
       // replace/remove existing instabox availability token in case it has already existed in commercetools cart
       // add instabox availability token in case it is not existing in commercetools cart
@@ -193,7 +191,6 @@ export class IngridShippingService extends AbstractShippingService {
         value: instaboxToken,
       });
     }
-
     const updatedCart = await this.commercetoolsClient.updateCartWithAddressAndShippingMethod(
       ctCart.id,
       ctCart.version,
