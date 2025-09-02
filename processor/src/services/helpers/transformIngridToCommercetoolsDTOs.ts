@@ -85,8 +85,10 @@ const transformIngridAddressToCommercetoolsAddress = (
     streetName: address.street,
     streetNumber: address.street_number,
     postalCode: address.postal_code,
+    apartment: address.apartment_number,
     city: address.city,
     country: address.country,
+    region: address.region,
     phone: address.phone,
     email: address.email,
   };
