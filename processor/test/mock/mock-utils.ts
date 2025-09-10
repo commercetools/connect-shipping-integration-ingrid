@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { http, HttpHandler, HttpResponse } from 'msw';
 
 function createMockResponse(respCode: number, data?: any): HttpResponse {

@@ -1,17 +1,17 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, test, jest, expect } from '@jest/globals';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { setupServer } from 'msw/node';
 import { appLogger } from '../../../../src/libs/logger';
 import { mockRequest } from '../../../mock/mock-utils';
-import { DefaultSessionService, DefaultAuthorizationService } from '../../../../src/libs/auth/services';
-import { GeneralError, ErrorAuthErrorResponse } from '../../../../src/libs/fastify/errors';
+import { DefaultAuthorizationService, DefaultSessionService } from '../../../../src/libs/auth/services';
+import { ErrorAuthErrorResponse, GeneralError } from '../../../../src/libs/fastify/errors';
 import {
   ErrorPrivateFields,
   InactiveSessionErrorPrivateFields,
-  mockSessionId,
-  mockSessionUrl,
   mockGetExpiredSessionResponse,
   mockGetSessionResponse,
   mockProjectKey,
+  mockSessionId,
+  mockSessionUrl,
 } from '../../../mock/mock-session';
 import { mockAccessToken } from '../../../mock/mock-authorization';
 

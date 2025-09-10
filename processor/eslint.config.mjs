@@ -31,7 +31,7 @@ export default [
       prettier,
       'unused-imports': unusedImports,
     },
-    files: ['*.ts'],
+    files: ['**/*.ts'],
     languageOptions: {
       globals: {
         ...globals.node,
@@ -48,17 +48,9 @@ export default [
       'no-irregular-whitespace': 'warn',
       'unused-imports/no-unused-imports': 'error',
 
-      'unused-imports/no-unused-vars': [
-        'warn',
-        {
-          vars: 'all',
-          varsIgnorePattern: '^_',
-          args: 'after-used',
-          argsIgnorePattern: '^_',
-        },
-      ],
+  
 
-      '@typescript-eslint/no-unused-vars': ['warn'],
+      
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-var-requires': 'off',
 
@@ -69,6 +61,14 @@ export default [
           ignoreDeclarationSort: true,
           ignoreMemberSort: false,
           memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
+        },
+      ],
+      '@typescript-eslint/no-unused-vars': ['warn',
+        {
+          vars: 'all',
+          varsIgnorePattern: '^_',
+          args: 'after-used',
+          argsIgnorePattern: '^_',
         },
       ],
     },

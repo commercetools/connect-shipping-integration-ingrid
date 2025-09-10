@@ -1,4 +1,4 @@
-import { describe, test, afterAll, expect, beforeAll } from '@jest/globals';
+import { afterAll, beforeAll, describe, expect, test } from '@jest/globals';
 import { setupServer } from 'msw/node';
 import { mockRequest } from '../../mock/mock-utils';
 import { cart } from '../../mock/mock-cart';

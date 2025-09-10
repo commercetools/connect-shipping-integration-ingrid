@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from '@jest/globals';
-import Fastify, { type FastifyInstance, FastifyError } from 'fastify';
+import Fastify, { FastifyError, type FastifyInstance } from 'fastify';
 import { errorHandler } from '../../../src/libs/fastify/error-handler';
 import { CustomErrorAdditionalOpts } from '../../../src/libs/fastify/errors/dtos/error.dto';
 import { requestContextPlugin } from '../../../src/libs/fastify/context';

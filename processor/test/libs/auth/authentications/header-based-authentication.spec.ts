@@ -1,4 +1,4 @@
-import { describe, test, expect } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
 import { HeaderBasedAuthentication } from '../../../../src/libs/auth/authentications/header-based-authentication';
 
 describe('HeaderBasedAuthentication', () => {

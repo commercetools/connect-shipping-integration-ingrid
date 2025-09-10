@@ -1,6 +1,6 @@
 import type {
-  IngridCreateSessionResponse,
   IngridCreateSessionRequestPayload,
+  IngridCreateSessionResponse,
   IngridGetSessionResponse,
   IngridUpdateSessionRequestPayload,
   IngridUpdateSessionResponse,

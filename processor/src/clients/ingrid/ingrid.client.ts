@@ -2,12 +2,12 @@ import axios, { type AxiosInstance } from 'axios';
 
 import {
   IngridBasePath,
-  IngridUrls,
-  type IngridGetSessionResponse,
   type IngridCreateSessionRequestPayload,
   type IngridCreateSessionResponse,
+  type IngridGetSessionResponse,
   type IngridUpdateSessionRequestPayload,
   type IngridUpdateSessionResponse,
+  IngridUrls,
 } from './types/ingrid.client.type';
 import { AbstractIngridClient } from './abstract-ingrid.client';
 import { CustomError } from '../../libs/fastify/errors';

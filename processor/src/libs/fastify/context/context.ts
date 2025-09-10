@@ -10,9 +10,9 @@ export type ContextData = {
   customerId?: string;
   path?: string;
   pathTemplate?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   pathParams?: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   query?: any;
   correlationId: string;
   requestId: string;

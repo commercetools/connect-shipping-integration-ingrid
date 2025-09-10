@@ -1,8 +1,8 @@
-import { beforeEach, describe, test, jest, expect } from '@jest/globals';
+import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 import { appLogger } from '../../../../src/libs/logger';
 import { SessionHeaderAuthenticationManager } from '../../../../src/libs/auth/authentications/session-header-auth-manager';
-import { DefaultSessionService, DefaultAuthorizationService } from '../../../../src/libs/auth/services';
+import { DefaultAuthorizationService, DefaultSessionService } from '../../../../src/libs/auth/services';
 import { HeaderBasedAuthentication } from '../../../../src/libs/auth/authentications';
 
 describe('session-header-auth-manager', () => {

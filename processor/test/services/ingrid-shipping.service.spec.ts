@@ -1,31 +1,31 @@
-import { describe, test, expect, afterEach, jest, afterAll, beforeAll, beforeEach } from '@jest/globals';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { setupServer } from 'msw/node';
 import { IngridShippingService } from '../../src/services/ingrid-shipping.service';
 import { AbstractShippingService } from '../../src/services/abstract-shipping.service';
 import { IngridApiClient } from '../../src/clients/ingrid/ingrid.client';
 import { CommercetoolsApiClient } from '../../src/clients/commercetools/api.client';
-import { IngridBasePath, IngridUrls, IngridEnvironment } from '../../src/clients/ingrid/types/ingrid.client.type';
+import { IngridBasePath, IngridEnvironment, IngridUrls } from '../../src/clients/ingrid/types/ingrid.client.type';
 import {
-  mockCreateCheckoutSessionSuccessResponse,
   mockCreateCheckoutSessionAuthFailureResponse,
+  mockCreateCheckoutSessionSuccessResponse,
   mockIngridCheckoutSessionWithAddresses,
-  mockIngridCheckoutSessionWithoutAddresses,
   mockIngridCheckoutSessionWithDeliveryAddons,
   mockIngridCheckoutSessionWithInstaboxToken,
+  mockIngridCheckoutSessionWithoutAddresses,
 } from '../mock/mock-ingrid-client-objects';
 import {
   cart,
-  cartWithoutCustomType,
   cartWithAdditionalCustomType,
-  setCustomFieldFailureResponse,
+  cartWithoutCustomType,
   cartWithShippingAddress,
+  setCustomFieldFailureResponse,
 } from '../mock/mock-cart';
 import { sessionType } from '../mock/mock-type';
 import { mockRequest } from '../mock/mock-utils';
 import { InitSessionSuccessResponseSchemaDTO } from '../../src/dtos/ingrid-shipping.dto';
 import { CustomError } from '../../src/libs/fastify/errors';
 import { appLogger } from '../../src/libs/logger';
-import { RequestContextData, updateRequestContext, getRequestContext } from '../../src/libs/fastify/context';
+import { getRequestContext, RequestContextData, updateRequestContext } from '../../src/libs/fastify/context';
 
 describe('ingrid-shipping.service', () => {
   const mockServer = setupServer();
@@ -490,7 +490,6 @@ describe('ingrid-shipping.service', () => {
         },
         html_snippet: '<div>Ingrid Checkout</div>',
       });
-      console.log('=== should update cart with delivery addons from Ingrid session ===');
       const result = await shippingService.update();
 
       expect(result.data).toEqual({

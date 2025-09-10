@@ -1,20 +1,20 @@
 import { randomUUID } from 'crypto';
 import {
-  createApiBuilderFromCtpClient,
-  ByProjectKeyRequestBuilder,
-  type ShippingRateDraft,
   type BaseAddress,
-  type TaxCategoryResourceIdentifier,
+  ByProjectKeyRequestBuilder,
   type Cart,
-  type Type,
-  type TaxCategory,
-  TypeUpdateAction,
-  FieldDefinition,
   CartUpdateAction,
+  createApiBuilderFromCtpClient,
+  FieldDefinition,
+  type ShippingRateDraft,
+  type TaxCategory,
+  type TaxCategoryResourceIdentifier,
+  type Type,
+  TypeUpdateAction,
 } from '@commercetools/platform-sdk';
 import {
-  ClientBuilder,
   type AuthMiddlewareOptions,
+  ClientBuilder,
   type CorrelationIdMiddlewareOptions,
   type HttpMiddlewareOptions,
 } from '@commercetools/ts-client';

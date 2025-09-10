@@ -1,4 +1,4 @@
-import { describe, test, expect } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
 import { SessionAuthentication } from '../../../../src/libs/auth/authentications/session-authentication';
 import { SessionPrincipal } from '../../../../src/libs/auth/types';
 

@@ -1,10 +1,11 @@
 import { CustomError } from '../../libs/fastify/errors';
 import type { Cart, FieldContainer, LineItem } from '@commercetools/platform-sdk';
 import type {
-  IngridCreateSessionRequestPayload,
-  IngridDeliveryAddress,
   IngridCart,
   IngridCartItem,
+  IngridCreateSessionRequestPayload,
+  IngridDeliveryAddress,
+  IngridShippingDate,
 } from '../../clients/ingrid/types/ingrid.client.type';
 
 /**
@@ -121,13 +122,15 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
   const height = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'height')?.value;
   const width = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'width')?.value;
   const length = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'length')?.value;
-
+  const shippingDate: IngridShippingDate | undefined = transformCommercetoolsHandlingTimeToShippingDate(
+    item.custom?.fields ?? {},
+  ); // item.custom.fields may be undefined
   const ingridCartItem: IngridCartItem = {
-    // item.custom.fields may be undefined
-    attributes: transformCommercetoolsCustomFieldsToIngridCustomFields(item.custom?.fields ?? {}),
+    attributes: transformCommercetoolsCustomFieldsToIngridCustomFields(item.custom?.fields ?? {}), // item.custom.fields may be undefined
     discount: lineItemDiscount,
     image_url: imageUrl,
     name: item.name[locale]!,
+    shipping_date: shippingDate,
     price: item.taxedPrice?.totalGross.centAmount ?? item.price.value.centAmount, // use "taxedPrice.totalGross" because Ingrid accepts tax inclusive price.
     quantity: item.quantity,
     sku: item.variant.sku!,
@@ -142,10 +145,42 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
   return ingridCartItem;
 };
 
+/**
+ * Transform commercetools custom fields to ingrid custom fields
+ *
+ * @param {FieldContainer} fields - commercetools field container
+ *
+ * @returns {string[]} array of string consists of key=value pairs
+ */
 const transformCommercetoolsCustomFieldsToIngridCustomFields = (fields: FieldContainer): string[] => {
   const result = Object.entries(fields).map(([key, value]) => `${key}=${value}`);
   return result;
 };
+
+/**
+ * Transform handling time stored inside commercetools line item custom fields to ingrid shipping date
+ *
+ * @param {FieldContainer} fields - commercetools field container
+ *
+ * @returns {IngridShippingDate|undefined} ingrid shipping date or undefined if handling time is not found in commercetools line item custom fields
+ */
+const transformCommercetoolsHandlingTimeToShippingDate = (fields: FieldContainer): IngridShippingDate | undefined => {
+  const numberOfHandlingDays = Object.entries(fields)
+    .filter(([key, _value]) => key.toLowerCase() === 'handlingtime')
+    .map(([_, value]) => value)[0]; // numberOfHandlingDays would be undefined if not found
+  if (!numberOfHandlingDays) return undefined;
+
+  const shippingDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * Number(numberOfHandlingDays));
+  const shippingDateStartTime = new Date(shippingDate.setHours(0, 0, 0, 0)); // Set to start of the day
+  const shippingDateEndTime = new Date(shippingDate.setHours(23, 59, 59, 999)); // Set to end of the day
+
+  const ingridShippingDate: IngridShippingDate = {
+    end: shippingDateEndTime.toISOString(),
+    start: shippingDateStartTime.toISOString(),
+  };
+  return ingridShippingDate;
+};
+
 /**
  * Get image url
  *

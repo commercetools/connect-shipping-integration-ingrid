@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from '@jest/globals';
 import { appLogger } from '../../../src/libs/logger';
-import { SessionHeaderAuthInitializer, SessionHeaderAuthenticationHook } from '../../../src/libs/auth';
+import { SessionHeaderAuthenticationHook, SessionHeaderAuthInitializer } from '../../../src/libs/auth';
 
 describe('session-header-auth-initializer', () => {
   beforeEach(async () => {});

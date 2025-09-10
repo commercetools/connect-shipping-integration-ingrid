@@ -185,7 +185,7 @@ export type IngridTag = {
  * @see {@link https://developer.ingrid.com/delivery_checkout/reference/#ShippingDate}
  */
 export type IngridShippingDate = {
-  category_tags: IngridShippingDateTag[];
+  category_tags?: IngridShippingDateTag[];
   end: string;
   start: string;
 };
