@@ -121,10 +121,11 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
   const height = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'height')?.value;
   const width = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'width')?.value;
   const length = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'length')?.value;
-
+  transformCommercetoolsHandlingTimeToShippingDate(item.custom?.fields ?? {});
   const ingridCartItem: IngridCartItem = {
     // item.custom.fields may be undefined
     attributes: transformCommercetoolsCustomFieldsToIngridCustomFields(item.custom?.fields ?? {}),
+
     discount: lineItemDiscount,
     image_url: imageUrl,
     name: item.name[locale]!,
@@ -142,10 +143,27 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
   return ingridCartItem;
 };
 
+/**
+ * Transform commercetools custom fields to ingrid custom fields
+ *
+ * @param {FieldContainer} fields - commercetools field container
+ *
+ * @returns {string[]} array of string consists of key=value pairs
+ */
 const transformCommercetoolsCustomFieldsToIngridCustomFields = (fields: FieldContainer): string[] => {
   const result = Object.entries(fields).map(([key, value]) => `${key}=${value}`);
   return result;
 };
+
+const transformCommercetoolsHandlingTimeToShippingDate = (fields: FieldContainer): undefined => {
+  console.log('====== Handling time found in custom fields ======');
+
+  const numberOfHandlingDays = Object.entries(fields)
+    .filter(([key, _value]) => key.toLowerCase() === 'handlingtime')
+    .map(([_, value]) => value)[0]; // Would be undefined if not found
+  console.log(numberOfHandlingDays);
+};
+
 /**
  * Get image url
  *
