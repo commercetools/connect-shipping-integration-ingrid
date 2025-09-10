@@ -5,6 +5,7 @@ import type {
   IngridCartItem,
   IngridCreateSessionRequestPayload,
   IngridDeliveryAddress,
+  IngridShippingDate,
 } from '../../clients/ingrid/types/ingrid.client.type';
 
 /**
@@ -155,11 +156,38 @@ const transformCommercetoolsCustomFieldsToIngridCustomFields = (fields: FieldCon
   return result;
 };
 
-const transformCommercetoolsHandlingTimeToShippingDate = (fields: FieldContainer): unknown => {
+/**
+ * Transform handling time stored inside commercetools line item custom fields to ingrid shipping date
+ *
+ * @param {FieldContainer} fields - commercetools field container
+ *
+ * @returns {IngridShippingDate|undefined} ingrid shipping date or undefined if handling time is not found in commercetools line item custom fields
+ */
+const transformCommercetoolsHandlingTimeToShippingDate = (fields: FieldContainer): IngridShippingDate | undefined => {
   const numberOfHandlingDays = Object.entries(fields)
     .filter(([key, _value]) => key.toLowerCase() === 'handlingtime')
     .map(([_, value]) => value)[0]; // numberOfHandlingDays would be undefined if not found
-  return numberOfHandlingDays;
+  if (!numberOfHandlingDays) return undefined;
+
+  const currentDate = new Date();
+  const shippingDate = new Date(currentDate.getTime() + 1000 * 60 * 60 * 24 * Number(numberOfHandlingDays));
+  const shippingDateStartTime = new Date(shippingDate.setHours(0, 0, 0, 0)); // Set to start of the day
+  const shippingDateEndTime = new Date(shippingDate.setHours(23, 59, 59, 999)); // Set to end of the day
+
+  const ingridShippingDate: IngridShippingDate = {
+    category_tags: [
+      {
+        name: 'handlingTime',
+        shipping_date: {
+          end: shippingDateEndTime.toISOString(),
+          start: shippingDateStartTime.toISOString(),
+        },
+      },
+    ],
+    end: shippingDateEndTime.toISOString(),
+    start: shippingDateStartTime.toISOString(),
+  };
+  return ingridShippingDate;
 };
 
 /**
