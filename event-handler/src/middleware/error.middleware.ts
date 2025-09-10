@@ -6,6 +6,7 @@ export const errorMiddleware: ErrorRequestHandler = (
   error: Error,
   _req: Request,
   res: Response,
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   _next: (err?: Error) => void
 ) => {
   const isDevelopment = process.env.NODE_ENV === 'development';
