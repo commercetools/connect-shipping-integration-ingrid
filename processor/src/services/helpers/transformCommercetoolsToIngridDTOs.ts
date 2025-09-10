@@ -159,7 +159,9 @@ const transformCommercetoolsHandlingTimeToShippingDate = (fields: FieldContainer
   console.log('====== Handling time found in custom fields ======');
 
   const numberOfHandlingDays = Object.entries(fields)
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     .filter(([key, _value]) => key.toLowerCase() === 'handlingtime')
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     .map(([_, value]) => value)[0]; // Would be undefined if not found
   console.log(numberOfHandlingDays);
 };
