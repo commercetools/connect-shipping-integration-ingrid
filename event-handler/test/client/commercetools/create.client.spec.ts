@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { createApiRoot } from '../../../src/client/commercetools/create.client';
 import * as buildClient from '../../../src/client/commercetools/build.client';
 import { readConfiguration } from '../../../src/utils/config.utils';

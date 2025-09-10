@@ -7,7 +7,7 @@ import type {
 } from '@commercetools/platform-sdk';
 
 // Add Jest imports
-import { describe, beforeEach, it, expect, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { mockConfiguration } from '../../mock/mock-configuration';
 import { mockApiRootUpdateResponse } from '../../mock/mock-api-root';
 
