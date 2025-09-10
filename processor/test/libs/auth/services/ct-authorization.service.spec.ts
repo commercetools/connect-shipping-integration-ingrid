@@ -1,10 +1,10 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, test, jest, expect } from '@jest/globals';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { setupServer } from 'msw/node';
 import { appLogger } from '../../../../src/libs/logger';
 import { mockRequest } from '../../../mock/mock-utils';
 import { DefaultAuthorizationService } from '../../../../src/libs/auth/services';
 import { GeneralError } from '../../../../src/libs/fastify/errors';
-import { mockAccessToken, mockAccessTokenInvalidClient, ErrorPrivateFields } from '../../../mock/mock-authorization';
+import { ErrorPrivateFields, mockAccessToken, mockAccessTokenInvalidClient } from '../../../mock/mock-authorization';
 
 describe('ct-session.service', () => {
   const mockServer = setupServer();

@@ -1,4 +1,4 @@
-import { describe, test, jest, beforeEach, expect } from '@jest/globals';
+import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { cart, cartWithShippingAddress } from '../../mock/mock-cart';
 import { transformCommercetoolsCartToIngridPayload } from '../../../src/services/helpers/transformCommercetoolsToIngridDTOs';
 import { CustomError } from '../../../src/libs/fastify/errors';

@@ -5,12 +5,12 @@ import { appLogger } from '../logger';
 
 import type { TAuthErrorResponse, TErrorObject, TErrorResponse } from './errors/dtos/error.dto';
 import {
-  GeneralError,
   CustomError,
+  ErrorAuthErrorResponse,
   ErrorInvalidField,
   ErrorInvalidJsonInput,
   ErrorRequiredField,
-  ErrorAuthErrorResponse,
+  GeneralError,
 } from './errors';
 
 function isFastifyValidationError(error: Error): error is FastifyError {
@@ -124,7 +124,6 @@ const handleAuthError = (error: ErrorAuthErrorResponse, reply: FastifyReply) => 
 
 const getKeys = (path: string) => path.replace(/^\//, '').split('/');
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getPropertyFromPath = (path: string, obj: any): any => {
   const keys = getKeys(path);
   let value = obj;

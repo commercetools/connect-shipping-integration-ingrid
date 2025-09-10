@@ -1,10 +1,10 @@
 import { CustomError } from '../../libs/fastify/errors';
 import type { Cart, FieldContainer, LineItem } from '@commercetools/platform-sdk';
 import type {
-  IngridCreateSessionRequestPayload,
-  IngridDeliveryAddress,
   IngridCart,
   IngridCartItem,
+  IngridCreateSessionRequestPayload,
+  IngridDeliveryAddress,
 } from '../../clients/ingrid/types/ingrid.client.type';
 
 /**
@@ -155,15 +155,11 @@ const transformCommercetoolsCustomFieldsToIngridCustomFields = (fields: FieldCon
   return result;
 };
 
-const transformCommercetoolsHandlingTimeToShippingDate = (fields: FieldContainer): undefined => {
-  console.log('====== Handling time found in custom fields ======');
-
+const transformCommercetoolsHandlingTimeToShippingDate = (fields: FieldContainer): unknown => {
   const numberOfHandlingDays = Object.entries(fields)
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     .filter(([key, _value]) => key.toLowerCase() === 'handlingtime')
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-    .map(([_, value]) => value)[0]; // Would be undefined if not found
-  console.log(numberOfHandlingDays);
+    .map(([_, value]) => value)[0]; // numberOfHandlingDays would be undefined if not found
+  return numberOfHandlingDays;
 };
 
 /**

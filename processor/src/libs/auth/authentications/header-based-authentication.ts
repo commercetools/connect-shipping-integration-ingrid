@@ -1,4 +1,4 @@
-import type { HeaderPrincipal, Authentication } from '../types';
+import type { Authentication, HeaderPrincipal } from '../types';
 
 export class HeaderBasedAuthentication implements Authentication<HeaderPrincipal, string> {
   private authHeader: string;

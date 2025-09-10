@@ -1,5 +1,5 @@
-import { describe, test, expect, afterEach, jest, beforeEach } from '@jest/globals';
-import { additionalType, additionalShippingType, sessionType, shippingType } from '../mock/mock-type';
+import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
+import { additionalShippingType, additionalType, sessionType, shippingType } from '../mock/mock-type';
 import { CommercetoolsApiClient } from '../../src/clients/commercetools/api.client';
 import {
   handleCustomTypeAction,

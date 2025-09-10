@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import { CommercetoolsApiClient } from '../clients/commercetools/api.client';
-import { handleCustomTypeAction, handleTaxCategoryAction, handleShippingCustomTypeAction } from './actions';
+import { handleCustomTypeAction, handleShippingCustomTypeAction, handleTaxCategoryAction } from './actions';
 
 dotenv.config();
 

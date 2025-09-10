@@ -1,14 +1,14 @@
-import { describe, test, expect, afterEach, afterAll, beforeEach, jest, beforeAll } from '@jest/globals';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { IngridApiClient } from '../../../src/clients/ingrid/ingrid.client';
 import { setupServer } from 'msw/node';
 import { mockRequest } from '../../mock/mock-utils';
-import { IngridBasePath, IngridUrls, IngridEnvironment } from '../../../src/clients/ingrid/types/ingrid.client.type';
+import { IngridBasePath, IngridEnvironment, IngridUrls } from '../../../src/clients/ingrid/types/ingrid.client.type';
 import {
+  mockCreateCheckoutSessionAuthFailureResponse,
   mockCreateCheckoutSessionRequest,
   mockCreateCheckoutSessionSuccessResponse,
-  mockCreateCheckoutSessionAuthFailureResponse,
-  mockPullCheckoutSessionResponse,
   mockGetCheckoutSessionResponse,
+  mockPullCheckoutSessionResponse,
 } from '../../mock/mock-ingrid-client-objects';
 import { CustomError } from '../../../src/libs/fastify/errors';
 

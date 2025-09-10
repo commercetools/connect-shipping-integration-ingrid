@@ -1,5 +1,5 @@
 import { CustomError } from '../../libs/fastify/errors';
-import type { ShippingRateDraft, BaseAddress } from '@commercetools/platform-sdk';
+import type { BaseAddress, ShippingRateDraft } from '@commercetools/platform-sdk';
 import type {
   IngridBillingAddress,
   IngridDeliveryAddress,
