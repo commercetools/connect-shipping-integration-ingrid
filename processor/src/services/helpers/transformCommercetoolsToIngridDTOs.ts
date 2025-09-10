@@ -122,14 +122,15 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
   const height = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'height')?.value;
   const width = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'width')?.value;
   const length = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'length')?.value;
-  transformCommercetoolsHandlingTimeToShippingDate(item.custom?.fields ?? {});
+  const shippingDate: IngridShippingDate | undefined = transformCommercetoolsHandlingTimeToShippingDate(
+    item.custom?.fields ?? {},
+  ); // item.custom.fields may be undefined
   const ingridCartItem: IngridCartItem = {
-    // item.custom.fields may be undefined
-    attributes: transformCommercetoolsCustomFieldsToIngridCustomFields(item.custom?.fields ?? {}),
-
+    attributes: transformCommercetoolsCustomFieldsToIngridCustomFields(item.custom?.fields ?? {}), // item.custom.fields may be undefined
     discount: lineItemDiscount,
     image_url: imageUrl,
     name: item.name[locale]!,
+    shipping_date: shippingDate,
     price: item.taxedPrice?.totalGross.centAmount ?? item.price.value.centAmount, // use "taxedPrice.totalGross" because Ingrid accepts tax inclusive price.
     quantity: item.quantity,
     sku: item.variant.sku!,
@@ -169,21 +170,11 @@ const transformCommercetoolsHandlingTimeToShippingDate = (fields: FieldContainer
     .map(([_, value]) => value)[0]; // numberOfHandlingDays would be undefined if not found
   if (!numberOfHandlingDays) return undefined;
 
-  const currentDate = new Date();
-  const shippingDate = new Date(currentDate.getTime() + 1000 * 60 * 60 * 24 * Number(numberOfHandlingDays));
+  const shippingDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * Number(numberOfHandlingDays));
   const shippingDateStartTime = new Date(shippingDate.setHours(0, 0, 0, 0)); // Set to start of the day
   const shippingDateEndTime = new Date(shippingDate.setHours(23, 59, 59, 999)); // Set to end of the day
 
   const ingridShippingDate: IngridShippingDate = {
-    category_tags: [
-      {
-        name: 'handlingTime',
-        shipping_date: {
-          end: shippingDateEndTime.toISOString(),
-          start: shippingDateStartTime.toISOString(),
-        },
-      },
-    ],
     end: shippingDateEndTime.toISOString(),
     start: shippingDateStartTime.toISOString(),
   };
