@@ -34,15 +34,6 @@ describe('Helper Functions', () => {
             name: { en: 'Test Product' },
             price: { value: { centAmount: 1000, currencyCode: 'USD' } },
             quantity: 1,
-            custom: {
-              type: {
-                typeId: 'type',
-                id: '678941e6-ffcd-42d6-815e-3eb6fe798a94',
-              },
-              fields: {
-                handlingTime: 5,
-              },
-            },
           },
         ],
         locale: 'en',
@@ -75,15 +66,6 @@ describe('Helper Functions', () => {
               },
             ],
             quantity: 1,
-            custom: {
-              type: {
-                typeId: 'type',
-                id: '678941e6-ffcd-42d6-815e-3eb6fe798a94',
-              },
-              fields: {
-                handlingTime: 5,
-              },
-            },
           },
         ],
         locale: 'en',

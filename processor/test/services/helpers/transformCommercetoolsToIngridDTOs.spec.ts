@@ -211,9 +211,9 @@ describe('transformCommercetoolsToIngridDTOs', () => {
             },
             fields: {
               blockedDeliveryCountries: 'UK',
+              numberOfItemsInStock: 10,
               isOutOfStock: false,
               expectedDeliveryDate: '2023-10-01T00:00:00Z',
-              handlingTime: 5,
             },
           },
         },
@@ -224,17 +224,8 @@ describe('transformCommercetoolsToIngridDTOs', () => {
     expect(result.cart.items[0]?.attributes).toBeDefined();
     expect(result.cart.items[0]?.attributes?.length).toStrictEqual(4);
     expect(result.cart.items[0]?.attributes?.[0]).toStrictEqual('blockedDeliveryCountries=UK');
-    expect(result.cart.items[0]?.attributes?.[1]).toStrictEqual('isOutOfStock=false');
-    expect(result.cart.items[0]?.attributes?.[2]).toStrictEqual('expectedDeliveryDate=2023-10-01T00:00:00Z');
-    expect(result.cart.items[0]?.shipping_date).toBeDefined();
-
-    const fiveDaysLater = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
-    const start = new Date(fiveDaysLater.setHours(0, 0, 0, 0)).toISOString();
-    const end = new Date(fiveDaysLater.setHours(23, 59, 59, 999)).toISOString();
-
-    expect(result.cart.items[0]?.shipping_date).toEqual({
-      start,
-      end,
-    });
+    expect(result.cart.items[0]?.attributes?.[1]).toStrictEqual('numberOfItemsInStock=10');
+    expect(result.cart.items[0]?.attributes?.[2]).toStrictEqual('isOutOfStock=false');
+    expect(result.cart.items[0]?.attributes?.[3]).toStrictEqual('expectedDeliveryDate=2023-10-01T00:00:00Z');
   });
 });
