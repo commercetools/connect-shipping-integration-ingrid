@@ -26,7 +26,7 @@ describe('PubSubValidator', () => {
       const mockRequest = {};
 
       expect(() => PubSubValidator.validateRequestBody(mockRequest)).toThrow(
-        new CustomError(400, 'Bad request: No Pub/Sub message was received')
+        new CustomError(202, 'No Pub/Sub message was received')
       );
       expect(logger.error).toHaveBeenCalledWith('Missing request body.');
     });
@@ -46,7 +46,7 @@ describe('PubSubValidator', () => {
       const mockBody = {};
 
       expect(() => PubSubValidator.validateMessageFormat(mockBody)).toThrow(
-        new CustomError(400, 'Bad request: Wrong No Pub/Sub message format')
+        new CustomError(202, 'Wrong No Pub/Sub message format')
       );
       expect(logger.error).toHaveBeenCalledWith('Missing body message');
     });
@@ -69,7 +69,7 @@ describe('PubSubValidator', () => {
       const mockMessage = {};
 
       expect(() => PubSubValidator.decodeMessageData(mockMessage)).toThrow(
-        new CustomError(400, 'Bad request: No message data found')
+        new CustomError(202, 'No message data found')
       );
       expect(logger.error).toHaveBeenCalledWith('Missing message data');
     });
@@ -79,7 +79,7 @@ describe('PubSubValidator', () => {
       const mockMessage = { data: encodedEmptyString };
 
       expect(() => PubSubValidator.decodeMessageData(mockMessage)).toThrow(
-        new CustomError(400, 'Bad request: Invalid message data format')
+        new CustomError(202, 'Invalid message data format')
       );
       expect(logger.error).toHaveBeenCalledWith(
         'Failed to decode or parse message data:',
@@ -93,7 +93,7 @@ describe('PubSubValidator', () => {
       const mockMessage = { data: encodedInvalidJson };
 
       expect(() => PubSubValidator.decodeMessageData(mockMessage)).toThrow(
-        new CustomError(400, 'Bad request: Invalid message data format')
+        new CustomError(202, 'Invalid message data format')
       );
       expect(logger.error).toHaveBeenCalledWith(
         'Failed to decode or parse message data:',
@@ -161,7 +161,7 @@ describe('PubSubValidator', () => {
       const message = PubSubValidator.validateMessageFormat(body);
 
       expect(() => PubSubValidator.decodeMessageData(message)).toThrow(
-        new CustomError(400, 'Bad request: Invalid message data format')
+        new CustomError(202, 'Invalid message data format')
       );
     });
   });
@@ -171,6 +171,10 @@ describe('validateDecodedMessage', () => {
   it('should return RESOURCE_CREATED_MESSAGE for ResourceCreated notification type', () => {
     const decodedData: DecodedMessageType = {
       notificationType: 'ResourceCreated',
+      resource: {
+        typeId: 'order',
+        id: 'test-order-id',
+      },
     };
 
     const result = PubSubValidator.validateDecodedMessage(decodedData);
@@ -178,11 +182,11 @@ describe('validateDecodedMessage', () => {
     expect(result).toBe('RESOURCE_CREATED_MESSAGE');
   });
 
-  it('should throw an error if the message type is not OrderCreated', () => {
+  it('should throw an error if the resource type is not order', () => {
     const decodedData: DecodedMessageType = {
       notificationType: 'Message',
-      type: 'SomeOtherType',
-      order: {
+      resource: {
+        typeId: 'SomeType',
         id: 'test-order-id',
       },
     };
@@ -191,16 +195,16 @@ describe('validateDecodedMessage', () => {
       CustomError
     );
     expect(() => PubSubValidator.validateDecodedMessage(decodedData)).toThrow(
-      'Bad request. The message is not for OrderCreated event.'
+      'The message is not for order event.'
     );
   });
 
   it('should throw an error if the order ID is missing', () => {
     const decodedData: DecodedMessageType = {
       notificationType: 'Message',
-      type: 'OrderCreated',
-      order: {
-        id: '', // Empty ID
+      resource: {
+        typeId: 'order',
+        id: '',
       },
     };
 
@@ -208,15 +212,15 @@ describe('validateDecodedMessage', () => {
       CustomError
     );
     expect(() => PubSubValidator.validateDecodedMessage(decodedData)).toThrow(
-      'Bad request. The order ID cannot be found in message.'
+      'The order ID cannot be found in message.'
     );
   });
 
   it('should return the order ID for valid OrderCreated messages', () => {
     const decodedData: DecodedMessageType = {
       notificationType: 'Message',
-      type: 'OrderCreated',
-      order: {
+      resource: {
+        typeId: 'order',
         id: 'test-order-id',
       },
     };
