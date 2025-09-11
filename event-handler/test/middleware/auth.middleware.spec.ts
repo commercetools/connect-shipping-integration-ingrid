@@ -1,10 +1,10 @@
 import {
-  describe,
-  it,
-  expect,
-  jest,
-  beforeEach,
   afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest,
 } from '@jest/globals';
 import { authMiddlewareOptions } from '../../src/middleware/auth.middleware';
 

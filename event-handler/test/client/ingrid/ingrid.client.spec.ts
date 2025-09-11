@@ -2,11 +2,11 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import IngridApiClient from '../../../src/client/ingrid/ingrid.client';
 import {
   IngridBasePath,
-  IngridUrls,
   IngridCompleteSessionRequestPayload,
+  IngridUrls,
 } from '../../../src/client/ingrid/types/ingrid.client.type';
 import CustomError from '../../../src/errors/custom.error';
-import { describe, beforeEach, it, expect, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 // Mock axios
 jest.mock('axios');

@@ -1,10 +1,10 @@
 import {
-  describe,
-  it,
-  expect,
-  jest,
-  beforeEach,
   afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest,
 } from '@jest/globals';
 import { Request, Response } from 'express';
 import { errorMiddleware } from '../../src/middleware/error.middleware';

@@ -5,8 +5,8 @@ import * as updateClient from '../../src/client/commercetools/update.client';
 import PubSubValidator from '../../src/utils/validate_requests.utils';
 import IngridApiClient from '../../src/client/ingrid/ingrid.client';
 import {
-  IngridCompleteSessionResponse,
   type IngridAddresses,
+  IngridCompleteSessionResponse,
   type IngridDeliveryGroupCategory,
   type IngridDeliveryGroupDeliveryTime,
   type IngridDeliveryGroupPricing,
@@ -17,14 +17,13 @@ import { readConfiguration } from '../../src/utils/config.utils';
 import { logger } from '../../src/utils/logger.utils';
 
 // Add Jest imports
-import { jest, describe, beforeEach, it, expect } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import {
-  orderWithReadyShipmentState,
   orderWithCancelShipmentState,
+  orderWithReadyShipmentState,
 } from '../mock/mock-order';
 import { mockApiRootOrderResponse } from '../mock/mock-api-root';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type MockFn = jest.MockedFunction<any>;
 
 const mockIngridSessionId = 'test-session-id';

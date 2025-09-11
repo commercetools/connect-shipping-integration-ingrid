@@ -4,16 +4,16 @@ import {
 } from '../../src/connector/actions';
 import { ByProjectKeyRequestBuilder } from '@commercetools/platform-sdk';
 import {
-  describe,
-  test,
-  expect,
-  beforeAll,
   afterAll,
-  jest,
+  beforeAll,
   beforeEach,
+  describe,
+  expect,
+  jest,
+  test,
 } from '@jest/globals';
 import { setupServer } from 'msw/node';
-import { mockDelete, mockRequest, mockGet, mockPost } from '../mock/mock-utils';
+import { mockDelete, mockGet, mockPost, mockRequest } from '../mock/mock-utils';
 import { mockAccessToken } from '../mock/mock-authorization';
 import { mockSubscription } from '../mock/mock-subscriptions';
 import * as Config from '../../src/utils/config.utils';
