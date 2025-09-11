@@ -105,6 +105,15 @@ export const cart: Cart = {
         key: '2599EUR',
         country: 'DE',
       },
+      custom: {
+        type: {
+          typeId: 'type',
+          id: '678941e6-ffcd-42d6-815e-3eb6fe798a94',
+        },
+        fields: {
+          handlingTime: 5,
+        },
+      },
       quantity: 1,
       discountedPricePerQuantity: [],
       perMethodTaxRate: [],
@@ -264,6 +273,15 @@ export const cartWithAdditionalCustomType: Cart = {
         key: '2599EUR',
         country: 'DE',
       },
+      custom: {
+        type: {
+          typeId: 'type',
+          id: '678941e6-ffcd-42d6-815e-3eb6fe798a94',
+        },
+        fields: {
+          handlingTime: 5,
+        },
+      },
       quantity: 1,
       discountedPricePerQuantity: [],
       perMethodTaxRate: [],
@@ -422,6 +440,15 @@ export const cartWithoutCustomType: Cart = {
         },
         key: '2599EUR',
         country: 'DE',
+      },
+      custom: {
+        type: {
+          typeId: 'type',
+          id: '678941e6-ffcd-42d6-815e-3eb6fe798a94',
+        },
+        fields: {
+          handlingTime: 5,
+        },
       },
       quantity: 1,
       discountedPricePerQuantity: [],
@@ -595,6 +622,15 @@ export const cartWithShippingAddress: Cart = {
         },
         key: '2599EUR',
         country: 'DE',
+      },
+      custom: {
+        type: {
+          typeId: 'type',
+          id: '678941e6-ffcd-42d6-815e-3eb6fe798a94',
+        },
+        fields: {
+          handlingTime: 5,
+        },
       },
       quantity: 1,
       discountedPricePerQuantity: [],

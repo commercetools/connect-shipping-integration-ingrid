@@ -7,6 +7,7 @@ import type {
   IngridDeliveryAddress,
   IngridShippingDate,
 } from '../../clients/ingrid/types/ingrid.client.type';
+import { appLogger } from '../../libs/logger';
 
 /**
  * Transform commercetools cart to ingrid cart
@@ -123,6 +124,7 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
   const width = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'width')?.value;
   const length = item.variant.attributes?.find((attr) => attr.name.toLocaleLowerCase() === 'length')?.value;
   const shippingDate: IngridShippingDate | undefined = transformCommercetoolsHandlingTimeToShippingDate(
+    item.id,
     item.custom?.fields ?? {},
   ); // item.custom.fields may be undefined
   const ingridCartItem: IngridCartItem = {
@@ -164,11 +166,18 @@ const transformCommercetoolsCustomFieldsToIngridCustomFields = (fields: FieldCon
  *
  * @returns {IngridShippingDate|undefined} ingrid shipping date or undefined if handling time is not found in commercetools line item custom fields
  */
-const transformCommercetoolsHandlingTimeToShippingDate = (fields: FieldContainer): IngridShippingDate | undefined => {
+const transformCommercetoolsHandlingTimeToShippingDate = (
+  lineItemId: string,
+  fields: FieldContainer,
+): IngridShippingDate | undefined => {
   const numberOfHandlingDays = Object.entries(fields)
     .filter(([key, _value]) => key.toLowerCase() === 'handlingtime')
     .map(([_, value]) => value)[0]; // numberOfHandlingDays would be undefined if not found
-  if (!numberOfHandlingDays) return undefined;
+
+  if (!numberOfHandlingDays || isNaN(Number(numberOfHandlingDays)) || Number(numberOfHandlingDays) < 0) {
+    appLogger.error(`Invalid handling time for line item ${lineItemId}: ${numberOfHandlingDays}`);
+    return undefined;
+  }
 
   const shippingDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * Number(numberOfHandlingDays));
   const shippingDateStartTime = new Date(shippingDate.setHours(0, 0, 0, 0)); // Set to start of the day
