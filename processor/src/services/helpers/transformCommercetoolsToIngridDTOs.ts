@@ -7,6 +7,7 @@ import type {
   IngridDeliveryAddress,
   IngridShippingDate,
 } from '../../clients/ingrid/types/ingrid.client.type';
+import { appLogger } from '../../libs/logger';
 
 /**
  * Transform commercetools cart to ingrid cart
@@ -174,11 +175,8 @@ const transformCommercetoolsHandlingTimeToShippingDate = (
     .map(([_, value]) => value)[0]; // numberOfHandlingDays would be undefined if not found
 
   if (!numberOfHandlingDays || isNaN(Number(numberOfHandlingDays)) || Number(numberOfHandlingDays) < 0) {
-    throw new CustomError({
-      message: `Handling time is not found in line item ${lineItemId} custom fields`,
-      code: 'HANDLING_TIME_NOT_FOUND',
-      httpErrorStatus: 400,
-    });
+    appLogger.error(`Invalid handling time for line item ${lineItemId}: ${numberOfHandlingDays}`);
+    return undefined;
   }
 
   const shippingDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * Number(numberOfHandlingDays));
