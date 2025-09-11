@@ -412,4 +412,6 @@ For details, please refer to [test an event app locally](https://docs.commerceto
 
 ## Best Practice
 
-Before initializing Ingrid delivery session, it is suggested to assign shipping country into the cart in commercetools composable commerce. Once the cart contains shipping country, commercetools composable commerce can determine the tax-included price of the cart and its line item based on the tax category of the shipping country. It helps Ingrid platform to collect the tax-included price in the inital flow, and therefore less communication round-trip between Ingrid platform and the connector in the update flow.
+- Before initializing Ingrid delivery session, it is suggested to assign shipping country into the cart in commercetools composable commerce. Once the cart contains shipping country, commercetools composable commerce can determine the tax-included price of the cart and its line item based on the tax category of the shipping country. It helps Ingrid platform to collect the tax-included price in the inital flow, and therefore less communication round-trip between Ingrid platform and the connector in the update flow.
+
+- To submit the cart item shipping date to the Ingrid session, please make sure commercetools line items should contain custom field `handlingTime` which represent the number of days for the corresponding line item to await the shipping. For example, if today is 01-Jan-2025 and the handlingTime is 10, the shipping date to the Ingrid session would be 10-Jan-2025.
