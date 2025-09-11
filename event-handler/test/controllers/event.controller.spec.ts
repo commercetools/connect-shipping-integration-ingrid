@@ -441,7 +441,7 @@ describe('Event Controller', () => {
     await post(mockRequest as Request, mockResponse as Response);
 
     // Verify the response
-    expect(mockResponse.status).toHaveBeenCalledWith(204);
+    expect(mockResponse.status).toHaveBeenCalledWith(202);
     expect(mockResponse.send).toHaveBeenCalledWith(
       'Message for subscription created. Skip processing message.'
     );

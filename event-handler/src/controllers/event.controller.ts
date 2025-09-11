@@ -26,12 +26,13 @@ export const post = async (request: Request, response: Response) => {
   const message = PubSubValidator.validateMessageFormat(body);
   const decodedData =
     PubSubValidator.decodeMessageData<DecodedMessageType>(message);
+
   const orderId = PubSubValidator.validateDecodedMessage(decodedData);
   if (orderId === 'RESOURCE_CREATED_MESSAGE') {
     const loggingMessage =
       'Message for subscription created. Skip processing message.';
     logger.info(loggingMessage);
-    return response.status(204).send(loggingMessage);
+    return response.status(202).send(loggingMessage);
   }
   logger.info(
     `processing shipping session completion for order ID : ${orderId}`

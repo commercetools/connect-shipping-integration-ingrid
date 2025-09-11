@@ -6,10 +6,10 @@ export type Message = {
 
 export type DecodedMessageType = {
   notificationType: string;
-  order?: {
+  resource: {
+    typeId: string;
     id: string;
   };
-  type?: string;
 };
 
 export type ValidatorCreator = (

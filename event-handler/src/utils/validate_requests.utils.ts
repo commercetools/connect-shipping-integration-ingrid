@@ -24,10 +24,7 @@ class PubSubValidator {
   static validateRequestBody(request: PubSubRequest): PubSubBody {
     if (!request.body) {
       logger.error('Missing request body.');
-      throw new CustomError(
-        400,
-        'Bad request: No Pub/Sub message was received'
-      );
+      throw new CustomError(202, 'No Pub/Sub message was received');
     }
     return request.body;
   }
@@ -41,10 +38,7 @@ class PubSubValidator {
   static validateMessageFormat(requestBody: PubSubBody): PubSubMessage {
     if (!requestBody.message) {
       logger.error('Missing body message');
-      throw new CustomError(
-        400,
-        'Bad request: Wrong No Pub/Sub message format'
-      );
+      throw new CustomError(202, 'Wrong No Pub/Sub message format');
     }
     return requestBody.message;
   }
@@ -58,7 +52,7 @@ class PubSubValidator {
   static decodeMessageData<T>(pubSubMessage: PubSubMessage): T {
     if (!pubSubMessage.data) {
       logger.error('Missing message data');
-      throw new CustomError(400, 'Bad request: No message data found');
+      throw new CustomError(202, 'No message data found');
     }
 
     try {
@@ -67,31 +61,26 @@ class PubSubValidator {
         .trim();
 
       if (!decodedData) {
-        throw new CustomError(400, 'Decoded data is empty');
+        throw new CustomError(202, 'Decoded data is empty');
       }
       return JSON.parse(decodedData) as T;
     } catch (error) {
       logger.error('Failed to decode or parse message data:', error);
-      throw new CustomError(400, 'Bad request: Invalid message data format');
+      throw new CustomError(202, 'Invalid message data format');
     }
   }
   static validateDecodedMessage(decodedData: DecodedMessageType): string {
     if (decodedData?.notificationType === 'ResourceCreated') {
       return 'RESOURCE_CREATED_MESSAGE';
     }
-    if (decodedData.type !== 'OrderCreated') {
-      throw new CustomError(
-        400,
-        'Bad request. The message is not for OrderCreated event.'
-      );
+
+    if (decodedData.resource.typeId !== 'order') {
+      throw new CustomError(202, 'The message is not for order event.');
     }
-    if (!decodedData.order?.id) {
-      throw new CustomError(
-        400,
-        'Bad request. The order ID cannot be found in message.'
-      );
+    if (!decodedData.resource.id) {
+      throw new CustomError(202, 'The order ID cannot be found in message.');
     }
-    return decodedData.order?.id;
+    return decodedData.resource.id;
   }
 }
 
