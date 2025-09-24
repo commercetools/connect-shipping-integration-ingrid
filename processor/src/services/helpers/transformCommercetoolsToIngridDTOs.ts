@@ -174,7 +174,7 @@ const transformCommercetoolsHandlingTimeToShippingDate = (
     .filter(([key, _value]) => key.toLowerCase() === 'handlingtime')
     .map(([_, value]) => value)[0]; // numberOfHandlingDays would be undefined if not found
 
-  if (!numberOfHandlingDays || isNaN(Number(numberOfHandlingDays)) || Number(numberOfHandlingDays) < 0) {
+  if (isNaN(Number(numberOfHandlingDays)) || Number(numberOfHandlingDays) < 0) {
     appLogger.error(`Invalid handling time for line item ${lineItemId}: ${numberOfHandlingDays}`);
     return undefined;
   }
