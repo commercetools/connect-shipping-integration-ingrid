@@ -1,6 +1,6 @@
 {
   "name": "shipping-integration-ingrid",
-  "version": "3.3.3",
+  "version": "3.3.5",
   "description": "shipping integration ingrid connector",
   "main": "dist/server.js",
   "scripts": {
