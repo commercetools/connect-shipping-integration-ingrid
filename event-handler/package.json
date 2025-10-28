@@ -60,6 +60,6 @@
     "eslint-plugin-unused-imports": "^4.2.0",
     "express": "^5.1.0",
     "listr2": "^9.0.2",
-    "validator": "^13.15.15"
+    "validator": "^13.15.20"
   }
 }
