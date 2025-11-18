@@ -214,6 +214,7 @@ describe('transformCommercetoolsToIngridDTOs', () => {
               isOutOfStock: false,
               expectedDeliveryDate: '2023-10-01T00:00:00Z',
               handlingTime: 5,
+              ingridAttributes: ['bulky', 'fragile'],
             },
           },
         },
@@ -222,10 +223,9 @@ describe('transformCommercetoolsToIngridDTOs', () => {
     const result = transformCommercetoolsCartToIngridPayload(cartWithLineItemCustomFields);
 
     expect(result.cart.items[0]?.attributes).toBeDefined();
-    expect(result.cart.items[0]?.attributes?.length).toStrictEqual(4);
-    expect(result.cart.items[0]?.attributes?.[0]).toStrictEqual('blockedDeliveryCountries=UK');
-    expect(result.cart.items[0]?.attributes?.[1]).toStrictEqual('isOutOfStock=false');
-    expect(result.cart.items[0]?.attributes?.[2]).toStrictEqual('expectedDeliveryDate=2023-10-01T00:00:00Z');
+    expect(result.cart.items[0]?.attributes?.length).toStrictEqual(2);
+    expect(result.cart.items[0]?.attributes?.[0]).toStrictEqual('bulky');
+    expect(result.cart.items[0]?.attributes?.[1]).toStrictEqual('fragile');
     expect(result.cart.items[0]?.shipping_date).toBeDefined();
 
     const fiveDaysLater = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
@@ -258,6 +258,7 @@ describe('transformCommercetoolsToIngridDTOs', () => {
               isOutOfStock: false,
               expectedDeliveryDate: '2023-10-01T00:00:00Z',
               handlingTime: 0,
+              ingridAttributes: ['prescription'],
             },
           },
         },
@@ -266,10 +267,8 @@ describe('transformCommercetoolsToIngridDTOs', () => {
     const result = transformCommercetoolsCartToIngridPayload(cartWithLineItemCustomFields);
 
     expect(result.cart.items[0]?.attributes).toBeDefined();
-    expect(result.cart.items[0]?.attributes?.length).toStrictEqual(4);
-    expect(result.cart.items[0]?.attributes?.[0]).toStrictEqual('blockedDeliveryCountries=UK');
-    expect(result.cart.items[0]?.attributes?.[1]).toStrictEqual('isOutOfStock=false');
-    expect(result.cart.items[0]?.attributes?.[2]).toStrictEqual('expectedDeliveryDate=2023-10-01T00:00:00Z');
+    expect(result.cart.items[0]?.attributes?.length).toStrictEqual(1);
+    expect(result.cart.items[0]?.attributes?.[0]).toStrictEqual('prescription');
     expect(result.cart.items[0]?.shipping_date).toBeDefined();
 
     const today = new Date(Date.now() + 0 * 24 * 60 * 60 * 1000);
@@ -302,6 +301,7 @@ describe('transformCommercetoolsToIngridDTOs', () => {
               isOutOfStock: false,
               expectedDeliveryDate: '2023-10-01T00:00:00Z',
               handlingTime: '0',
+              ingridAttributes: ['hazmat'],
             },
           },
         },
@@ -310,10 +310,8 @@ describe('transformCommercetoolsToIngridDTOs', () => {
     const result = transformCommercetoolsCartToIngridPayload(cartWithLineItemCustomFields);
 
     expect(result.cart.items[0]?.attributes).toBeDefined();
-    expect(result.cart.items[0]?.attributes?.length).toStrictEqual(4);
-    expect(result.cart.items[0]?.attributes?.[0]).toStrictEqual('blockedDeliveryCountries=UK');
-    expect(result.cart.items[0]?.attributes?.[1]).toStrictEqual('isOutOfStock=false');
-    expect(result.cart.items[0]?.attributes?.[2]).toStrictEqual('expectedDeliveryDate=2023-10-01T00:00:00Z');
+    expect(result.cart.items[0]?.attributes?.length).toStrictEqual(1);
+    expect(result.cart.items[0]?.attributes?.[0]).toStrictEqual('hazmat');
     expect(result.cart.items[0]?.shipping_date).toBeDefined();
 
     const today = new Date(Date.now() + 0 * 24 * 60 * 60 * 1000);
@@ -346,6 +344,7 @@ describe('transformCommercetoolsToIngridDTOs', () => {
               isOutOfStock: false,
               expectedDeliveryDate: '2023-10-01T00:00:00Z',
               handlingTime: undefined,
+              ingridAttributes: ['SendAsLetter'],
             },
           },
         },
@@ -354,10 +353,40 @@ describe('transformCommercetoolsToIngridDTOs', () => {
     const result = transformCommercetoolsCartToIngridPayload(cartWithLineItemCustomFields);
 
     expect(result.cart.items[0]?.attributes).toBeDefined();
-    expect(result.cart.items[0]?.attributes?.length).toStrictEqual(4);
-    expect(result.cart.items[0]?.attributes?.[0]).toStrictEqual('blockedDeliveryCountries=UK');
-    expect(result.cart.items[0]?.attributes?.[1]).toStrictEqual('isOutOfStock=false');
-    expect(result.cart.items[0]?.attributes?.[2]).toStrictEqual('expectedDeliveryDate=2023-10-01T00:00:00Z');
+    expect(result.cart.items[0]?.attributes?.length).toStrictEqual(1);
+    expect(result.cart.items[0]?.attributes?.[0]).toStrictEqual('SendAsLetter');
     expect(result.cart.items[0]?.shipping_date).toBeUndefined();
+  });
+
+  test('transformCommercetoolsLineItemToIngridCartItemWithoutIngridAttributes', async () => {
+    const lineItem = cart.lineItems[0];
+    if (!lineItem) {
+      throw new Error('Test setup error: cart.lineItems[0] is undefined');
+    }
+    const cartWithLineItemCustomFields: Cart = {
+      ...cart,
+      lineItems: [
+        {
+          ...lineItem,
+          custom: {
+            type: {
+              typeId: 'type',
+              id: '678941e6-ffcd-42d6-815e-3eb6fe798a94',
+            },
+            fields: {
+              blockedDeliveryCountries: 'UK',
+              isOutOfStock: false,
+              expectedDeliveryDate: '2023-10-01T00:00:00Z',
+              handlingTime: 5,
+            },
+          },
+        },
+      ],
+    };
+    const result = transformCommercetoolsCartToIngridPayload(cartWithLineItemCustomFields);
+
+    expect(result.cart.items[0]?.attributes).toBeDefined();
+    expect(result.cart.items[0]?.attributes?.length).toStrictEqual(0);
+    expect(result.cart.items[0]?.shipping_date).toBeDefined();
   });
 });

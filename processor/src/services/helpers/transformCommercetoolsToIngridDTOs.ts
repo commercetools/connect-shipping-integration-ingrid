@@ -152,11 +152,17 @@ const transformCommercetoolsLineItemToIngridCartItem = (item: LineItem, locale: 
  *
  * @param {FieldContainer} fields - commercetools field container
  *
- * @returns {string[]} array of string consists of key=value pairs
+ * @returns {string[]} array of strings from ingridAttributes field, or empty array if not present
  */
 const transformCommercetoolsCustomFieldsToIngridCustomFields = (fields: FieldContainer): string[] => {
-  const result = Object.entries(fields).map(([key, value]) => `${key}=${value}`);
-  return result;
+  const ingridAttributes = fields.ingridAttributes;
+
+  // Check if ingridAttributes exists and is an array
+  if (Array.isArray(ingridAttributes)) {
+    return ingridAttributes;
+  }
+
+  return [];
 };
 
 /**
