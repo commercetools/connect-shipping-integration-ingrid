@@ -154,12 +154,19 @@ export type IngridDeliveryGroupWarehouse = {
   address: IngridAddress;
 };
 
+export type IngridCartGroup = {
+  group_id: string;
+  header?: string;
+  attributes?: string[];
+  contents: Array<{ sku: string; quantity: number }>;
+};
+
 export type IngridCart = {
   total_value: number;
   total_discount: number;
   items: unknown[];
   cart_id: string;
-  groups?: unknown[];
+  groups?: IngridCartGroup[];
 };
 
 export type IngridDeliveryGroupSelection = {

@@ -7,6 +7,7 @@ import { AbstractShippingService } from './abstract-shipping.service';
 import {
   transformCommercetoolsCartToIngridPayload,
   transformIngridDeliveryGroupsToCommercetoolsDataTypes,
+  transformMultipleDeliveryGroups,
 } from './helpers';
 import { getConfig } from '../config';
 import type { Cart } from '@commercetools/platform-sdk';
@@ -111,15 +112,13 @@ export class IngridShippingService extends AbstractShippingService {
    */
   public async update(voucherCodes?: string[]): Promise<UpdateSessionResponse> {
     const ingridTaxCategoryKey = getConfig().taxCategoryKey;
+    const ingridShippingCustomTypeKey = getConfig().keyOfIngridShippingCustomType;
 
     // get commercetools cart
     const ctCart = await this.commercetoolsClient.getCartById(getCartIdFromContext());
 
     // get Ingrid session id
     const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
-    const ingridPickupPointIdFromCocoCart = ctCart.custom?.fields?.ingridPickupPointId;
-    const ingridDeliveryAddonsFromCocoCart = ctCart.custom?.fields?.ingridDeliveryAddons;
-    const ingridInstaboxTokenFromCocoCart = ctCart.custom?.fields?.ingridInstaboxToken;
 
     if (!ingridSessionId) {
       appLogger.error(
@@ -134,77 +133,38 @@ export class IngridShippingService extends AbstractShippingService {
 
     // get Ingrid checkout session
     const ingridCheckoutSession = await this.ingridClient.getCheckoutSession(ingridSessionId);
+    const deliveryGroups = ingridCheckoutSession.session.delivery_groups;
 
-    // check for presence of billing and delivery addresses
-    const { billing_address, delivery_address } = ingridCheckoutSession.session.delivery_groups[0]?.addresses ?? {};
-    if (!billing_address || !delivery_address) {
-      appLogger.error(
-        `[ERROR]: Failed to get billing and delivery addresses from Ingrid checkout session with ID "${ingridSessionId}", cart ID "${ctCart.id}".`,
+    // Validate addresses on all groups
+    for (const group of deliveryGroups) {
+      const { billing_address, delivery_address } = group.addresses ?? {};
+      if (!billing_address || !delivery_address) {
+        appLogger.error(
+          `[ERROR]: Failed to get billing and delivery addresses from Ingrid checkout session with ID "${ingridSessionId}", cart ID "${ctCart.id}", group "${group.group_id}".`,
+        );
+        throw new CustomError({
+          message:
+            "Failed to get billing and delivery addresses from Ingrid checkout session. It seems like the addresses weren't provided by the customer.",
+          code: 'FAILED_TO_GET_BILLING_OR_DELIVERY_ADDRESSES_FROM_INGRID_CHECKOUT_SESSION',
+          httpErrorStatus: 400,
+        });
+      }
+    }
+
+    let updatedCart: Cart;
+
+    if (deliveryGroups.length > 1) {
+      // Multiple delivery groups — use Multiple shipping mode
+      updatedCart = await this.updateCartWithMultipleGroups(
+        ctCart,
+        deliveryGroups,
+        ingridTaxCategoryKey,
+        ingridShippingCustomTypeKey,
       );
-      throw new CustomError({
-        message:
-          "Failed to get billing and delivery addresses from Ingrid checkout session. It seems like the addresses weren't provided by the customer.",
-        code: 'FAILED_TO_GET_BILLING_OR_DELIVERY_ADDRESSES_FROM_INGRID_CHECKOUT_SESSION',
-        httpErrorStatus: 400,
-      });
+    } else {
+      // Single delivery group — use existing Single shipping mode flow
+      updatedCart = await this.updateCartWithSingleGroup(ctCart, deliveryGroups);
     }
-
-    // transform Ingrid checkout session delivery groups to commercetools data types
-
-    const {
-      billingAddress,
-      deliveryAddress,
-      customShippingMethod,
-      extMethodId,
-      pickupPointId,
-      deliveryAddons,
-      instaboxToken,
-    } = transformIngridDeliveryGroupsToCommercetoolsDataTypes(ingridCheckoutSession.session.delivery_groups);
-
-    const customFieldsPayload: { name: string; value: string | undefined }[] = [
-      {
-        name: 'ingridExtMethodId',
-        value: extMethodId,
-      },
-    ];
-    if (ingridPickupPointIdFromCocoCart || pickupPointId) {
-      // replace/remove existing pickup point ID in case it has already existed in commercetools cart
-      // add pickup point ID in case it is not existing in commercetools cart
-      customFieldsPayload.push({
-        name: 'ingridPickupPointId',
-        value: pickupPointId,
-      });
-    }
-    if (ingridDeliveryAddonsFromCocoCart || deliveryAddons) {
-      // replace/remove existing addons in case it has already existed in commercetools cart
-      // add addons in case it is not existing in commercetools cart
-      customFieldsPayload.push({
-        name: 'ingridDeliveryAddons',
-        value: deliveryAddons,
-      });
-    }
-    if (ingridInstaboxTokenFromCocoCart || instaboxToken) {
-      // replace/remove existing instabox availability token in case it has already existed in commercetools cart
-      // add instabox availability token in case it is not existing in commercetools cart
-      customFieldsPayload.push({
-        name: 'ingridInstaboxToken',
-        value: instaboxToken,
-      });
-    }
-    const updatedCart = await this.commercetoolsClient.updateCartWithAddressAndShippingMethod(
-      ctCart.id,
-      ctCart.version,
-      {
-        billingAddress,
-        shippingAddress: deliveryAddress,
-      },
-      {
-        shippingMethodName: customShippingMethod.shippingMethodName,
-        shippingRate: customShippingMethod.shippingRate,
-        taxCategory: { key: ingridTaxCategoryKey, typeId: 'tax-category' },
-      },
-      customFieldsPayload,
-    );
 
     if (!updatedCart.taxedPrice?.totalGross) {
       appLogger.error(
@@ -219,14 +179,11 @@ export class IngridShippingService extends AbstractShippingService {
     }
 
     // check if price on Ingrid is same as total gross on commercetools cart
-    // Ingrid uses the same format for prices as commercetools
-    // example: 10000 = 100.00 [Currency Code]
     const { total_value: ingridTotalValue } = ingridCheckoutSession.session.cart;
     const { centAmount: commercetoolsTotalTaxedValue } = updatedCart.taxedPrice.totalGross;
 
     // if prices are not the same, update Ingrid checkout session
     if (ingridTotalValue !== commercetoolsTotalTaxedValue) {
-      // we assume that the updated cart now has taxed prices
       const updatedIngridCheckoutSessionPayload: IngridUpdateSessionRequestPayload = {
         ...transformCommercetoolsCartToIngridPayload(updatedCart, voucherCodes),
         checkout_session_id: ingridSessionId,
@@ -245,6 +202,90 @@ export class IngridShippingService extends AbstractShippingService {
         ingridSessionId: ingridSessionId,
       },
     };
+  }
+
+  private async updateCartWithSingleGroup(
+    ctCart: Cart,
+    deliveryGroups: import('../clients/ingrid/types/ingrid.client.type').IngridDeliveryGroup[],
+  ): Promise<Cart> {
+    const ingridTaxCategoryKey = getConfig().taxCategoryKey;
+    const ingridPickupPointIdFromCocoCart = ctCart.custom?.fields?.ingridPickupPointId;
+    const ingridDeliveryAddonsFromCocoCart = ctCart.custom?.fields?.ingridDeliveryAddons;
+    const ingridInstaboxTokenFromCocoCart = ctCart.custom?.fields?.ingridInstaboxToken;
+
+    const {
+      billingAddress,
+      deliveryAddress,
+      customShippingMethod,
+      extMethodId,
+      pickupPointId,
+      deliveryAddons,
+      instaboxToken,
+    } = transformIngridDeliveryGroupsToCommercetoolsDataTypes(deliveryGroups);
+
+    const customFieldsPayload: { name: string; value: string | undefined }[] = [
+      {
+        name: 'ingridExtMethodId',
+        value: extMethodId,
+      },
+    ];
+    if (ingridPickupPointIdFromCocoCart || pickupPointId) {
+      customFieldsPayload.push({
+        name: 'ingridPickupPointId',
+        value: pickupPointId,
+      });
+    }
+    if (ingridDeliveryAddonsFromCocoCart || deliveryAddons) {
+      customFieldsPayload.push({
+        name: 'ingridDeliveryAddons',
+        value: deliveryAddons,
+      });
+    }
+    if (ingridInstaboxTokenFromCocoCart || instaboxToken) {
+      customFieldsPayload.push({
+        name: 'ingridInstaboxToken',
+        value: instaboxToken,
+      });
+    }
+
+    return this.commercetoolsClient.updateCartWithAddressAndShippingMethod(
+      ctCart.id,
+      ctCart.version,
+      {
+        billingAddress,
+        shippingAddress: deliveryAddress,
+      },
+      {
+        shippingMethodName: customShippingMethod.shippingMethodName,
+        shippingRate: customShippingMethod.shippingRate,
+        taxCategory: { key: ingridTaxCategoryKey, typeId: 'tax-category' },
+      },
+      customFieldsPayload,
+    );
+  }
+
+  private async updateCartWithMultipleGroups(
+    ctCart: Cart,
+    deliveryGroups: import('../clients/ingrid/types/ingrid.client.type').IngridDeliveryGroup[],
+    ingridTaxCategoryKey: string,
+    ingridShippingCustomTypeKey: string,
+  ): Promise<Cart> {
+    const { billingAddress, groups } = transformMultipleDeliveryGroups(deliveryGroups);
+
+    // Find existing Ingrid shipping entries to remove
+    const existingIngridShippingKeys = (ctCart.shipping ?? [])
+      .filter((s) => s.shippingKey?.startsWith('ingrid-'))
+      .map((s) => s.shippingKey!);
+
+    return this.commercetoolsClient.updateCartWithMultipleCustomShippingMethods(
+      ctCart.id,
+      ctCart.version,
+      billingAddress,
+      groups,
+      { key: ingridTaxCategoryKey, typeId: 'tax-category' },
+      ingridShippingCustomTypeKey,
+      existingIngridShippingKeys,
+    );
   }
 
   /**

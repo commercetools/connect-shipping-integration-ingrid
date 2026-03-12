@@ -89,29 +89,51 @@ export const post = async (request: Request, response: Response) => {
   }
 
   if (ingridResponse || completeCheckoutSessionError) {
-    const transportOrderId = ingridResponse?.session.delivery_groups[0]?.tos_id;
-    let updatedCommercetoolsOrder;
-    if (transportOrderId) {
-      logger.info(
-        `Update transport order ID for the order ID ${commercetoolsOrder.id}: ${transportOrderId}.`
-      );
-      updatedCommercetoolsOrder = await setTransportOrderId(
-        readConfiguration().ingridShippingCustomTypeKey,
-        orderId,
-        commercetoolsOrder.version,
-        transportOrderId
-      );
+    const deliveryGroups = ingridResponse?.session.delivery_groups ?? [];
+    let currentVersion = commercetoolsOrder.version;
+
+    if (deliveryGroups.length > 1) {
+      // Multiple delivery groups — set transport order ID per group
+      for (const group of deliveryGroups) {
+        if (group.tos_id) {
+          logger.info(
+            `Update transport order ID for order ID ${commercetoolsOrder.id}, group ${group.group_id}: ${group.tos_id}.`
+          );
+          const updatedOrder = await setTransportOrderId(
+            readConfiguration().ingridShippingCustomTypeKey,
+            orderId,
+            currentVersion,
+            group.tos_id,
+            `ingrid-${group.group_id}`
+          );
+          currentVersion = updatedOrder.version;
+        }
+      }
+    } else {
+      // Single delivery group — existing flow
+      const transportOrderId = deliveryGroups[0]?.tos_id;
+      if (transportOrderId) {
+        logger.info(
+          `Update transport order ID for the order ID ${commercetoolsOrder.id}: ${transportOrderId}.`
+        );
+        const updatedOrder = await setTransportOrderId(
+          readConfiguration().ingridShippingCustomTypeKey,
+          orderId,
+          currentVersion,
+          transportOrderId
+        );
+        currentVersion = updatedOrder.version;
+      }
     }
+
     if (ingridResponse?.session.status === 'COMPLETE') {
       const updateOrderResult = await changeShipmentState(
         orderId,
-        updatedCommercetoolsOrder
-          ? updatedCommercetoolsOrder.version
-          : commercetoolsOrder.version,
+        currentVersion,
         SHIPMENT_STATE.READY
       );
       logger.info(
-        `complete ingrid session successfully with transport order ID ${transportOrderId}: ${JSON.stringify(ingridResponse)}`
+        `complete ingrid session successfully with delivery groups: ${JSON.stringify(ingridResponse)}`
       );
       logger.info(
         `Update commercetools cart shipment state as ready. (orderId: ${updateOrderResult.id})`
@@ -119,13 +141,11 @@ export const post = async (request: Request, response: Response) => {
     } else {
       const updateOrderResult = await changeShipmentState(
         orderId,
-        updatedCommercetoolsOrder
-          ? updatedCommercetoolsOrder.version
-          : commercetoolsOrder.version,
+        currentVersion,
         SHIPMENT_STATE.CANCELED
       );
       logger.info(
-        `complete ingrid session failed with transport order ID ${transportOrderId}: ${JSON.stringify(ingridResponse)}`
+        `complete ingrid session failed: ${JSON.stringify(ingridResponse)}`
       );
       logger.info(
         `Update commercetools cart shipment state as canceled. (orderId: ${updateOrderResult.id})`

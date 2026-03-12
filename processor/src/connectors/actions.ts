@@ -154,6 +154,26 @@ export const handleShippingCustomTypeAction = async (
         name: INGRID_CUSTOM_FIELD_NAME_TRANSPORT_ORDER_ID,
         label: INGRID_CUSTOM_FIELD_LABEL_TRANSPORT_ORDER_ID,
       },
+      {
+        name: INGRID_CUSTOM_FIELD_NAME_EXTERNAL_METHOD_ID,
+        label: INGRID_CUSTOM_FIELD_LABEL_EXTERNAL_METHOD_ID,
+      },
+      {
+        name: INGRID_CUSTOM_FIELD_NAME_PICKUP_POINT_ID,
+        label: INGRID_CUSTOM_FIELD_LABEL_PICKUP_POINT_ID,
+      },
+      {
+        name: INGRID_CUSTOM_FIELD_NAME_DELIVERY_ADDONS,
+        label: INGRID_CUSTOM_FIELD_LABEL_DELIVERY_ADDONS,
+      },
+      {
+        name: INGRID_CUSTOM_FIELD_NAME_INSTABOX_TOKEN,
+        label: INGRID_CUSTOM_FIELD_LABEL_INSTABOX_TOKEN,
+      },
+      {
+        name: 'ingridGroupId',
+        label: 'Ingrid Group ID',
+      },
     ],
   };
   if (ingridShippingCustomTypeExists) {

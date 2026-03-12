@@ -499,6 +499,60 @@ export const cartWithoutCustomType: Cart = {
   totalLineItemQuantity: 1,
 };
 
+export const cartWithMultipleShipping: Cart = {
+  ...cartWithShippingAddress,
+  shippingMode: 'Multiple',
+  shipping: [
+    {
+      shippingKey: 'ingrid-group-a',
+      shippingInfo: {
+        shippingMethodName: 'Standard Delivery',
+        price: { type: 'centPrecision', currencyCode: 'SEK', centAmount: 2500, fractionDigits: 2 },
+        shippingRate: {
+          price: { type: 'centPrecision', currencyCode: 'SEK', centAmount: 2500, fractionDigits: 2 },
+          tiers: [],
+        },
+        shippingMethodState: 'MatchesCart',
+      },
+      shippingAddress: {
+        firstName: 'John',
+        lastName: 'Doe',
+        streetName: '123 Main St',
+        streetNumber: '1',
+        postalCode: '10001',
+        city: 'New York',
+        country: 'US',
+      },
+    },
+    {
+      shippingKey: 'ingrid-group-b',
+      shippingInfo: {
+        shippingMethodName: 'Express Delivery',
+        price: { type: 'centPrecision', currencyCode: 'SEK', centAmount: 4900, fractionDigits: 2 },
+        shippingRate: {
+          price: { type: 'centPrecision', currencyCode: 'SEK', centAmount: 4900, fractionDigits: 2 },
+          tiers: [],
+        },
+        shippingMethodState: 'MatchesCart',
+      },
+      shippingAddress: {
+        firstName: 'Jane',
+        lastName: 'Smith',
+        streetName: '456 Oak Ave',
+        streetNumber: '456',
+        postalCode: '02101',
+        city: 'Boston',
+        country: 'US',
+      },
+    },
+  ] as any,
+  taxedPrice: {
+    totalNet: { type: 'centPrecision', centAmount: 4285, currencyCode: 'SEK', fractionDigits: 2 },
+    totalGross: { type: 'centPrecision', centAmount: 5099, currencyCode: 'SEK', fractionDigits: 2 },
+    taxPortions: [],
+  },
+};
+
 export const setCustomFieldFailureResponse = {
   statusCode: 400,
   message: 'This resource has no custom type set - please use setCustomType first to set the type of the custom fields',

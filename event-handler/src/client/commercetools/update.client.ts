@@ -27,7 +27,8 @@ export const setTransportOrderId = async (
   shipingCustomTypeKey: string,
   orderId: string,
   orderVersion: number,
-  transportOrderId: string
+  transportOrderId: string,
+  shippingKey?: string
 ) => {
   const type = await createApiRoot()
     .types()
@@ -36,24 +37,28 @@ export const setTransportOrderId = async (
     .execute()
     .then((res) => res.body);
 
+  const action: Record<string, unknown> = {
+    action: 'setShippingCustomType',
+    type: {
+      id: type.id,
+      typeId: 'type',
+    },
+    fields: {
+      ingridTransportOrderId: transportOrderId,
+    },
+  };
+
+  if (shippingKey) {
+    action.shippingKey = shippingKey;
+  }
+
   return await createApiRoot()
     .orders()
     .withId({ ID: orderId })
     .post({
       body: {
         version: orderVersion,
-        actions: [
-          {
-            action: 'setShippingCustomType',
-            type: {
-              id: type.id,
-              typeId: 'type',
-            },
-            fields: {
-              ingridTransportOrderId: transportOrderId,
-            },
-          },
-        ],
+        actions: [action as any],
       },
     })
     .execute()

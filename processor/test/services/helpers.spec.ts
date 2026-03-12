@@ -2,6 +2,7 @@ import { describe, expect, test } from '@jest/globals';
 import {
   transformCommercetoolsCartToIngridPayload,
   transformIngridDeliveryGroupsToCommercetoolsDataTypes,
+  transformMultipleDeliveryGroups,
 } from '../../src/services/helpers';
 import { CustomError } from '../../src/libs/fastify/errors';
 import type { IngridDeliveryGroup } from '../../src/clients/ingrid/types/ingrid.client.type';
@@ -108,15 +109,36 @@ describe('Helper Functions', () => {
       );
     });
 
-    test('should throw error when multiple delivery groups are provided', () => {
+    test('should use first delivery group when multiple are provided (single-group function)', () => {
       const multipleDeliveryGroups: IngridDeliveryGroup[] = [
         {
           addresses: {
-            billing_address: { first_name: 'John' },
-            delivery_address: { first_name: 'John' },
+            billing_address: {
+              first_name: 'John',
+              last_name: 'Doe',
+              street: 'Main St',
+              street_number: '1',
+              postal_code: '12345',
+              city: 'New York',
+              country: 'US',
+              phone: '1234567890',
+              email: 'john@example.com',
+            },
+            delivery_address: {
+              first_name: 'John',
+              last_name: 'Doe',
+              street: 'Main St',
+              street_number: '1',
+              postal_code: '12345',
+              city: 'New York',
+              country: 'US',
+              phone: '1234567890',
+              email: 'john@example.com',
+            },
           },
           category: { name: 'Standard' },
           pricing: { currency: 'USD', price: 1000 },
+          shipping: { carrier_product_id: 'std-1' },
         } as IngridDeliveryGroup,
         {
           addresses: {
@@ -125,13 +147,107 @@ describe('Helper Functions', () => {
           },
           category: { name: 'Express' },
           pricing: { currency: 'USD', price: 2000 },
+          shipping: { carrier_product_id: 'exp-1' },
         } as IngridDeliveryGroup,
       ];
 
-      expect(() => transformIngridDeliveryGroupsToCommercetoolsDataTypes(multipleDeliveryGroups)).toThrow(CustomError);
-      expect(() => transformIngridDeliveryGroupsToCommercetoolsDataTypes(multipleDeliveryGroups)).toThrow(
-        "We don't support multiple delivery groups yet",
-      );
+      const result = transformIngridDeliveryGroupsToCommercetoolsDataTypes(multipleDeliveryGroups);
+      expect(result.customShippingMethod.shippingMethodName).toBe('Standard');
+      expect(result.customShippingMethod.shippingRate.price.centAmount).toBe(1000);
+    });
+
+    test('should transform multiple delivery groups via transformMultipleDeliveryGroups', () => {
+      const multipleDeliveryGroups: IngridDeliveryGroup[] = [
+        {
+          group_id: 'group-a',
+          addresses: {
+            billing_address: {
+              first_name: 'John',
+              last_name: 'Doe',
+              street: 'Main St',
+              street_number: '1',
+              postal_code: '12345',
+              city: 'New York',
+              country: 'US',
+              phone: '1234567890',
+              email: 'john@example.com',
+            },
+            delivery_address: {
+              first_name: 'John',
+              last_name: 'Doe',
+              street: 'Main St',
+              street_number: '1',
+              postal_code: '12345',
+              city: 'New York',
+              country: 'US',
+              phone: '1234567890',
+              email: 'john@example.com',
+            },
+          },
+          category: { name: 'Standard Shipping' },
+          pricing: { currency: 'USD', price: 1000 },
+          shipping: {
+            carrier_product_id: 'std-1',
+            delivery_type: 'delivery',
+            delivery_addons: [],
+            meta: {},
+          },
+        } as IngridDeliveryGroup,
+        {
+          group_id: 'group-b',
+          addresses: {
+            billing_address: {
+              first_name: 'John',
+              last_name: 'Doe',
+              street: 'Main St',
+              street_number: '1',
+              postal_code: '12345',
+              city: 'New York',
+              country: 'US',
+              phone: '1234567890',
+              email: 'john@example.com',
+            },
+            delivery_address: {
+              first_name: 'Jane',
+              last_name: 'Smith',
+              street: 'Oak Ave',
+              street_number: '42',
+              postal_code: '67890',
+              city: 'Boston',
+              country: 'US',
+              phone: '0987654321',
+              email: 'jane@example.com',
+            },
+          },
+          category: { name: 'Express Shipping' },
+          pricing: { currency: 'USD', price: 2000, net_price: 1600 },
+          shipping: {
+            carrier_product_id: 'exp-1',
+            delivery_type: 'delivery',
+            delivery_addons: [],
+            meta: {},
+          },
+        } as IngridDeliveryGroup,
+      ];
+
+      const result = transformMultipleDeliveryGroups(multipleDeliveryGroups);
+      expect(result.billingAddress.firstName).toBe('John');
+      expect(result.groups).toHaveLength(2);
+      expect(result.groups[0]!.shippingKey).toBe('ingrid-group-a');
+      expect(result.groups[0]!.groupId).toBe('group-a');
+      expect(result.groups[0]!.customShippingMethod.shippingMethodName).toBe('Standard Shipping');
+      expect(result.groups[0]!.customShippingMethod.shippingRate.price.centAmount).toBe(1000);
+      expect(result.groups[1]!.shippingKey).toBe('ingrid-group-b');
+      expect(result.groups[1]!.groupId).toBe('group-b');
+      expect(result.groups[1]!.customShippingMethod.shippingMethodName).toBe('Express Shipping');
+      expect(result.groups[1]!.customShippingMethod.shippingRate.price.centAmount).toBe(1600);
+      expect(result.groups[1]!.deliveryAddress.firstName).toBe('Jane');
+      expect(result.groups[1]!.deliveryAddress.city).toBe('Boston');
+    });
+
+    test('should throw error for empty groups in transformMultipleDeliveryGroups', () => {
+      expect(() => transformMultipleDeliveryGroups([])).toThrow(CustomError);
+      expect(() => transformMultipleDeliveryGroups([])).toThrow('No delivery groups found');
     });
 
     test('should handle delivery group with net price', () => {

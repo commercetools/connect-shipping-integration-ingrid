@@ -5,10 +5,22 @@ import type {
   IngridDeliveryAddress,
   IngridDeliveryGroup,
 } from '../../clients/ingrid/types/ingrid.client.type';
+import { appLogger } from '../../libs/logger';
 
 type CustomShippingMethod = {
   shippingMethodName: string;
   shippingRate: ShippingRateDraft;
+};
+
+export type MultipleDeliveryGroupPayload = {
+  shippingKey: string;
+  deliveryAddress: BaseAddress;
+  customShippingMethod: CustomShippingMethod;
+  extMethodId: string | undefined;
+  pickupPointId: string | undefined;
+  deliveryAddons: string | undefined;
+  instaboxToken: string | undefined;
+  groupId: string;
 };
 
 /**
@@ -42,14 +54,6 @@ export const transformIngridDeliveryGroupsToCommercetoolsDataTypes = (
       httpErrorStatus: 500,
     });
   }
-  if (ingridDeliveryGroups.length > 1) {
-    throw new CustomError({
-      message: "We don't support multiple delivery groups yet",
-      code: 'MULTIPLE_DELIVERY_GROUPS_NOT_SUPPORTED',
-      httpErrorStatus: 500,
-    });
-  }
-
   const ingridDeliveryGroup = ingridDeliveryGroups[0]!;
   const billingAddress = transformIngridAddressToCommercetoolsAddress(ingridDeliveryGroup.addresses.billing_address);
   const deliveryAddress = transformIngridAddressToCommercetoolsAddress(ingridDeliveryGroup.addresses.delivery_address);
@@ -129,4 +133,53 @@ const transformDeliveryAddons = (ingridDeliveryGroup: IngridDeliveryGroup): stri
   if (!ingridDeliveryAddons) return undefined;
 
   return ingridDeliveryAddons.map((addon) => JSON.stringify(addon)).join(',');
+};
+
+/**
+ * Transform multiple Ingrid delivery groups to commercetools Multiple shipping mode payloads
+ *
+ * @param ingridDeliveryGroups - Array of Ingrid delivery groups (must have length > 1)
+ *
+ * @returns Object containing billing address and array of per-group shipping payloads
+ */
+export const transformMultipleDeliveryGroups = (
+  ingridDeliveryGroups: IngridDeliveryGroup[],
+): {
+  billingAddress: BaseAddress;
+  groups: MultipleDeliveryGroupPayload[];
+} => {
+  if (ingridDeliveryGroups.length === 0) {
+    throw new CustomError({
+      message: 'No delivery groups found',
+      code: 'NO_DELIVERY_GROUPS_FOUND',
+      httpErrorStatus: 500,
+    });
+  }
+
+  const billingAddress = transformIngridAddressToCommercetoolsAddress(
+    ingridDeliveryGroups[0]!.addresses.billing_address,
+  );
+
+  // Log warning if billing addresses differ across groups
+  for (let i = 1; i < ingridDeliveryGroups.length; i++) {
+    const groupBilling = ingridDeliveryGroups[i]!.addresses.billing_address;
+    if (groupBilling.email !== ingridDeliveryGroups[0]!.addresses.billing_address.email) {
+      appLogger.warn(
+        `Billing address differs between delivery group 0 and ${i}. Using first group's billing address.`,
+      );
+    }
+  }
+
+  const groups: MultipleDeliveryGroupPayload[] = ingridDeliveryGroups.map((group) => ({
+    shippingKey: `ingrid-${group.group_id}`,
+    deliveryAddress: transformIngridAddressToCommercetoolsAddress(group.addresses.delivery_address),
+    customShippingMethod: transformIngridDeliveryGroupToCustomShippingMethod(group),
+    extMethodId: group.shipping.carrier_product_id,
+    pickupPointId: transformDependantFields(group),
+    deliveryAddons: transformDeliveryAddons(group),
+    instaboxToken: (group.shipping.meta?.['isb.availability_token'] as string) ?? undefined,
+    groupId: group.group_id,
+  }));
+
+  return { billingAddress, groups };
 };

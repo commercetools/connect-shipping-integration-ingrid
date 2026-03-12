@@ -6,4 +6,5 @@ export const mockConfiguration = {
   apiUrl: 'https://api.europe-west1.gcp.commercetools.com/',
   ingridApiKey: 'test-ingrid-api-key',
   ingridEnvironment: 'STAGING' as const,
+  ingridShippingCustomTypeKey: 'ingrid-shipping',
 };

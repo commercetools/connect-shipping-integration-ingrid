@@ -117,6 +117,81 @@ export class CommercetoolsApiClient {
     return cart;
   }
 
+  public async updateCartWithMultipleCustomShippingMethods(
+    cartId: string,
+    cartVersion: number,
+    billingAddress: BaseAddress,
+    shippingGroups: Array<{
+      shippingKey: string;
+      deliveryAddress: BaseAddress;
+      customShippingMethod: {
+        shippingMethodName: string;
+        shippingRate: ShippingRateDraft;
+      };
+      extMethodId: string | undefined;
+      pickupPointId: string | undefined;
+      deliveryAddons: string | undefined;
+      instaboxToken: string | undefined;
+      groupId: string;
+    }>,
+    taxCategory: TaxCategoryResourceIdentifier,
+    shippingCustomTypeKey: string,
+    existingIngridShippingKeys: string[],
+  ): Promise<Cart> {
+    const actions: CartUpdateAction[] = [];
+
+    // Remove existing Ingrid shipping entries first
+    for (const key of existingIngridShippingKeys) {
+      actions.push({
+        action: 'removeShippingMethod',
+        shippingKey: key,
+      });
+    }
+
+    // Set billing address
+    actions.push({
+      action: 'setBillingAddress',
+      address: billingAddress,
+    });
+
+    // Add each shipping group
+    for (const group of shippingGroups) {
+      actions.push({
+        action: 'addCustomShippingMethod',
+        shippingKey: group.shippingKey,
+        shippingMethodName: group.customShippingMethod.shippingMethodName,
+        shippingAddress: group.deliveryAddress,
+        shippingRate: group.customShippingMethod.shippingRate,
+        taxCategory,
+        custom: {
+          type: {
+            key: shippingCustomTypeKey,
+            typeId: 'type',
+          },
+          fields: {
+            ingridExtMethodId: group.extMethodId,
+            ingridPickupPointId: group.pickupPointId,
+            ingridDeliveryAddons: group.deliveryAddons,
+            ingridInstaboxToken: group.instaboxToken,
+            ingridGroupId: group.groupId,
+          },
+        },
+      });
+    }
+
+    const response = await this.client
+      .carts()
+      .withId({ ID: cartId })
+      .post({
+        body: {
+          version: cartVersion,
+          actions,
+        },
+      })
+      .execute();
+    return response.body;
+  }
+
   public async setCartCustomField(cartId: string, cartVersion: number, name: string, value: string): Promise<Cart> {
     const response = await this.client
       .carts()

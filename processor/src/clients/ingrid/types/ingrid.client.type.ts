@@ -291,12 +291,19 @@ export type IngridDeliveryGroupWarehouse = {
  * Cart information
  * @see {@link https://developer.ingrid.com/delivery_checkout/reference/#Cart}
  */
+export type IngridCartGroup = {
+  group_id: string;
+  header?: string;
+  attributes?: string[];
+  contents: Array<{ sku: string; quantity: number }>;
+};
+
 export type IngridCart = {
   total_value: number;
   total_discount: number;
   items: IngridCartItem[];
   cart_id: string;
-  groups?: unknown[];
+  groups?: IngridCartGroup[];
   vouchers?: string[];
   attributes?: string[];
 };

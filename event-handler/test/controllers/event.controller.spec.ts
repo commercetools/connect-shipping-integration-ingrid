@@ -52,6 +52,7 @@ describe('Event Controller', () => {
     (readConfiguration as MockFn).mockReturnValue({
       ingridApiKey: 'test-api-key',
       ingridEnvironment: 'test-environment',
+      ingridShippingCustomTypeKey: 'ingrid-shipping',
     });
 
     (logger.info as MockFn).mockImplementation(() => undefined);
@@ -425,6 +426,115 @@ describe('Event Controller', () => {
     ).rejects.toThrow(
       `Ingrid session ID not found for the order with ID ${mockOrder.body.id}.`
     );
+  });
+
+  it('should set transport order ID per group for multiple delivery groups', async () => {
+    const mockOrderId = 'test-order-id';
+    const mockVersion = 1;
+    (PubSubValidator.validateRequestBody as MockFn).mockReturnValue({});
+    (PubSubValidator.validateMessageFormat as MockFn).mockReturnValue({});
+    (PubSubValidator.decodeMessageData as MockFn).mockReturnValue({});
+    (PubSubValidator.validateDecodedMessage as MockFn).mockReturnValue(
+      mockOrderId
+    );
+
+    const mockOrder = {
+      body: {
+        cart: {
+          obj: {
+            custom: {
+              fields: {
+                ingridSessionId: mockIngridSessionId,
+              },
+            },
+          },
+        },
+        orderNumber: 'test-order-number',
+        id: mockOrderId,
+        version: mockVersion,
+      },
+    };
+
+    const mockCommercetoolsGetOrders = mockApiRootOrderResponse(mockOrder);
+    (createApiRoot as MockFn).mockReturnValue({
+      orders: mockCommercetoolsGetOrders,
+    });
+
+    const orderVersion2 = { ...orderWithReadyShipmentState, version: 2 };
+    const orderVersion3 = { ...orderWithReadyShipmentState, version: 3 };
+
+    jest
+      .spyOn(updateClient, 'setTransportOrderId')
+      .mockResolvedValueOnce(orderVersion2)
+      .mockResolvedValueOnce(orderVersion3);
+
+    jest
+      .spyOn(updateClient, 'changeShipmentState')
+      .mockResolvedValue(orderWithReadyShipmentState);
+
+    const mockIngridResponse: IngridCompleteSessionResponse = {
+      session: {
+        checkout_session_id: mockIngridSessionId,
+        status: 'COMPLETE',
+        updated_at: new Date().toISOString(),
+        cart: {
+          total_value: 0,
+          total_discount: 0,
+          items: [],
+          cart_id: 'test-cart-id',
+        },
+        delivery_groups: [
+          {
+            addresses: {} as IngridAddresses,
+            category: {} as IngridDeliveryGroupCategory,
+            delivery_time: {} as IngridDeliveryGroupDeliveryTime,
+            group_id: 'group-a',
+            header: 'Standard',
+            items: [],
+            pricing: {} as IngridDeliveryGroupPricing,
+            selection: {} as IngridDeliveryGroupSelection,
+            shipping: {} as IngridDeliveryGroupShipping,
+            tos_id: 'tos-a',
+          },
+          {
+            addresses: {} as IngridAddresses,
+            category: {} as IngridDeliveryGroupCategory,
+            delivery_time: {} as IngridDeliveryGroupDeliveryTime,
+            group_id: 'group-b',
+            header: 'Express',
+            items: [],
+            pricing: {} as IngridDeliveryGroupPricing,
+            selection: {} as IngridDeliveryGroupSelection,
+            shipping: {} as IngridDeliveryGroupShipping,
+            tos_id: 'tos-b',
+          },
+        ],
+        purchase_country: 'US',
+      },
+    };
+
+    (
+      IngridApiClient.prototype.completeCheckoutSession as MockFn
+    ).mockResolvedValue(mockIngridResponse);
+
+    await post(mockRequest as Request, mockResponse as Response);
+
+    expect(updateClient.setTransportOrderId).toHaveBeenCalledTimes(2);
+    expect(updateClient.setTransportOrderId).toHaveBeenCalledWith(
+      'ingrid-shipping',
+      mockOrderId,
+      mockVersion,
+      'tos-a',
+      'ingrid-group-a'
+    );
+    expect(updateClient.setTransportOrderId).toHaveBeenCalledWith(
+      'ingrid-shipping',
+      mockOrderId,
+      2,
+      'tos-b',
+      'ingrid-group-b'
+    );
+    expect(mockResponse.status).toHaveBeenCalledWith(204);
   });
 
   // Test for handling RESOURCE_CREATED_MESSAGE

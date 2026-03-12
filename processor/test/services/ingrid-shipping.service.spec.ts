@@ -11,11 +11,13 @@ import {
   mockIngridCheckoutSessionWithAddresses,
   mockIngridCheckoutSessionWithDeliveryAddons,
   mockIngridCheckoutSessionWithInstaboxToken,
+  mockIngridCheckoutSessionWithMultipleGroups,
   mockIngridCheckoutSessionWithoutAddresses,
 } from '../mock/mock-ingrid-client-objects';
 import {
   cart,
   cartWithAdditionalCustomType,
+  cartWithMultipleShipping,
   cartWithoutCustomType,
   cartWithShippingAddress,
   setCustomFieldFailureResponse,
@@ -783,6 +785,82 @@ describe('ingrid-shipping.service', () => {
       jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue(cartWithoutCustomType);
 
       await expect(shippingService.update()).rejects.toThrow(CustomError);
+    });
+
+    test('should update cart with multiple delivery groups using Multiple shipping mode', async () => {
+      // Mock getting cart with Ingrid session
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue({
+        ...cart,
+        custom: {
+          type: { typeId: 'type', id: 'type-id' },
+          fields: { ingridSessionId: 'mock-ingrid-session-id' },
+        },
+      });
+
+      // Mock getting Ingrid checkout session with multiple groups
+      jest
+        .spyOn(IngridApiClient.prototype, 'getCheckoutSession')
+        .mockResolvedValue(mockIngridCheckoutSessionWithMultipleGroups);
+
+      // Mock updating cart with multiple custom shipping methods
+      jest
+        .spyOn(CommercetoolsApiClient.prototype, 'updateCartWithMultipleCustomShippingMethods')
+        .mockResolvedValue(cartWithMultipleShipping);
+
+      // Mock the transformCommercetoolsCartToIngridPayload function
+      jest.mock('../../src/services/helpers/transformCommercetoolsToIngridDTOs', () => ({
+        transformCommercetoolsCartToIngridPayload: jest.fn().mockReturnValue({
+          cart: {
+            items: [{ id: 'item-1', quantity: 1 }],
+            total_value: 5099,
+            total_discount: 0,
+            cart_id: 'cart-id',
+          },
+          locales: ['de-DE'],
+          purchase_country: 'DE',
+          purchase_currency: 'EUR',
+        }),
+      }));
+
+      // Mock the updateCheckoutSession method
+      jest.spyOn(IngridApiClient.prototype, 'updateCheckoutSession').mockResolvedValue({
+        session: {
+          checkout_session_id: 'mock-ingrid-session-id',
+          status: 'active',
+          updated_at: '2021-01-01T00:00:00.000Z',
+          cart: mockIngridCheckoutSessionWithMultipleGroups.session.cart,
+          delivery_groups: mockIngridCheckoutSessionWithMultipleGroups.session.delivery_groups,
+          purchase_country: 'SE',
+        },
+        html_snippet: '<div>Updated Ingrid Checkout</div>',
+      });
+
+      const result = await shippingService.update();
+
+      expect(result.data).toEqual({
+        success: true,
+        cartVersion: cartWithMultipleShipping.version,
+        ingridSessionId: 'mock-ingrid-session-id',
+      });
+
+      expect(CommercetoolsApiClient.prototype.updateCartWithMultipleCustomShippingMethods).toHaveBeenCalledWith(
+        cart.id,
+        cart.version,
+        expect.objectContaining({ firstName: 'John' }),
+        expect.arrayContaining([
+          expect.objectContaining({
+            shippingKey: 'ingrid-group-a',
+            groupId: 'group-a',
+          }),
+          expect.objectContaining({
+            shippingKey: 'ingrid-group-b',
+            groupId: 'group-b',
+          }),
+        ]),
+        expect.objectContaining({ key: expect.any(String), typeId: 'tax-category' }),
+        expect.any(String),
+        expect.any(Array),
+      );
     });
 
     test('should throw error when updating cart fails', async () => {
