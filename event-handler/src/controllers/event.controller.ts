@@ -38,16 +38,27 @@ export const post = async (request: Request, response: Response) => {
     `processing shipping session completion for order ID : ${orderId}`
   );
 
-  const commercetoolsOrder = await createApiRoot()
-    .orders()
-    .withId({ ID: orderId })
-    .get({
-      queryArgs: {
-        expand: 'cart',
-      },
-    })
-    .execute()
-    .then((res) => res.body);
+  let commercetoolsOrder;
+  try {
+    commercetoolsOrder = await createApiRoot()
+      .orders()
+      .withId({ ID: orderId })
+      .get({
+        queryArgs: {
+          expand: 'cart',
+        },
+      })
+      .execute()
+      .then((res) => res.body);
+  } catch (error) {
+    throw new CustomError(
+      502,
+      `Failed to fetch order ${orderId} from commercetools. ${error instanceof Error ? error.message : String(error)}`,
+      {
+        cause: error instanceof Error ? error : new Error(String(error)),
+      }
+    );
+  }
 
   const ingridSessionId =
     commercetoolsOrder.cart?.obj?.custom?.fields?.ingridSessionId;
@@ -88,8 +99,8 @@ export const post = async (request: Request, response: Response) => {
     completeCheckoutSessionError = error as Error;
   }
 
-  if (ingridResponse || completeCheckoutSessionError) {
-    const transportOrderId = ingridResponse?.session.delivery_groups[0]?.tos_id;
+  if (ingridResponse) {
+    const transportOrderId = ingridResponse.session.delivery_groups[0]?.tos_id;
     let updatedCommercetoolsOrder;
     if (transportOrderId) {
       logger.info(
@@ -102,7 +113,7 @@ export const post = async (request: Request, response: Response) => {
         transportOrderId
       );
     }
-    if (ingridResponse?.session.status === 'COMPLETE') {
+    if (ingridResponse.session.status === 'COMPLETE') {
       const updateOrderResult = await changeShipmentState(
         orderId,
         updatedCommercetoolsOrder
@@ -131,11 +142,31 @@ export const post = async (request: Request, response: Response) => {
         `Update commercetools cart shipment state as canceled. (orderId: ${updateOrderResult.id})`
       );
     }
-    if (!completeCheckoutSessionError)
-      return response.status(204).send({
-        ingridSessionId: ingridResponse?.session.checkout_session_id,
-        status: ingridResponse?.session.status,
-      });
+    return response.status(204).send({
+      ingridSessionId: ingridResponse.session.checkout_session_id,
+      status: ingridResponse.session.status,
+    });
+  }
+
+  // A retryable failure (network error/timeout or Ingrid 5xx) leaves the
+  // shipment state untouched so a redelivered message can still complete it;
+  // anything else (e.g. a bad session ID) is a permanent failure, so cancel.
+  const isRetryable =
+    completeCheckoutSessionError instanceof CustomError &&
+    completeCheckoutSessionError.statusCode === 502;
+
+  if (!isRetryable) {
+    const updateOrderResult = await changeShipmentState(
+      orderId,
+      commercetoolsOrder.version,
+      SHIPMENT_STATE.CANCELED
+    );
+    logger.info(
+      `complete ingrid session failed: ${completeCheckoutSessionError?.message}`
+    );
+    logger.info(
+      `Update commercetools cart shipment state as canceled. (orderId: ${updateOrderResult.id})`
+    );
   }
   throw completeCheckoutSessionError;
 };

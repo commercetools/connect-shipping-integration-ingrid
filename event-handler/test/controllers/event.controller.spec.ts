@@ -15,6 +15,7 @@ import {
 } from '../../src/client/ingrid/types/ingrid.client.type';
 import { readConfiguration } from '../../src/utils/config.utils';
 import { logger } from '../../src/utils/logger.utils';
+import CustomError from '../../src/errors/custom.error';
 
 // Add Jest imports
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
@@ -284,6 +285,67 @@ describe('Event Controller', () => {
     );
   });
 
+  // Test for handling retryable errors from ingridClient.completeCheckoutSession
+  it('should not update shipment state when the Ingrid call fails with a retryable error', async () => {
+    // Setup mocks
+    const mockOrderId = 'test-order-id';
+    const mockVersion = 1;
+    const mockError = new CustomError(
+      502,
+      'Failed to complete session on Ingrid. fetch failed'
+    );
+
+    // Mock PubSubValidator
+    (PubSubValidator.validateRequestBody as jest.Mock).mockReturnValue({});
+    (PubSubValidator.validateMessageFormat as jest.Mock).mockReturnValue({});
+    (PubSubValidator.decodeMessageData as jest.Mock).mockReturnValue({});
+    (PubSubValidator.validateDecodedMessage as jest.Mock).mockReturnValue(
+      mockOrderId
+    );
+
+    // Mock createApiRoot get order response
+    const mockCommercetoolsGetOrders = mockApiRootOrderResponse({
+      body: {
+        id: mockOrderId,
+        version: mockVersion,
+        cart: {
+          obj: {
+            custom: {
+              fields: {
+                ingridSessionId: 'test-session-id',
+              },
+            },
+          },
+        },
+        orderNumber: 'test-order-number',
+      },
+    });
+
+    (createApiRoot as MockFn).mockReturnValue({
+      orders: mockCommercetoolsGetOrders,
+    });
+
+    // Mock readConfiguration
+    (readConfiguration as jest.Mock).mockReturnValue({
+      ingridApiKey: 'test-api-key',
+      ingridEnvironment: 'STAGING',
+    });
+
+    jest
+      .spyOn(IngridApiClient.prototype, 'completeCheckoutSession')
+      .mockRejectedValue(mockError);
+
+    jest.spyOn(updateClient, 'changeShipmentState');
+
+    // Execute test
+    await expect(
+      post(mockRequest as Request, mockResponse as Response)
+    ).rejects.toBe(mockError);
+
+    // Verify the shipment state was left untouched so a retry can complete it
+    expect(updateClient.changeShipmentState).not.toHaveBeenCalled();
+  });
+
   // Test for handling INCOMPLETE status from Ingrid
   it('should update shipment state as canceled when Ingrid session status is not COMPLETE', async () => {
     // Setup mocks
@@ -425,6 +487,46 @@ describe('Event Controller', () => {
     ).rejects.toThrow(
       `Ingrid session ID not found for the order with ID ${mockOrder.body.id}.`
     );
+  });
+
+  it('should throw a retryable CustomError when fetching the order from commercetools fails', async () => {
+    const mockOrderId = 'test-order-id';
+    (PubSubValidator.validateRequestBody as MockFn).mockReturnValue({});
+    (PubSubValidator.validateMessageFormat as MockFn).mockReturnValue({});
+    (PubSubValidator.decodeMessageData as MockFn).mockReturnValue({});
+    (PubSubValidator.validateDecodedMessage as MockFn).mockReturnValue(
+      mockOrderId
+    );
+
+    const networkError = Object.assign(new Error('fetch failed'), {
+      code: 'NetworkError',
+      status: 0,
+      statusCode: 0,
+    });
+
+    (createApiRoot as MockFn).mockReturnValue({
+      orders: jest.fn().mockReturnValue({
+        withId: jest.fn().mockReturnValue({
+          get: jest.fn().mockReturnValue({
+            execute: jest.fn().mockRejectedValue(networkError),
+          }),
+        }),
+      }),
+    });
+
+    let caughtError: unknown;
+    try {
+      await post(mockRequest as Request, mockResponse as Response);
+    } catch (error) {
+      caughtError = error;
+    }
+
+    expect(caughtError).toBeInstanceOf(CustomError);
+    expect((caughtError as CustomError).statusCode).toBe(502);
+    expect((caughtError as CustomError).message).toContain(
+      `Failed to fetch order ${mockOrderId} from commercetools`
+    );
+    expect((caughtError as CustomError).cause).toBe(networkError);
   });
 
   // Test for handling RESOURCE_CREATED_MESSAGE
