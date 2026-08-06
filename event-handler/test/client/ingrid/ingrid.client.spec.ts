@@ -80,27 +80,71 @@ describe('IngridApiClient', () => {
       expect(result).toEqual(mockResponse.data);
     });
 
-    it('should throw a CustomError when the API call fails', async () => {
+    it('should throw a non-retryable CustomError when the API call fails with a plain error', async () => {
       const mockError = new Error('API error');
+      jest.mocked(axios.isAxiosError).mockReturnValue(false);
       mockAxiosInstance.post.mockRejectedValueOnce(mockError);
 
       await expect(client.completeCheckoutSession(mockPayload)).rejects.toThrow(
         CustomError
       );
-      await expect(client.completeCheckoutSession(mockPayload)).rejects.toThrow(
-        'Failed to complete session on Ingrid.'
-      );
+      await expect(
+        client.completeCheckoutSession(mockPayload)
+      ).rejects.toMatchObject({
+        statusCode: 202,
+        message: expect.stringContaining('Failed to complete session on Ingrid.'),
+      });
     });
 
     it('should handle non-Error objects thrown by axios', async () => {
+      jest.mocked(axios.isAxiosError).mockReturnValue(false);
       mockAxiosInstance.post.mockRejectedValueOnce('String error');
 
       await expect(client.completeCheckoutSession(mockPayload)).rejects.toThrow(
         CustomError
       );
-      await expect(client.completeCheckoutSession(mockPayload)).rejects.toThrow(
-        'Failed to complete session on Ingrid.'
-      );
+      await expect(
+        client.completeCheckoutSession(mockPayload)
+      ).rejects.toMatchObject({ statusCode: 202 });
+    });
+
+    it('should throw a retryable (502) CustomError on a network error with no response', async () => {
+      const networkError = Object.assign(new Error('fetch failed'), {
+        isAxiosError: true,
+        response: undefined,
+      });
+      jest.mocked(axios.isAxiosError).mockReturnValue(true);
+      mockAxiosInstance.post.mockRejectedValueOnce(networkError);
+
+      await expect(
+        client.completeCheckoutSession(mockPayload)
+      ).rejects.toMatchObject({ statusCode: 502 });
+    });
+
+    it('should throw a retryable (502) CustomError when Ingrid responds with a 5xx', async () => {
+      const serverError = Object.assign(new Error('Internal Server Error'), {
+        isAxiosError: true,
+        response: { status: 503 },
+      });
+      jest.mocked(axios.isAxiosError).mockReturnValue(true);
+      mockAxiosInstance.post.mockRejectedValueOnce(serverError);
+
+      await expect(
+        client.completeCheckoutSession(mockPayload)
+      ).rejects.toMatchObject({ statusCode: 502 });
+    });
+
+    it('should throw a non-retryable (202) CustomError when Ingrid responds with a 4xx', async () => {
+      const clientError = Object.assign(new Error('Bad Request'), {
+        isAxiosError: true,
+        response: { status: 400 },
+      });
+      jest.mocked(axios.isAxiosError).mockReturnValue(true);
+      mockAxiosInstance.post.mockRejectedValueOnce(clientError);
+
+      await expect(
+        client.completeCheckoutSession(mockPayload)
+      ).rejects.toMatchObject({ statusCode: 202 });
     });
   });
 });

@@ -27,8 +27,15 @@ export default class IngridApiClient {
       );
       return response.data as IngridCompleteSessionResponse;
     } catch (error: unknown) {
+      // No response (network error/timeout) or a 5xx from Ingrid is transient
+      // and should be retried; a 4xx means the request itself is bad and
+      // retrying won't help.
+      const isRetryable =
+        axios.isAxiosError(error) &&
+        (!error.response || error.response.status >= 500);
+
       throw new CustomError(
-        202,
+        isRetryable ? 502 : 202,
         `Failed to complete session on Ingrid. ${error instanceof Error ? error.message : String(error)}`,
         {
           cause: error instanceof Error ? error : new Error(String(error)),
