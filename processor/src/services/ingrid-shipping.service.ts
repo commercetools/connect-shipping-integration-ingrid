@@ -5,6 +5,7 @@ import { appLogger } from '../libs/logger';
 import { CustomError } from '../libs/fastify/errors';
 import { AbstractShippingService } from './abstract-shipping.service';
 import {
+  deductShippingCostFromCartTotalPrice,
   transformCommercetoolsCartToIngridPayload,
   transformIngridDeliveryGroupsToCommercetoolsDataTypes,
 } from './helpers';
@@ -117,9 +118,6 @@ export class IngridShippingService extends AbstractShippingService {
 
     // get Ingrid session id
     const ingridSessionId = ctCart.custom?.fields?.ingridSessionId;
-    const ingridPickupPointIdFromCocoCart = ctCart.custom?.fields?.ingridPickupPointId;
-    const ingridDeliveryAddonsFromCocoCart = ctCart.custom?.fields?.ingridDeliveryAddons;
-    const ingridInstaboxTokenFromCocoCart = ctCart.custom?.fields?.ingridInstaboxToken;
 
     if (!ingridSessionId) {
       appLogger.error(
@@ -133,13 +131,81 @@ export class IngridShippingService extends AbstractShippingService {
     }
 
     // get Ingrid checkout session
-    const ingridCheckoutSession = await this.ingridClient.getCheckoutSession(ingridSessionId);
+    let ingridCheckoutSession: IngridGetSessionResponse | IngridUpdateSessionResponse =
+      await this.ingridClient.getCheckoutSession(ingridSessionId);
+
+    let updatedCart = await this.writeIngridSelectionToCart(ctCart, ingridCheckoutSession, ingridTaxCategoryKey);
+
+    if (!updatedCart.taxedPrice?.totalGross) {
+      appLogger.error(
+        `[ERROR]: Failed to get taxed price from cart ID "${ctCart.id}", shipping address has likely not been set on commercetools cart.`,
+      );
+      throw new CustomError({
+        message:
+          'Failed to get taxed price from commercetools cart. It seems like there is no shipping address set on commercetools cart.',
+        code: 'FAILED_TO_GET_TAXED_PRICE_FROM_COMMERCETOOLS_CART',
+        httpErrorStatus: 400,
+      });
+    }
+
+    // check if price on Ingrid (shipping-excluded) is the same as commercetools cart total minus shipping cost
+    // Ingrid uses the same format for prices as commercetools
+    // example: 10000 = 100.00 [Currency Code]
+    const { total_value: ingridTotalValue } = ingridCheckoutSession.session.cart;
+    const commercetoolsTotalTaxedValue = deductShippingCostFromCartTotalPrice(updatedCart);
+
+    // if prices are not the same, update Ingrid checkout session
+    if (ingridTotalValue !== commercetoolsTotalTaxedValue) {
+      // we assume that the updated cart now has taxed prices
+      const updatedIngridCheckoutSessionPayload: IngridUpdateSessionRequestPayload = {
+        ...transformCommercetoolsCartToIngridPayload(updatedCart, voucherCodes),
+        checkout_session_id: ingridSessionId,
+      };
+
+      // the price push above can make Ingrid re-select a delivery group, so the refreshed
+      // session is written back to the cart to avoid leaving it stale
+      ingridCheckoutSession = await this.ingridClient.updateCheckoutSession(updatedIngridCheckoutSessionPayload);
+      updatedCart = await this.writeIngridSelectionToCart(updatedCart, ingridCheckoutSession, ingridTaxCategoryKey);
+    }
+    appLogger.info(
+      `[SUCCESS]: Composable commerce platform updated by change triggered in Ingrid platform, session ID "${ingridSessionId}", cart ID "${ctCart.id}".`,
+    );
+
+    return {
+      data: {
+        success: true,
+        cartVersion: updatedCart.version,
+        ingridSessionId: ingridSessionId,
+      },
+    };
+  }
+
+  /**
+   * Writes an Ingrid checkout session's selected delivery group (addresses, shipping method,
+   * ext method id, pickup point, addons, instabox token) onto a commercetools cart.
+   *
+   * @param cart - The commercetools cart to update, used both as the write target and as the
+   * source of the current custom field values (so a value that already exists on the cart but
+   * is no longer present on the Ingrid session gets cleared)
+   * @param ingridCheckoutSession - The Ingrid checkout session to read the selection from
+   * @param ingridTaxCategoryKey - The tax category key to assign to the custom shipping method
+   *
+   * @returns {Promise<Cart>} The updated commercetools cart
+   *
+   * @throws {CustomError} When the Ingrid checkout session has no billing or delivery address
+   */
+  private async writeIngridSelectionToCart(
+    cart: Cart,
+    ingridCheckoutSession: IngridGetSessionResponse | IngridUpdateSessionResponse,
+    ingridTaxCategoryKey: string,
+  ): Promise<Cart> {
+    const ingridSessionId = ingridCheckoutSession.session.checkout_session_id;
 
     // check for presence of billing and delivery addresses
     const { billing_address, delivery_address } = ingridCheckoutSession.session.delivery_groups[0]?.addresses ?? {};
     if (!billing_address || !delivery_address) {
       appLogger.error(
-        `[ERROR]: Failed to get billing and delivery addresses from Ingrid checkout session with ID "${ingridSessionId}", cart ID "${ctCart.id}".`,
+        `[ERROR]: Failed to get billing and delivery addresses from Ingrid checkout session with ID "${ingridSessionId}", cart ID "${cart.id}".`,
       );
       throw new CustomError({
         message:
@@ -150,7 +216,6 @@ export class IngridShippingService extends AbstractShippingService {
     }
 
     // transform Ingrid checkout session delivery groups to commercetools data types
-
     const {
       billingAddress,
       deliveryAddress,
@@ -167,7 +232,7 @@ export class IngridShippingService extends AbstractShippingService {
         value: extMethodId,
       },
     ];
-    if (ingridPickupPointIdFromCocoCart || pickupPointId) {
+    if (cart.custom?.fields?.ingridPickupPointId || pickupPointId) {
       // replace/remove existing pickup point ID in case it has already existed in commercetools cart
       // add pickup point ID in case it is not existing in commercetools cart
       customFieldsPayload.push({
@@ -175,7 +240,7 @@ export class IngridShippingService extends AbstractShippingService {
         value: pickupPointId,
       });
     }
-    if (ingridDeliveryAddonsFromCocoCart || deliveryAddons) {
+    if (cart.custom?.fields?.ingridDeliveryAddons || deliveryAddons) {
       // replace/remove existing addons in case it has already existed in commercetools cart
       // add addons in case it is not existing in commercetools cart
       customFieldsPayload.push({
@@ -183,7 +248,7 @@ export class IngridShippingService extends AbstractShippingService {
         value: deliveryAddons,
       });
     }
-    if (ingridInstaboxTokenFromCocoCart || instaboxToken) {
+    if (cart.custom?.fields?.ingridInstaboxToken || instaboxToken) {
       // replace/remove existing instabox availability token in case it has already existed in commercetools cart
       // add instabox availability token in case it is not existing in commercetools cart
       customFieldsPayload.push({
@@ -191,60 +256,67 @@ export class IngridShippingService extends AbstractShippingService {
         value: instaboxToken,
       });
     }
-    const updatedCart = await this.commercetoolsClient.updateCartWithAddressAndShippingMethod(
-      ctCart.id,
-      ctCart.version,
-      {
-        billingAddress,
-        shippingAddress: deliveryAddress,
-      },
-      {
-        shippingMethodName: customShippingMethod.shippingMethodName,
-        shippingRate: customShippingMethod.shippingRate,
-        taxCategory: { key: ingridTaxCategoryKey, typeId: 'tax-category' },
-      },
-      customFieldsPayload,
+
+    return this.updateCartWithConcurrencyRetry(cart.id, cart.version, (cartVersion) =>
+      this.commercetoolsClient.updateCartWithAddressAndShippingMethod(
+        cart.id,
+        cartVersion,
+        {
+          billingAddress,
+          shippingAddress: deliveryAddress,
+        },
+        {
+          shippingMethodName: customShippingMethod.shippingMethodName,
+          shippingRate: customShippingMethod.shippingRate,
+          taxCategory: { key: ingridTaxCategoryKey, typeId: 'tax-category' },
+        },
+        customFieldsPayload,
+      ),
     );
+  }
 
-    if (!updatedCart.taxedPrice?.totalGross) {
-      appLogger.error(
-        `[ERROR]: Failed to get taxed price from cart ID "${ctCart.id}", shipping address has likely not been set on commercetools cart.`,
-      );
-      throw new CustomError({
-        message:
-          'Failed to get taxed price from commercetools cart. It seems like there is no shipping address set on commercetools cart.',
-        code: 'FAILED_TO_GET_TAXED_PRICE_FROM_COMMERCETOOLS_CART',
-        httpErrorStatus: 400,
-      });
+  /**
+   * Runs a cart write, and if it fails because the cart was concurrently modified (409),
+   * re-fetches the latest cart version and retries.
+   *
+   * @remarks
+   * The Ingrid selection is written with `setCustomField`/`setShippingAddress`/etc. actions that
+   * unconditionally overwrite the target fields, so retrying with a fresher version is always
+   * safe: it can never merge or conflict with the concurrent change, only lose to it entirely.
+   *
+   * @param cartId - The ID of the cart being written to, used to refetch its latest version
+   * @param cartVersion - The cart version the first attempt should use
+   * @param write - Performs the write for a given cart version
+   *
+   * @returns {Promise<Cart>} The updated commercetools cart
+   */
+  private async updateCartWithConcurrencyRetry(
+    cartId: string,
+    cartVersion: number,
+    write: (cartVersion: number) => Promise<Cart>,
+    maxAttempts = 3,
+  ): Promise<Cart> {
+    let version = cartVersion;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        return await write(version);
+      } catch (error) {
+        const statusCode = (error as { statusCode?: number })?.statusCode;
+        if (statusCode !== 409 || attempt === maxAttempts) {
+          throw error;
+        }
+        appLogger.error(
+          `[WARN]: Concurrent modification writing Ingrid selection to cart "${cartId}", refetching latest version and retrying (attempt ${attempt}/${maxAttempts}).`,
+        );
+        version = (await this.commercetoolsClient.getCartById(cartId)).version;
+      }
     }
-
-    // check if price on Ingrid is same as total gross on commercetools cart
-    // Ingrid uses the same format for prices as commercetools
-    // example: 10000 = 100.00 [Currency Code]
-    const { total_value: ingridTotalValue } = ingridCheckoutSession.session.cart;
-    const { centAmount: commercetoolsTotalTaxedValue } = updatedCart.taxedPrice.totalGross;
-
-    // if prices are not the same, update Ingrid checkout session
-    if (ingridTotalValue !== commercetoolsTotalTaxedValue) {
-      // we assume that the updated cart now has taxed prices
-      const updatedIngridCheckoutSessionPayload: IngridUpdateSessionRequestPayload = {
-        ...transformCommercetoolsCartToIngridPayload(updatedCart, voucherCodes),
-        checkout_session_id: ingridSessionId,
-      };
-
-      await this.ingridClient.updateCheckoutSession(updatedIngridCheckoutSessionPayload);
-    }
-    appLogger.info(
-      `[SUCCESS]: Composable commerce platform updated by change triggered in Ingrid platform, session ID "${ingridSessionId}", cart ID "${ctCart.id}".`,
-    );
-
-    return {
-      data: {
-        success: true,
-        cartVersion: updatedCart.version,
-        ingridSessionId: ingridSessionId,
-      },
-    };
+    /* istanbul ignore next -- unreachable: the loop above always returns or throws */
+    throw new CustomError({
+      message: `Failed to write Ingrid selection to cart "${cartId}" after ${maxAttempts} attempts due to concurrent modification.`,
+      code: 'CART_CONCURRENT_MODIFICATION_RETRY_EXHAUSTED',
+      httpErrorStatus: 409,
+    });
   }
 
   /**

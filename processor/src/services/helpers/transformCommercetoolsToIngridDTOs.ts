@@ -89,7 +89,7 @@ const transformCommercetoolsCartToIngridCart = (ctCart: Cart, voucherCodes?: str
   return ingridCart;
 };
 
-const deductShippingCostFromCartTotalPrice = (ctCart: Cart): number => {
+export const deductShippingCostFromCartTotalPrice = (ctCart: Cart): number => {
   const shippingCost = ctCart.shippingInfo?.price.centAmount ?? 0;
   const totalCartPrice = ctCart.taxedPrice?.totalGross.centAmount ?? ctCart.totalPrice.centAmount; // use "taxedPrice.totalGross" because Ingrid accepts tax inclusive price.
   return totalCartPrice - shippingCost;

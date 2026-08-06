@@ -811,5 +811,196 @@ describe('ingrid-shipping.service', () => {
 
       await expect(shippingService.update()).rejects.toThrow(CustomError);
     });
+
+    test('should not push cart to Ingrid when price matches once shipping cost is deducted', async () => {
+      // Mock getting cart with Ingrid session
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue({
+        ...cart,
+        custom: {
+          type: { typeId: 'type', id: 'type-id' },
+          fields: { ingridSessionId: 'mock-ingrid-session-id' },
+        },
+      });
+
+      // Mock getting Ingrid checkout session, total_value excludes shipping (2599)
+      jest
+        .spyOn(IngridApiClient.prototype, 'getCheckoutSession')
+        .mockResolvedValue(mockIngridCheckoutSessionWithAddresses);
+
+      // Updated cart's taxedPrice total gross (3099) includes a 500 shipping cost.
+      // 3099 - 500 = 2599, the same as Ingrid's total_value, so no push should fire.
+      const updatedCartWithShippingCost = {
+        ...cartWithShippingAddress,
+        shippingInfo: {
+          shippingMethodName: 'Standard Shipping',
+          price: { type: 'centPrecision' as const, currencyCode: 'EUR', centAmount: 500, fractionDigits: 2 },
+          shippingRate: {
+            price: { type: 'centPrecision' as const, currencyCode: 'EUR', centAmount: 500, fractionDigits: 2 },
+            tiers: [],
+          },
+        },
+        taxedPrice: {
+          ...cartWithShippingAddress.taxedPrice!,
+          totalGross: { type: 'centPrecision' as const, centAmount: 3099, currencyCode: 'EUR', fractionDigits: 2 },
+        },
+      };
+
+      jest
+        .spyOn(CommercetoolsApiClient.prototype, 'updateCartWithAddressAndShippingMethod')
+        .mockResolvedValue(updatedCartWithShippingCost);
+
+      const updateSessionSpy = jest.spyOn(IngridApiClient.prototype, 'updateCheckoutSession');
+
+      const result = await shippingService.update();
+
+      expect(result.data).toEqual({
+        success: true,
+        cartVersion: updatedCartWithShippingCost.version,
+        ingridSessionId: 'mock-ingrid-session-id',
+      });
+      expect(updateSessionSpy).not.toHaveBeenCalled();
+    });
+
+    test('should re-write the cart from the refreshed Ingrid session after a price-triggered push', async () => {
+      // Mock getting cart with Ingrid session
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue({
+        ...cart,
+        custom: {
+          type: { typeId: 'type', id: 'type-id' },
+          fields: { ingridSessionId: 'mock-ingrid-session-id' },
+        },
+      });
+
+      // Mock getting Ingrid checkout session with a price that will trigger a push
+      const mockSessionWithDifferentPrice = {
+        ...mockIngridCheckoutSessionWithAddresses,
+        session: {
+          ...mockIngridCheckoutSessionWithAddresses.session,
+          cart: {
+            ...mockIngridCheckoutSessionWithAddresses.session.cart,
+            total_value: 3000,
+          },
+        },
+      };
+      jest.spyOn(IngridApiClient.prototype, 'getCheckoutSession').mockResolvedValue(mockSessionWithDifferentPrice);
+
+      const firstWriteResult = { ...cartWithShippingAddress, version: 7 };
+      const secondWriteResult = { ...cartWithShippingAddress, version: 8 };
+      jest
+        .spyOn(CommercetoolsApiClient.prototype, 'updateCartWithAddressAndShippingMethod')
+        .mockResolvedValueOnce(firstWriteResult)
+        .mockResolvedValueOnce(secondWriteResult);
+
+      // Ingrid re-selects a different delivery group (different carrier_product_id) in response to the push
+      const reselectedDeliveryGroup = {
+        ...mockIngridCheckoutSessionWithAddresses.session.delivery_groups[0]!,
+        shipping: {
+          ...mockIngridCheckoutSessionWithAddresses.session.delivery_groups[0]!.shipping,
+          carrier_product_id: 'RESELECTED',
+        },
+      };
+      jest.spyOn(IngridApiClient.prototype, 'updateCheckoutSession').mockResolvedValue({
+        session: {
+          ...mockIngridCheckoutSessionWithAddresses.session,
+          checkout_session_id: 'mock-ingrid-session-id',
+          delivery_groups: [reselectedDeliveryGroup],
+        },
+        html_snippet: '<div>Updated Ingrid Checkout</div>',
+      });
+
+      const result = await shippingService.update();
+
+      // the final cart version reflects the second write (using the re-selected delivery group),
+      // not the first, stale one
+      expect(result.data).toEqual({
+        success: true,
+        cartVersion: secondWriteResult.version,
+        ingridSessionId: 'mock-ingrid-session-id',
+      });
+
+      expect(CommercetoolsApiClient.prototype.updateCartWithAddressAndShippingMethod).toHaveBeenCalledTimes(2);
+      expect(CommercetoolsApiClient.prototype.updateCartWithAddressAndShippingMethod).toHaveBeenNthCalledWith(
+        2,
+        firstWriteResult.id,
+        firstWriteResult.version,
+        expect.any(Object),
+        expect.any(Object),
+        expect.arrayContaining([expect.objectContaining({ name: 'ingridExtMethodId', value: 'RESELECTED' })]),
+      );
+    });
+
+    test('should retry writing the cart with the latest version on a concurrent modification (409)', async () => {
+      const cartWithSession = {
+        ...cart,
+        custom: {
+          type: { typeId: 'type', id: 'type-id' },
+          fields: { ingridSessionId: 'mock-ingrid-session-id' },
+        },
+      };
+      const refetchedCart = { ...cartWithSession, version: cartWithSession.version + 1 };
+
+      jest
+        .spyOn(CommercetoolsApiClient.prototype, 'getCartById')
+        .mockResolvedValueOnce(cartWithSession)
+        .mockResolvedValueOnce(refetchedCart);
+
+      jest
+        .spyOn(IngridApiClient.prototype, 'getCheckoutSession')
+        .mockResolvedValue(mockIngridCheckoutSessionWithAddresses);
+
+      const conflictError = Object.assign(new Error('ConcurrentModification'), { statusCode: 409 });
+      jest
+        .spyOn(CommercetoolsApiClient.prototype, 'updateCartWithAddressAndShippingMethod')
+        .mockRejectedValueOnce(conflictError)
+        .mockResolvedValueOnce(cartWithShippingAddress);
+
+      const result = await shippingService.update();
+
+      expect(result.data).toEqual({
+        success: true,
+        cartVersion: cartWithShippingAddress.version,
+        ingridSessionId: 'mock-ingrid-session-id',
+      });
+
+      expect(CommercetoolsApiClient.prototype.updateCartWithAddressAndShippingMethod).toHaveBeenCalledTimes(2);
+      expect(CommercetoolsApiClient.prototype.updateCartWithAddressAndShippingMethod).toHaveBeenNthCalledWith(
+        1,
+        cartWithSession.id,
+        cartWithSession.version,
+        expect.any(Object),
+        expect.any(Object),
+        expect.any(Array),
+      );
+      expect(CommercetoolsApiClient.prototype.updateCartWithAddressAndShippingMethod).toHaveBeenNthCalledWith(
+        2,
+        refetchedCart.id,
+        refetchedCart.version,
+        expect.any(Object),
+        expect.any(Object),
+        expect.any(Array),
+      );
+    });
+
+    test('should not retry writing the cart on a non-conflict error', async () => {
+      jest.spyOn(CommercetoolsApiClient.prototype, 'getCartById').mockResolvedValue({
+        ...cart,
+        custom: {
+          type: { typeId: 'type', id: 'type-id' },
+          fields: { ingridSessionId: 'mock-ingrid-session-id' },
+        },
+      });
+
+      jest
+        .spyOn(IngridApiClient.prototype, 'getCheckoutSession')
+        .mockResolvedValue(mockIngridCheckoutSessionWithAddresses);
+
+      const serverError = Object.assign(new Error('Internal Server Error'), { statusCode: 500 });
+      jest
+        .spyOn(CommercetoolsApiClient.prototype, 'updateCartWithAddressAndShippingMethod')
+        .mockRejectedValue(serverError);
+
+      await expect(shippingService.update()).rejects.toThrow(serverError);
+      expect(CommercetoolsApiClient.prototype.updateCartWithAddressAndShippingMethod).toHaveBeenCalledTimes(1);
+    });
   });
 });
